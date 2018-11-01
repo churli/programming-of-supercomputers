@@ -9,7 +9,7 @@ TEXOPTS=-output-directory=$(OUTDIR) --shell-escape
 BIBENVS=BIBINPUTS=$(MANDIR) TEXMFOUTPUT=$(OUTDIR)
 AUTOPTS=-interaction nonstopmode
 
-ITEM=template_report
+ITEM=report_WS1
 # end vars
 
 .PHONY: compile bibcompile compileauto bibcompileauto

@@ -1,6 +1,9 @@
 # programming-of-supercomputers
 Reports and data for the course Programming of Supercomputers at TUM (WiSe18).
 
+## How to add material to the repository
+Please DO NOT add output files to the repository! To make sure you are not doing that by mistake, you can simply run a `make clean` (more info below!) from within a report subfolder, in this way all output will be deleted.
+
 ## How to start a new report
 If you have to start worksheet number 1, just run the following command (within the repo base folder):
 ```
