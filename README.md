@@ -5,11 +5,16 @@ Reports and data for the course Programming of Supercomputers at TUM (WiSe18).
 Please DO NOT add output files to the repository! To make sure you are not doing that by mistake, you can simply run a `make clean` (more info below!) from within a report subfolder, in this way all output will be deleted.
 
 ## How to start a new report
-If you have to start worksheet number 1, just run the following command (within the repo base folder):
+If you have to start worksheet number, let's say, `1`, just run the following command (within the repo base folder):
 ```
 ./init-new-report.sh 1
 ```
 This will copy and initalize everything properly into folder `Report_WS1`.
+
+Then add the new folder to git with:
+```
+git add Report_WS1<number>
+```
 
 ## How to write the report
 Once the report is initialized (still assuming WS1), go into its folder `cd Report_WS1` and edit the `report_WS1.tex` file.
