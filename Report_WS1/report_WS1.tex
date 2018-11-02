@@ -21,6 +21,53 @@
 \section{Performance baseline} // Name of assignment 1
 \subsection{GNU Profiler} // Name of sub-assignment
 Lorem ipsum
+\subsubsection{Questions}
+Which routines took 80$%$ or more of the execution time of the benchmark?
+\begin{enumerate}
+	\item{Serial}
+	\begin{enumerate}
+		\item{CalcHourglassControlForElems(Domain&, double*, double)}
+		\item{EvalEOSForElems(Domain&, double*, int, int*, int)}
+		\item{CalcLagrangeElements(Domain&)}
+		\item{IntegrateStressForElems(Domain&, double*, double*, double*, double*, int, int)}
+		\item{CalcQForElems(Domain&)}
+		\item{Domain::Domain(int, int, int, int, int, int, int, int, int) }
+		\item{ParseCommandLineOptions(int, char**, int, cmdLineOpts*) }
+		\item{InitMeshDecomp(int, int, int*, int*, int*, int*)}
+		\item{Domain::~Domain()}
+		\item{VerifyAndWriteFinalOutput(double, Domain&, int, int) }
+	\end{enumerate}
+	\item{OpenMP}
+	\begin{enumerate}
+		\item{CalcHourglassControlForElems(Domain&, double*, double)}
+		\item{IntegrateStressForElems(Domain&, double*, double*, double*, double*, int, int)}
+		\item{CalcLagrangeElements(Domain&)}
+		\item{CalcQForElems(Domain&)}
+		\item{Domain::Domain(int, int, int, int, int, int, int, int, int)}
+		\item{ParseCommandLineOptions(int, char**, int, cmdLineOpts*)}
+		\item{InitMeshDecomp(int, int, int*, int*, int*, int*)}
+		\item{Domain::~Domain()}
+		\item{VerifyAndWriteFinalOutput(double, Domain&, int, int)}		
+	\end{enumerate}
+	\item{MPI}
+	\begin{enumerate}
+		\item{LagrangeNodal(Domain&)}
+		\item{EvalEOSForElems(Domain&, double*, int, int*, int)}
+		\item{CalcKinematicsForElems(Domain&, double, int)}
+		\item{CalcMonotonicQGradientsForElems(Domain&)}
+		\item{CalcMonotonicQRegionForElems(Domain&, int, double)}
+		\item{std::vector<double, std::allocator<double> >::_M_fill_insert(__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, unsigned long, double const&)}
+		\item{CommSend(Domain&, int, int, double& (Domain::**)(int), int, int, int, bool, bool)}
+		\item{CommMonoQ(Domain&)}
+		\item{Domain::Domain(int, int, int, int, int, int, int, int, int)}
+		\item{CommSBN(Domain&, int, double& (Domain::**)(int))}
+		\item{CommRecv(Domain&, int, int, int, int, int, bool, bool)}
+		\item{ParseCommandLineOptions(int, char**, int, cmdLineOpts*)}
+		\item{InitMeshDecomp(int, int, int*, int*, int*, int*)}
+		\item{Domain::~Domain()}
+		\item{VerifyAndWriteFinalOutput(double, Domain&, int, int)}
+	\end{enumerate}
+\end{enumerate}
 
 \subsection{Compiler flags}
 Lorem ipsum
