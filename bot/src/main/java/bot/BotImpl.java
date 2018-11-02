@@ -13,7 +13,9 @@ import java.io.IOException;
 public class BotImpl extends Bot {
     final private static String startingMessageTemplate = "Job %s started";
 
-    public BotImpl() {
+    public BotImpl(String telegramApi) {
+        super();
+        setTelegramApi(telegramApi);
     }
 
     public void sendStartMessage(StartingMessage startingMessage) {

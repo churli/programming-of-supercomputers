@@ -5,6 +5,15 @@ public class Settings {
     private String finalFolder;
     private long chatId;
     private int updateTime;
+    private String telegramApi;
+
+    public String getTelegramApi() {
+        return telegramApi;
+    }
+
+    public void setTelegramApi(String telegramApi) {
+        this.telegramApi = telegramApi;
+    }
 
     public int getUpdateTime() {
         return updateTime;

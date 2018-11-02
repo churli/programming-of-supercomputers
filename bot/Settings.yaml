@@ -2,3 +2,5 @@ startingFolder: <path ends with/>
 finalFolder: <path ends with/>
 chatId: <id> 
 updateTime: 2
+#telegramApi: localhost:1235
+telegramApi: https://api.telegram.org:443

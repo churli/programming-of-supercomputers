@@ -35,7 +35,7 @@ public class RunningMode implements IMode {
 
     @Override
     public void init(Settings settings) {
-        bot = new BotImpl();
+        bot = new BotImpl(settings.getTelegramApi());
         bot.setChatId(settings.getChatId());
         updateTimer = settings.getUpdateTime();
         startingFolder = settings.getStartingFolder();
