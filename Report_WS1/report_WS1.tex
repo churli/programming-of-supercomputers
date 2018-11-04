@@ -30,46 +30,37 @@ Lorem ipsum
 \begin{enumerate}
 	\item{serial}
 	\begin{enumerate}
-		\item{CalcHourglassControlForElems(Domain\&, double*, double)}
-		\item{EvalEOSForElems(Domain\&, double*, int, int*, int)}
-		\item{CalcLagrangeElements(Domain\&)}
-		\item{IntegrateStressForElems(Domain\&, double*, double*, double*, double*, int, int)}
-		\item{CalcQForElems(Domain\&)}
-		\item{Domain::Domain(int, int, int, int, int, int, int, int, int) }
-		\item{ParseCommandLineOptions(int, char**, int, cmdLineOpts*) }
-		\item{InitMeshDecomp(int, int, int*, int*, int*, int*)}
-		\item{Domain::~Domain()}
-		\item{VerifyAndWriteFinalOutput(double, Domain\&, int, int) }
+		\item{EvalEOSForElems(Domain&, double*, int, int*, int) --- 28.18\%}
+		\item{CalcHourglassControlForElems(Domain\&, double*, double) --- 17.10\%}
+		\item{CalcFBHourglassForceForElems(...) --- 15.76\%}
+		\item{CalcKinematicsForElems(Domain&, double, int) --- 11.84\%}
+		\item{IntegrateStressForElems(Domain&, double*, double*, double*, double*, int, int) --- 10.98\%}
+		\item{These functions account for 83.86\% of total execution time}
 	\end{enumerate}
 	\item{OpenMP}
 	\begin{enumerate}
-		\item{CalcHourglassControlForElems(Domain\&, double*, double)}
-		\item{IntegrateStressForElems(Domain\&, double*, double*, double*, double*, int, int)}
-		\item{CalcLagrangeElements(Domain\&)}
-		\item{CalcQForElems(Domain\&)}
-		\item{Domain::Domain(int, int, int, int, int, int, int, int, int)}
-		\item{ParseCommandLineOptions(int, char**, int, cmdLineOpts*)}
-		\item{InitMeshDecomp(int, int, int*, int*, int*, int*)}
-		\item{Domain::~Domain()}
-		\item{VerifyAndWriteFinalOutput(double, Domain\&, int, int)}		
+		\item{CalcHourglassControlForElems(Domain&, double*, double) --- 29.90\%}
+		\item{ApplyMaterialPropertiesForElems(Domain&) --- 22.58\%}
+		\item{CalcFBHourglassForceForElems(...) --- 15.84\%}
+		\item{IntegrateStressForElems(...) --- 14.28\% }
+		\item{These functions account for 82.60\% of total execution time}
 	\end{enumerate}
 	\item{MPI}
 	\begin{enumerate}
-		\item{LagrangeNodal(Domain\&)}
-		\item{EvalEOSForElems(Domain\&, double*, int, int*, int)}
-		\item{CalcKinematicsForElems(Domain\&, double, int)}
-		\item{CalcMonotonicQGradientsForElems(Domain\&)}
-		\item{CalcMonotonicQRegionForElems(Domain\&, int, double)}
-		\item{std::vector<double,std::allocator<double>>}
-		\item{CommSend(Domain\&, int, int, double\& (Domain::**)(int), int, int, int, bool, bool)}
-		\item{CommMonoQ(Domain\&)}
-		\item{Domain::Domain(int, int, int, int, int, int, int, int, int)}
-		\item{CommSBN(Domain\&, int, double\& (Domain::**)(int))}
-		\item{CommRecv(Domain\&, int, int, int, int, int, bool, bool)}
-		\item{ParseCommandLineOptions(int, char**, int, cmdLineOpts*)}
-		\item{InitMeshDecomp(int, int, int*, int*, int*, int*)}
-		\item{Domain::~Domain()}
-		\item{VerifyAndWriteFinalOutput(double, Domain\&, int, int)}
+		\item{EvalEOSForElems(Domain&, double*, int, int*, int) --- 24.44\%}
+		\item{LagrangeNodal(Domain&) --- 21.86\%}
+		\item{CalcFBHourglassForceForElems(..) --- 16.67\%}
+		\item{CalcKinematicsForElems(Domain&, double, int) --- 11.12\%}
+		\item{IntegrateStressForElems(...) --- 10.15\%}
+		\item{These functions account for 84.24\% of total execution time}
+	\end{enumerate}
+	\item{Hybrid}
+	\begin{enumerate}
+		\item{CalcFBHourglassForceForElems(..) --- 23.05\%}											\item{EvalEOSForElems(Domain&, double*, int, int*, int) --- 21.22\%}
+		\item{LagrangeNodal(Domain&) --- 18.95\%}
+		\item{IntegrateStressForElems(...) --- 13.02\%}
+		\item{CalcKinematicsForElems(Domain&, double, int) --- 10.29\%}
+		\item{These functions account for 86.53\% of total execution time}
 	\end{enumerate}
 \end{enumerate}
 \item{Is the measured execution time of the application affected by gprof? Hint: use the time command to determine this.}
@@ -96,13 +87,37 @@ Gprof typically only produces one gmon.out output file for the main process. How
 \end{enumerate}
 
 \subsection{Compiler flags}
-Lorem ipsum
+\begin{enumerate}
+\item{Look at the compilers’ help (by issuing icc -help and gcc -help). How many opti-
+mization flags are available for each compiler (approximately)?}
+gcc - help shows ~ 100 compiler flags, icpc
+icpc - help show ~18 optimizaion flags + ~8 interprocedural optimization flags + ~60 advanced optimization options + ~20 profile guided optimizations
+\item{Given how much time it takes to evaluate a combination of compiler flags, is it realistic to test all possible combinations of available compiler flags? What could be a possible solution?
+} Each test run takes approximately 40-50 seconds to complete, excluding the time required for recompilation of the binary. Given that there are approximately 100 optimiation flags  for each compiler, we would need $6\times10^{32}s$ to complete the running of every possible combination, which is completely unfeasible. Alternatively, it would make sense for us to examine the code to determine what possible bottlenecks exist and apply flags that could improve the situation. 
+\item{Which compiler and optimization flags combination produced the fastest binary?}
+\end{enumerate}
 
 \subsection{Optimization pragmas}
-Lorem ipsum
+\begin{enumerate}
+\item{What is the difference between Intel’s simd, vector and ivdep #pragma directives?}
+The three pragmas allow the compiler to ignore certain requirements when vectorizing. The simd pragma forces vectorization to occur, ignoring safety or cost. The vector pragma forces the compiler to ignore cost when deciding to vectorize (as a result the code may run slower after vectorization). The ivdep pragma instructs compiler to ignore assumed vector dependencies - ie compiler may choose to treat assumed dependencies as proven dependencies. This pragma instructs compiler to ignore such assumptions and proceed with vectorisation.
+
+\end{enumerate}
 
 \subsection{Inline assembler}
-Lorem ipsum
+\begin{enumerate}
+\item{Is the inline assembler necessarily faster than compiler generated code?}
+Not necessarily. The speed increase is dependent on the implementation on the code - especially when modern compilers already implement many forms of optimization. It is often likely that hand-written assembler code is often slower than compiler optimized assembler code. However, there do exist specific cases where an inline assembler may be faster. The most relevant cases to this module include:
+\begin{itemize}
+\item{Implement instructions which are not yet possible in the current language. For example, certain operations, such as a full-multiplication operator in C---2N-bit result from N-bit inputs. Most x86 CPUs can ,however, perform this operation in a single instruction. In these rare cases, it would be beneficial to use optimal functions that belong to the specific CPU when available.}
+\item{Spot-optimizing specific lines of code. For example, compilers may not optimally vectorize complicated loops, since it has to deal with many general cases. If the programmer understands the problem well, it may be beneficial to use the inline assembler to perform the loop operations.}
+\end{itemize}
+\item{On the release of a CPU with new instructions, can you use an inline assembler to take advantage of these instructions if the compiler does not support them yet?}
+Yes. One benefit to inline assemblers is that it allows access to processor specific instructions which the compiler may not support. Examples may include FPU instructions that may be faster than compiler generated floating operations. However, the onus of correct usage of these commands then falls on the programmer.
+\item{What is AVX-512 ? Which CPUs support it? Is there any compiler or language support for these instructions at this moment?}
+AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512-bit extensions to the preexisting AVX/AVX2 instructions. They were first supported by the Xeon-Phi x200 (Knights Landing)and Skylake-X CPUs. Note that AVX-512 is not the first 512-bit SIMD instructions released by Intel. These commands are supported in the intel C++ compiler under the namespace AVX. The -xCOMMON-AVX512 flag can be used for auto-vectorization using AVX-512 functions.
+
+\end{enumerate}
 
 % Figure example
 \begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
