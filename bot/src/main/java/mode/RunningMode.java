@@ -62,7 +62,7 @@ public class RunningMode implements IMode {
             updateSet = new HashSet<>(newFinishedJobs);
             newFinishedJobs.removeAll(finishedJobs);
             for (String newFinishedPath : newFinishedJobs) {
-                String jobId = Naming.getIdFromPath(newFinishedPath);
+                String jobId = mode.Naming.getIdFromPath(newFinishedPath);
                 FinishingMessage finishingMessage = mapper.readValue(new File(newFinishedPath), FinishingMessage.class);
 
                 String newStartedPath = Naming.getStartingName(startingFolder, jobId);

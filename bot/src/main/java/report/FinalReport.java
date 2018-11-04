@@ -11,6 +11,8 @@ public class FinalReport {
 
     private String executionTime ="";
     private String jobId = "";
+    private String executable = "";
+    private String jobName = "";
 
     public String getJobId() {
         return jobId;
@@ -23,6 +25,23 @@ public class FinalReport {
     public String getExecutionTime() {
         return executionTime;
     }
+
+    public String getExecutable() {
+        return executable;
+    }
+
+    public void setExecutable(String executable) {
+        this.executable = executable;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
+
     public void setExecutionTime(String executionTime) {
         this.executionTime = executionTime;
     }
@@ -40,5 +59,7 @@ public class FinalReport {
         long difference = finalTime - startingTime;
         executionTime = DurationFormatUtils.formatDuration(difference, "mm:ss");
         jobId = startingMessage.getJobId();
+        executable = startingMessage.getExecutable();
+        jobName = startingMessage.getJobName();
     }
 }

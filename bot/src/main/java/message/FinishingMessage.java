@@ -3,9 +3,7 @@ package message;
 import java.util.Calendar;
 import java.util.Date;
 
-public class FinishingMessage {
-    private Date finishingTime;
-    private String jobId;
+public class FinishingMessage extends Message{
 
     public String getJobId() {
         return jobId;
@@ -15,15 +13,17 @@ public class FinishingMessage {
         this.jobId = jobId;
     }
     public FinishingMessage() {
-        Calendar cal = Calendar.getInstance();
-        finishingTime = cal.getTime();
+
+    }
+    public void init() {
+        super.init();
     }
 
     public Date getFinishingTime() {
-        return finishingTime;
+        return date;
     }
     public void setFinishingTime(Date finishingTime) {
-        this.finishingTime = finishingTime;
+        setDate(finishingTime);
     }
 
 }

@@ -11,11 +11,11 @@ import java.io.IOException;
 public class FinishingMode implements IMode {
     private String filePrefix;
     private String jobId;
-    private final static String jobIdEnv = "jobid";
     private void writeFinishingMessage() {
         try {
             FinishingMessage finishingNote = new FinishingMessage();
-            finishingNote.setJobId(jobId);
+            finishingNote.init();
+            jobId = finishingNote.getJobId();
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             String fileName = Naming.getFinishingName(filePrefix, jobId);
             mapper.writeValue(new File(fileName),finishingNote);
@@ -26,7 +26,6 @@ public class FinishingMode implements IMode {
     @Override
     public void init(Settings settings) {
         filePrefix = settings.getFinalFolder();
-        jobId = System.getenv(jobIdEnv);
     }
 
     @Override
