@@ -18,19 +18,20 @@
 \begin{abstract}
 	% Here write the contributions of the members of the group
 	Oleksandr Voloshyn: Worked on 4.1, 4.2, 4.3
+
 	Tommaso Bianucci: Worked on 4.1, 4.2, 4.3
+	
 	Qunsheng Huang: Worked on 4.1, 4.3, 4.4
 \end{abstract}
 
-\section{Performance baseline} // Name of assignment 1
-\subsection{GNU Profiler} // Name of sub-assignment
-Lorem ipsum
-\subsubsection{Questions}
+\section{Performance baseline} % Name of assignment 1
+\subsection{GNU Profiler} % Name of sub-assignment
+% \subsubsection{Questions}
 \begin{enumerate}
 \item{Which routines took 80\% or more of the execution time of the benchmark?
 }
 \begin{enumerate}
-	\item{serial}
+	\item{Serial}
 	\begin{itemize}
 		\item{EvalEOSForElems(Domain\&, double*, int, int*, int) --- 28.18\%}
 		\item{CalcHourglassControlForElems(Domain\&, double*, double) --- 17.10\%}
@@ -65,7 +66,7 @@ Lorem ipsum
 \\\\These functions account for 86.53\% of total execution time
 	\end{itemize}
 \end{enumerate}
-\item{Is the measured execution time of the application affected by gprof? Hint: use the time command to determine this.}
+\item{Is the measured execution time of the application affected by gprof? Hint: use the time command to determine this.}\\\\
 The measured execution time does not differ with use of gprof. This was tested with the four benchmarks with the following results:
 \begin{center}
 \begin{tabular}{|c|c|c|}
@@ -79,13 +80,13 @@ Hybrid &46.9&45.95\\ \hline
 \end{tabular}
 \end{center}
 Each benchmark was run 2-3 times with and without gprof. The times did vary slightly but indicated that the usage of gprof did not change th execution time. The results in the above table can be seen in the attached gprof files.
-\item{Can gprof analyze the loops (for, while, do-while, etc.) of the application?(1 point)}\\\\
+\item{Can gprof analyze the loops (for, while, do-while, etc.) of the application?}\\\\
 No, gprof cannot be used to analyse loops.
-\item{Is gprof capable of analyzing parallel applications?}\\
+\item{Is gprof capable of analyzing parallel applications?}\\\\
 Yes, gprof can be used to analyze some parallel applications. However, typically only the performance of the main thread is recorded (as in the case of MPI implementations). The obscuring of information can be seen especially in the case of openMP, where the code spends more than 50\% of the time in "frame dummy", a function that does not exist in source code.
-\item{What is necessary to analyze parallel applications?}\\
+\item{What is necessary to analyze parallel applications?}\\\\
 Gprof typically only produces one gmon.out output file for the main process. However, in a parallel process, multiple output files are required. When using MPI processes, it is possible to inform gprof, via environmental variables, of the number of threads produced and run. One gmon.out is then produced per thread. These files can then be aggregated to determine the overall behavior of all threads together or analyzed separately.
-\item{Where there performance differences between the GNU++ and the Intel compiler?}\\
+\item{Where there performance differences between the GNU++ and the Intel compiler?}\\\\
 There were differences between the two compilers. In general, the code compiled by the Intel compiler was slightly faster. The difference between the code compiled by the two compilers is approximately 2s and this varied slightly each job. Four jobs were run using the automated script in Section 4.2 of the assignment - in both cases, the Intel compiled code ran approximately ~2s faster with the optimal.
 \end{enumerate}
 
@@ -109,7 +110,7 @@ The fastest binary was compiled using the Intel compiler with "-unroll" flag.
 \item{What is the difference between Intels simd, vector and ivdep \#pragma directives?}\\\\
 The three pragmas allow the compiler to ignore certain requirements when vectorizing. The simd pragma forces vectorization to occur, ignoring safety or cost. The vector pragma forces the compiler to ignore cost when deciding to vectorize (as a result the code may run slower after vectorization). The ivdep pragma instructs compiler to ignore assumed vector dependencies - ie compiler may choose to treat assumed dependencies as proven dependencies. This pragma instructs compiler to ignore such assumptions and proceed with vectorisation.
 \item{Why did you choose to apply the selected #pragma in the particular location?}\\\\
-We chose to apply #pragma loop_count avg(27000) to the function "CalcHourglassControlForElems" in lulesh.cc. When running the task in serial, more than 70\% of overall runtime time was spent in this function. This function contains a highly complicated loop that may require specific treatment for optimization.
+We chose to apply \verb!#pragma loop_count avg(27000)! to the function \verb!CalcHourglassControlForElems! in lulesh.cc. When running the task in serial, more than 70\% of overall runtime time was spent in this function. This function contains a highly complicated loop that may require specific treatment for optimization.
 \end{enumerate}
 
 \subsection{Inline assembler}
@@ -117,13 +118,13 @@ We chose to apply #pragma loop_count avg(27000) to the function "CalcHourglassCo
 \item{Is the inline assembler necessarily faster than compiler generated code?}\\\\
 Not necessarily. The speed increase is dependent on the implementation on the code - especially when modern compilers already implement many forms of optimization. It is often likely that hand-written assembler code is often slower than compiler optimized assembler code. However, there do exist specific cases where an inline assembler may be faster. The most relevant cases to this module include:
 \begin{itemize}
-\item{Implement instructions which are not yet possible in the current language. For example, certain operations, such as a full-multiplication operator in C---2N-bit result from N-bit inputs. Most x86 CPUs can ,however, perform this operation in a single instruction. In these rare cases, it would be beneficial to use optimal functions that belong to the specific CPU when available.}
+\item{Implement instructions which are not yet possible in the current language. For example, certain operations, such as a full-multiplication operator in C---2N-bit result from N-bit inputs. Most x86 CPUs can, however, perform this operation in a single instruction. In these rare cases, it would be beneficial to use optimal functions that belong to the specific CPU when available.}
 \item{Spot-optimizing specific lines of code. For example, compilers may not optimally vectorize complicated loops, since it has to deal with many general cases. If the programmer understands the problem well, it may be beneficial to use the inline assembler to perform the loop operations.}
 \end{itemize}
 \item{On the release of a CPU with new instructions, can you use an inline assembler to take advantage of these instructions if the compiler does not support them yet?}\\\\
 Yes. One benefit to inline assemblers is that it allows access to processor specific instructions which the compiler may not support. Examples may include FPU instructions that may be faster than compiler generated floating operations. However, the onus of correct usage of these commands then falls on the programmer.
-\item{What is AVX-512 ? Which CPUs support it? Is there any compiler or language support for these instructions at this moment?}\\\\
-AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512-bit extensions to the preexisting AVX/AVX2 instructions. They were first supported by the Xeon-Phi x200 (Knights Landing)and Skylake-X CPUs. Note that AVX-512 is not the first 512-bit SIMD instructions released by Intel. These commands are supported in the intel C++ compiler under the namespace AVX. The -xCOMMON-AVX512 flag can be used for auto-vectorization using AVX-512 functions.
+\item{What is AVX-512? Which CPUs support it? Is there any compiler or language support for these instructions at this moment?}\\\\
+AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512-bit extensions to the preexisting AVX/AVX2 instructions. They were first supported by the Xeon-Phi x200 (Knights Landing) and Skylake-X CPUs. Note that AVX-512 is not the first 512-bit SIMD instructions released by Intel. These commands are supported in the intel C++ compiler under the namespace AVX. The -xCOMMON-AVX512 flag can be used for auto-vectorization using AVX-512 functions.
 
 \end{enumerate}
 
