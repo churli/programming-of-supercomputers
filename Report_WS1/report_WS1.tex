@@ -98,11 +98,11 @@ gcc-help shows approximately 100 compiler flags, icpc-help show approximately 18
 \item{Given how much time it takes to evaluate a combination of compiler flags, is it realistic to test all possible combinations of available compiler flags? What could be a possible solution?}\\\\
  Each test run takes approximately 40-50 seconds to complete, excluding the time required for compilation of the code. Given that there are more than 100 optimiation flags for each compiler, we can conservatively estimate that the total time to completion would exceed $6\times10^{32}s$, which is completely unfeasible. Instead, it would make sense for us to examine the code to determine what possible bottlenecks exist and apply flags that could improve the situation. 
 \item{Which compiler and optimization flags combination produced the fastest binary?}\\\\
-For the GNU++ compiler, the fastest binary used the flags '-march=native -floop-interchange -floop-strip-mine -funroll-loops -flto' with a time of 52.33s with a speedup of 1.02255. The binary without flags ran for 53.51s.
+For the GNU++ compiler, we determined that the effect of the flags was somewhat inconsistent. We performed a simple statistical analysis of the effects of the flags over 3 runs. Overall, we observed that the flags "-march=native" and "-funroll-loops" were constantly associated with binaries with the best performance.
 
 For the Intel compiler, the fastest binary only used "-unroll" flag with a time of 50.43s to completion with a speedup of 1.00258. The second fastest binary was without flags with a time of 50.56.
 
-The fastest binary was compiled using the Intel compiler with "-unroll" flag.
+The fastest binary from both compilers was compiled using the Intel compiler with the "-unroll" flag.
 \end{enumerate}
 
 \subsection{Optimization pragmas}
