@@ -1,0 +1,239 @@
+Test 1
+node = srv03-ib
+total_taskks = 40
+OMP threads = 1
+time = 52.51
+
+Test 2
+node = srv03-ib
+total_taskks = 40
+OMP threads = 2
+time = 33.0
+
+Test 3
+node = srv03-ib
+total_taskks = 40
+OMP threads = 3
+time = 24.18
+
+Test 4
+node = srv03-ib
+total_taskks = 40
+OMP threads = 4
+time = 19.92
+
+Test 5
+node = srv03-ib
+total_taskks = 40
+OMP threads = 5
+time = 17.22
+
+Test 6
+node = srv03-ib
+total_taskks = 40
+OMP threads = 6
+time = 15.63
+
+Test 7
+node = srv03-ib
+total_taskks = 40
+OMP threads = 7
+time = 14.15
+
+Test 8
+node = srv03-ib
+total_taskks = 40
+OMP threads = 8
+time = 13.46
+
+Test 9
+node = srv03-ib
+total_taskks = 40
+OMP threads = 9
+time = 15.59
+
+Test 10
+node = srv03-ib
+total_taskks = 40
+OMP threads = 10
+time = 12.28
+
+Test 11
+node = srv03-ib
+total_taskks = 40
+OMP threads = 11
+time = 11.73
+
+Test 12
+node = srv03-ib
+total_taskks = 40
+OMP threads = 12
+time = 11.94
+
+Test 13
+node = srv03-ib
+total_taskks = 40
+OMP threads = 13
+time = 11.71
+
+Test 14
+node = srv03-ib
+total_taskks = 40
+OMP threads = 14
+time = 15.83
+
+Test 15
+node = srv03-ib
+total_taskks = 40
+OMP threads = 15
+time = 11.32
+
+Test 16
+node = srv03-ib
+total_taskks = 40
+OMP threads = 16
+time = 13.94
+
+Test 17
+node = srv03-ib
+total_taskks = 40
+OMP threads = 17
+time = 17.66
+
+Test 18
+node = srv03-ib
+total_taskks = 40
+OMP threads = 18
+time = 12.29
+
+Test 19
+node = srv03-ib
+total_taskks = 40
+OMP threads = 19
+time = 12.52
+
+Test 20
+node = srv03-ib
+total_taskks = 40
+OMP threads = 20
+time = 13.17
+
+Test 21
+node = srv03-ib
+total_taskks = 40
+OMP threads = 21
+time = 13.01
+
+Test 22
+node = srv03-ib
+total_taskks = 40
+OMP threads = 22
+time = 14.19
+
+Test 23
+node = srv03-ib
+total_taskks = 40
+OMP threads = 23
+time = 15.76
+
+Test 24
+node = srv03-ib
+total_taskks = 40
+OMP threads = 24
+time = 29.18
+
+Test 25
+node = srv03-ib
+total_taskks = 40
+OMP threads = 25
+time = 23.91
+
+Test 26
+node = srv03-ib
+total_taskks = 40
+OMP threads = 26
+time = 28.05
+
+Test 27
+node = srv03-ib
+total_taskks = 40
+OMP threads = 27
+time = 15.63
+
+Test 28
+node = srv03-ib
+total_taskks = 40
+OMP threads = 28
+time = 52.91
+
+Test 29
+node = srv03-ib
+total_taskks = 40
+OMP threads = 29
+time = 56.66
+
+Test 30
+node = srv03-ib
+total_taskks = 40
+OMP threads = 30
+time = 52.29
+
+Test 31
+node = srv03-ib
+total_taskks = 40
+OMP threads = 31
+time = 58.31
+
+Test 32
+node = srv03-ib
+total_taskks = 40
+OMP threads = 32
+time = 61.44
+
+Test 33
+node = srv03-ib
+total_taskks = 40
+OMP threads = 33
+time = 61.1
+
+Test 34
+node = srv03-ib
+total_taskks = 40
+OMP threads = 34
+time = 64.99
+
+Test 35
+node = srv03-ib
+total_taskks = 40
+OMP threads = 35
+time = 85.94
+
+Test 36
+node = srv03-ib
+total_taskks = 40
+OMP threads = 36
+time = 87.36
+
+Test 37
+node = srv03-ib
+total_taskks = 40
+OMP threads = 37
+time = 74.87
+
+Test 38
+node = srv03-ib
+total_taskks = 40
+OMP threads = 38
+time = 76.54
+
+Test 39
+node = srv03-ib
+total_taskks = 40
+OMP threads = 39
+time = 75.54
+
+Test 40
+node = srv03-ib
+total_taskks = 40
+OMP threads = 40
+time = 101.1
