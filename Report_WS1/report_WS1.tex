@@ -109,7 +109,7 @@ The fastest binary from both compilers was compiled using the Intel compiler wit
 \begin{enumerate}
 \item{What is the difference between Intels simd, vector and ivdep \#pragma directives?}\\\\
 The three pragmas allow the compiler to ignore certain requirements when vectorizing. The simd pragma forces vectorization to occur, ignoring safety or cost. The vector pragma forces the compiler to ignore cost when deciding to vectorize (as a result the code may run slower after vectorization). The ivdep pragma instructs compiler to ignore assumed vector dependencies - ie compiler may choose to treat assumed dependencies as proven dependencies. This pragma instructs compiler to ignore such assumptions and proceed with vectorisation.
-\item{Why did you choose to apply the selected #pragma in the particular location?}\\\\
+\item{Why did you choose to apply the selected \#pragma in the particular location?}\\\\
 We chose to apply \verb!#pragma loop_count avg(27000)! to the function \verb!CalcHourglassControlForElems! in lulesh.cc. When running the task in serial, more than 70\% of overall runtime time was spent in this function. This function contains a highly complicated loop that may require specific treatment for optimization.
 \end{enumerate}
 
