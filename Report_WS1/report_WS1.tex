@@ -3,8 +3,6 @@
 
 % Here set the various packages
 \input{Style/packages}
-
-
 %%%
 
 \title{Programming of Supercomputers\\Worksheet 1}
@@ -143,15 +141,25 @@ Lorem ipsum
 
 \subsection{MPI}
 \begin{enumerate}
-	\item{What are the valid combinations of processes allowed?} \\\\
-	Only number of processes which are perfect cubes are allowed. So on a single node, which has 40 cores, we can just test 1, 8, 27.
-	\item{Was linear scalability achieved?} \\\\
-	Weak: No, linear weak scaling would ideally be when the runtime does not vary with scaling. We could instead see a marked increase in runtime in this case.\\
-	Strong: Yes for the strong scaling case we could observe almost perfect linear scaling. (TODO: more details here)
-	\item{On which process-count was the maximum performance achieved?} \\\\
+	\item{What are the valid combinations of processes allowed?
+
+	Only number of processes which are perfect cubes are allowed. So on a single node, which has 40 cores, we can use 1, 8, 27.
+	}
+
+	\item{Was linear scalability achieved?
+
+	Weak: No, linear weak scaling would ideally be when the runtime does not vary with scaling. We could instead see\todo{Here add reference to the scaling efficiency plot!} a marked increase in runtime in this case.
+
+	Strong: Yes for the strong scaling case we could observe almost perfect linear scaling. (TODO: more details here\todo{Here add reference to the scaling efficiency plot!} )
+	}
+	\item{On which process-count was the maximum performance achieved?
+
 	TODO
-	\item{How does the performance compare to the results achieved with OpenMP in Section 5.1?} \\\\
+	}
+	\item{How does the performance compare to the results achieved with OpenMP in Section 5.1?
+
 	TODO
+	}
 \end{enumerate}
 
 \end{document}
