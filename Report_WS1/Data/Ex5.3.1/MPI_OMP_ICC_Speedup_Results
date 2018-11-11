@@ -1,0 +1,210 @@
+Test 1
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 7.31
+
+Test 2
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 7.26
+
+Test 3
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 7.31
+
+Test 4
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 7.26
+
+Test 5
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 7.26
+
+Test 6
+node = 1
+total_tasks = 40
+OMP threads = 2
+MPI processes = 8
+time = 4.85
+
+Test 7
+node = 1
+total_tasks = 40
+OMP threads = 2
+MPI processes = 8
+time = 4.85
+
+Test 8
+node = 1
+total_tasks = 40
+OMP threads = 2
+MPI processes = 8
+time = 4.85
+
+Test 9
+node = 1
+total_tasks = 40
+OMP threads = 2
+MPI processes = 8
+time = 4.85
+
+Test 10
+node = 1
+total_tasks = 40
+OMP threads = 2
+MPI processes = 8
+time = 4.84
+
+Test 11
+node = 1
+total_tasks = 40
+OMP threads = 3
+MPI processes = 8
+time = 3.75
+
+Test 12
+node = 1
+total_tasks = 40
+OMP threads = 3
+MPI processes = 8
+time = 3.73
+
+Test 13
+node = 1
+total_tasks = 40
+OMP threads = 3
+MPI processes = 8
+time = 3.75
+
+Test 14
+node = 1
+total_tasks = 40
+OMP threads = 3
+MPI processes = 8
+time = 3.75
+
+Test 15
+node = 1
+total_tasks = 40
+OMP threads = 3
+MPI processes = 8
+time = 3.73
+
+Test 16
+node = 1
+total_tasks = 40
+OMP threads = 4
+MPI processes = 8
+time = 3.21
+
+Test 17
+node = 1
+total_tasks = 40
+OMP threads = 4
+MPI processes = 8
+time = 3.18
+
+Test 18
+node = 1
+total_tasks = 40
+OMP threads = 4
+MPI processes = 8
+time = 3.2
+
+Test 19
+node = 1
+total_tasks = 40
+OMP threads = 4
+MPI processes = 8
+time = 3.18
+
+Test 20
+node = 1
+total_tasks = 40
+OMP threads = 4
+MPI processes = 8
+time = 3.21
+
+Test 21
+node = 1
+total_tasks = 40
+OMP threads = 5
+MPI processes = 8
+time = 3.45
+
+Test 22
+node = 1
+total_tasks = 40
+OMP threads = 5
+MPI processes = 8
+time = 3.44
+
+Test 23
+node = 1
+total_tasks = 40
+OMP threads = 5
+MPI processes = 8
+time = 3.46
+
+Test 24
+node = 1
+total_tasks = 40
+OMP threads = 5
+MPI processes = 8
+time = 3.49
+
+Test 25
+node = 1
+total_tasks = 40
+OMP threads = 5
+MPI processes = 8
+time = 3.43
+
+Test 26
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 27
+time = 2.59
+
+Test 27
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 27
+time = 2.6
+
+Test 28
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 27
+time = 2.61
+
+Test 29
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 27
+time = 2.6
+
+Test 30
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 27
+time = 2.59
+
