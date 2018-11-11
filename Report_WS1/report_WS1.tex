@@ -223,16 +223,12 @@
 	\begin{description}
 		\item[Weak]	 Ideal linear weak scaling occurs when the runtime does not vary with the number of processes. We could instead see (Fig.\ref{fig:MPI_weakScaling}) a marked increase in runtime in this case and the \emph{weak scaling efficiency}\footnote{Defined as $speedup(N) = \frac{T(1)}{T(N)}$ where $N$ is the number of processes.} decreasing drastically.
 
-<<<<<<< HEAD
-		\item[Strong] Ideal linear strong scaling is achieved if the speedup equals the number of processes, i.e. if $S(N) = N$. We could observe a quite ggod linear scaling behaviour, although not perfect. As shown in Fig.\ref{fig:MPI_strongScaling}, the actual speedup (solid blue line) quite follows the ideal linear scaling one (dashed red line). The \emph{strong scaling efficiency}\footnote{Defined as $speedup(N)/N = \frac{T(1)}{N \cdot T(N)}$.} drops to $80\%$ with 27 MPI processes on the same node.
-=======
 		\item[Strong]
 		Ideal linear strong scaling is achieved if the speedup equals the number of processes, i.e. if $S(N) = N$.
 
 		To test strong scaling we adjusted the problem size per MPI process in order to keep the volume of the entire domain constant. This means that in our test runs with initial size 24, we used $s=24$, $s=12$, $s=8$ for 1, 8 and 27 MPI processes respectively, while for our test runs with initial size 30, we used $s=30$, $s=15$, $s=10$ for 1, 8 and 27 MPI processes respectively.
 
 		We could observe a quite good linear scaling behaviour, although not perfect. As shown in Fig.\ref{fig:MPI_strongScaling}, the actual speedup (solid blue line) quite follows the ideal linear scaling one (dashed red line). The \emph{strong parallel efficiency}\footnote{Defined as $speedup(N)/N = \frac{T(1)}{N \cdot T(N)}$.} drops to $80\%$ with 27 MPI processes on the same node.
->>>>>>> a58f460c20d27e47637bbe042e4ac92e2d1f9d23
 
 		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		 	\begin{center}
