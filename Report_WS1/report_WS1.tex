@@ -255,6 +255,7 @@
 	
 	\begin{description}
 		\item[Strong] We ran 2 experiments, one with -s 15 and one with -s 30. We do not achieve linear scaling for either case. However, for the smaller domain size, we see in Fig \ref{fig:hybrid_speedup} that the speedup decreases with 5 OpenMP threads. This is expected because, per Amdahl's law, the maximum speedup is limited by problem size. At 5 OpenMP threads, the cost of parallelisation outweights the benefits of parallelisation and we see a decrease in speedup. This can be remedied by increasing the overall domain size. We run the same form of strong scaling with -s=30 in and we see that speedup continues to increase at 5 OpenMP threads.
+
 	\end{description}
 		
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
