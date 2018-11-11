@@ -15,7 +15,7 @@
 \renewcommand{\abstractname}{Group members's contributions}
 \begin{abstract}
 	% Here write the contributions of the members of the group
-	Oleksandr Voloshyn: Worked on 4.1, 4.2, 4.3, 5.1
+	Oleksandr Voloshyn: Worked on 4.1, 4.2, 4.3, 5.1, 5.3
 
 	Tommaso Bianucci: Worked on 4.1, 4.2, 4.3, 5.2, 5.3
 	
@@ -138,31 +138,32 @@ AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512
 \section{Performance Scaling}
 \subsection{OpenMP}
 \begin{enumerate}
-\item{Was linear scalability achieved?}\\\\
-Linear scalability was achieved for certain numbers of processors. For the GNU++ compiler, we see a linear scaling (with regards to speed) if the number of processors is between 1 and 5, as seen in Fig. \ref{fig:gnu_omp_speedup}. We see a similar pattern for the Intel compiler between X and X, seen in Fig. . After the maximum speedup is achieved, we then see that speedup decreases sharply and performance worsens. This is especially the case for the Intel compiler---when using more than X processors, the speedup drops below 1. 
+	\item Was linear scalability achieved?
 
-% Figure example
-\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
- 	\begin{center}
- 		\includegraphics[width=.7\linewidth]{OMP_GNU_Speedup.png} % It searches in the Figures/ folder!
- 		\caption{GNU Compiler with OpenMP: Speedup vs. \# Processors}
- 		\label{fig:gnu_omp_speedup}
- 	\end{center}
-\end{figure}
+	Linear scalability was achieved for certain numbers of processors. For the GNU++ compiler, we see a linear scaling (with regards to speed) if the number of processors is between 1 and 5, as seen in Fig. \ref{fig:gnu_omp_speedup}. We see a similar pattern for the Intel compiler between X and X, seen in Fig. . After the maximum speedup is achieved, we then see that speedup decreases sharply and performance worsens. This is especially the case for the Intel compiler---when using more than X processors, the speedup drops below 1. 
 
-\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
- 	\begin{center}
- 		\includegraphics[width=.7\linewidth]{OMP_ICC_speedup.png} % It searches in the Figures/ folder!
- 		\caption{Intel Compiler without OpenMP: Speedup vs. \# Processors}
- 		\label{fig:gnu_icc_speedup}
- 	\end{center}
-\end{figure}
+	% Figure example
+	\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	 	\begin{center}
+	 		\includegraphics[width=.7\linewidth]{OMP_GNU_Speedup.png} % It searches in the Figures/ folder!
+	 		\caption{GNU Compiler with OpenMP: Speedup vs. \# Processors}
+	 		\label{fig:gnu_omp_speedup}
+	 	\end{center}
+	\end{figure}
 
-\item{On which thread-count was the maximum performance achieved? Was it the same for both the Intel and the GNU compilers?}\\\\
-For the Intel compiler, the maximum speedup was 4.64 (11.32) with 16 processors. For the GNU++ compiler, the maximum speedup was 3.43 (19.57s) with 10 processors. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU++ compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
+	\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	 	\begin{center}
+	 		\includegraphics[width=.7\linewidth]{OMP_ICC_speedup.png} % It searches in the Figures/ folder!
+	 		\caption{Intel Compiler without OpenMP: Speedup vs. \# Processors}
+	 		\label{fig:gnu_icc_speedup}
+	 	\end{center}
+	\end{figure}
+
+	\item On which thread-count was the maximum performance achieved? Was it the same for both the Intel and the GNU compilers?
+
+	For the Intel compiler, the maximum speedup was 4.64 (11.32) with 16 processors. For the GNU++ compiler, the maximum speedup was 3.43 (19.57s) with 10 processors. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU++ compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
 
 \end{enumerate}
-Lorem ipsum
 
 \subsection{MPI}
 \begin{enumerate}
@@ -171,17 +172,36 @@ Lorem ipsum
 	Only number of processes which are perfect cubes are allowed. So on a single node, which has 40 cores, we can use 1, 8, 27.
 	}
 
-	\item{Was linear scalability achieved?
+	\item Was linear scalability achieved?
 
-	Weak: No, linear weak scaling would ideally be when the runtime does not vary with scaling. We could instead see\todo{Here add reference to the scaling efficiency plot!} a marked increase in runtime in this case.
+	\begin{description}
+		\item[Weak]	 Ideal linear weak scaling occurs when the runtime does not vary with the number of processes. We could instead see (Fig.\ref{fig:MPI_weakScaling}) a marked increase in runtime in this case and the \emph{weak scaling efficiency}\footnote{Defined as $\frac{T(1)}{T(N)}$ where $N$ is the number of processes.} decreasing drastically.
 
-	Strong: Yes for the strong scaling case we could observe almost perfect linear scaling. (TODO: more details here\todo{Here add reference to the scaling efficiency plot!} )
-	}
-	\item{On which process-count was the maximum performance achieved?
+		\item[Strong] Ideal linear strong scaling is achieved if the speedup equals the number of processes, i.e. if $S(N) = N$. We could observe a quite ggod linear scaling behaviour, although not perfect. As shown in Fig.\ref{fig:MPI_strongScaling}, the actual speedup (solid blue line) quite follows the ideal linear scaling one (dashed red line). The \emph{strong scaling efficiency}\footnote{Defined as $\frac{T(1)}{N \cdot T(N)}$.} drops to $80\%$ with 27 MPI processes on the same node.
 
-	TODO
-	}
-	\item{How does the performance compare to the results achieved with OpenMP in Section 5.1?
+		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		 	\begin{center}
+		 		\includegraphics[width=.75\linewidth]{MPI_weak_scaling_all.png} % It searches in the Figures/ folder!
+		 		\caption{MPI weak scaling results.}
+		 		\label{fig:MPI_weakScaling}
+		 	\end{center}
+		\end{figure}
+		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		 	\begin{center}
+		 		\includegraphics[width=.75\linewidth]{MPI_strong_scaling_all.png} % It searches in the Figures/ folder!
+		 		\caption{MPI weak scaling results.}
+		 		\label{fig:MPI_strongScaling}
+		 	\end{center}
+		\end{figure}
+	\end{description}
+
+	\item On which process-count was the maximum performance achieved?
+
+	From a strong scaling perspective, the best performance was achieved with 27 MPI processes.
+
+	\item How does the performance compare to the results achieved with OpenMP in Section 5.1?
+
+	The results clearly show that using MPI allows for a better strong scaling behaviour compared to OpenMP. With OpenMP we achieve a maximum speedup around 4, both with gcc and intel compilers, while with MPI we reach a speedup of 21 with 27 processes.
 
 	TODO
 	}
