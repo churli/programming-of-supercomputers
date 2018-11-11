@@ -10,7 +10,7 @@
 	Oleksandr Voloshyn \texttt{<o.voloshyn@tum.de>}\\ 
 	Qunsheng Huang \texttt{<keefe.huang@tum.de>}\\ 
 	Tommaso Bianucci \texttt{<bianucci@in.tum.de>}
-	}
+}
 \date{\today}
 
 \begin{document}
@@ -37,41 +37,41 @@
 	\begin{enumerate}
 		\item Serial
 		\begin{itemize}
-			\item EvalEOSForElems(Domain\&, double*, int, int*, int) --- 28.18\%
-			\item CalcHourglassControlForElems(Domain\&, double*, double) --- 17.10\% 
-			\item CalcFBHourglassForceForElems(...) --- 15.76\%
-			\item CalcKinematicsForElems(Domain\&, double, int) --- 11.84\%
-			\item IntegrateStressForElems(Domain\&, double*, double*, double*, double*, int, int) --- 10.98\%
+			\item \verb!EvalEOSForElems()! --- 28.18\%
+			\item \verb!CalcHourglassControlForElems()! --- 17.10\% 
+			\item \verb!CalcFBHourglassForceForElems()! --- 15.76\%
+			\item \verb!CalcKinematicsForElems()! --- 11.84\%
+			\item \verb!IntegrateStressForElems()! --- 10.98\%
 		\end{itemize}
 		These functions account for 83.86\% of total execution time.
 
 		\item OpenMP
 		\begin{itemize}
-			\item CalcHourglassControlForElems(Domain\&, double*, double) --- 29.90\%
-			\item ApplyMaterialPropertiesForElems(Domain\&) --- 22.58\%
-			\item CalcFBHourglassForceForElems(...) --- 15.84\%
-			\item IntegrateStressForElems(...) --- 14.28\%
+			\item \verb!CalcHourglassControlForElems()! --- 29.90\%
+			\item \verb!ApplyMaterialPropertiesForElems()! --- 22.58\%
+			\item \verb!CalcFBHourglassForceForElems()! --- 15.84\%
+			\item \verb!IntegrateStressForElems()! --- 14.28\%
 		\end{itemize}
 		These functions account for 82.60\% of total execution time.
 		\vspace{1mm}
 
 		\item MPI
 		\begin{itemize}
-			\item EvalEOSForElems(Domain\&, double*, int, int*, int) --- 24.44\%
-			\item LagrangeNodal(Domain\&) --- 21.86\%
-			\item CalcFBHourglassForceForElems(..) --- 16.67\%
-			\item CalcKinematicsForElems(Domain\&, double, int) --- 11.12\%
-			\item IntegrateStressForElems(...) --- 10.15\%
+			\item \verb!EvalEOSForElems()! --- 24.44\%
+			\item \verb!LagrangeNodal()! --- 21.86\%
+			\item \verb!CalcFBHourglassForceForElems()! --- 16.67\%
+			\item \verb!CalcKinematicsForElems()! --- 11.12\%
+			\item \verb!IntegrateStressForElems()! --- 10.15\%
 		\end{itemize}
 		These functions account for 84.24\% of total execution time.
 
 		\item Hybrid
 		\begin{itemize}
-			\item CalcFBHourglassForceForElems(..) --- 23.05\%
-			\item EvalEOSForElems(Domain\&, double*, int, int*, int) --- 21.22\%
-			\item LagrangeNodal(Domain\&) --- 18.95\%
-			\item IntegrateStressForElems(...) --- 13.02\%
-			\item CalcKinematicsForElems(Domain\&, double, int) --- 10.29\%
+			\item \verb!CalcFBHourglassForceForElems()! --- 23.05\%
+			\item \verb!EvalEOSForElems()! --- 21.22\%
+			\item \verb!LagrangeNodal()! --- 18.95\%
+			\item \verb!IntegrateStressForElems()! --- 13.02\%
+			\item \verb!CalcKinematicsForElems()! --- 10.29\%
 		\end{itemize}
 		These functions account for 86.53\% of total execution time.
 	\end{enumerate}
@@ -114,7 +114,7 @@
 	\item \hl{Look at the compilers help (by issuing icc -help and gcc -help). How many opti-
 	mization flags are available for each compiler (approximately)?}
 
-	gcc-help shows approximately 100 compiler flags, icpc-help show approximately 18 optimization flags, 8 interprocedural optimization flags, 60 advanced optimization options and 20 profile guided optimizations, for a total of 106 flags.
+	\verb!gcc --help=optimizer! shows approximately 100 compiler flags, \verb!icpc --help <category>! show approximately 18 optimization flags (\verb!opt!), 8 interprocedural optimization flags (\verb!ipo!), 60 advanced optimization options (\verb!advanced!) and 20 profile guided optimizations (\verb!pgo!), for a total of 106 flags.
 
 	\item \hl{Given how much time it takes to evaluate a combination of compiler flags, is it realistic to test all possible combinations of available compiler flags? What could be a possible solution?}
 
@@ -145,9 +145,9 @@
 
 	Not necessarily. The speed increase is dependent on the implementation on the code - especially when modern compilers already implement many forms of optimization. It is often likely that hand-written assembler code is often slower than compiler optimized assembler code. However, there do exist specific cases where an inline assembler may be faster. The most relevant cases to this module include:
 	\begin{itemize}
-		\item \hl{Implement instructions which are not yet possible in the current language. For example, certain operations, such as a full-multiplication operator in C---2N-bit result from N-bit inputs. Most x86 CPUs can, however, perform this operation in a single instruction. In these rare cases, it would be beneficial to use optimal functions that belong to the specific CPU when available.}
+		\item Implement instructions which are not yet possible in the current language. For example, certain operations, such as a full-multiplication operator in C---2N-bit result from N-bit inputs. Most x86 CPUs can, however, perform this operation in a single instruction. In these rare cases, it would be beneficial to use optimal functions that belong to the specific CPU when available.
 
-		\item \hl{Spot-optimizing specific lines of code. For example, compilers may not optimally vectorize complicated loops, since it has to deal with many general cases. If the programmer understands the problem well, it may be beneficial to use the inline assembler to perform the loop operations.}
+		\item Spot-optimizing specific lines of code. For example, compilers may not optimally vectorize complicated loops, since it has to deal with many general cases. If the programmer understands the problem well, it may be beneficial to use the inline assembler to perform the loop operations.
 	\end{itemize}
 	
 	\item \hl{On the release of a CPU with new instructions, can you use an inline assembler to take advantage of these instructions if the compiler does not support them yet?}
@@ -159,51 +159,29 @@
 	AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512-bit extensions to the preexisting AVX/AVX2 instructions. They were first supported by the Xeon-Phi x200 (Knights Landing) and Skylake-X CPUs. Note that AVX-512 is not the first 512-bit SIMD instructions released by Intel. These commands are supported in the intel C++ compiler under the namespace AVX. The \verb!-xCOMMON-AVX512! flag can be used for auto-vectorization using AVX-512 functions.
 \end{enumerate}
 
-% Figure example
-%\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
- %	\begin{center}
- %		\includegraphics[width=.9\linewidth]{figure.png} % It searches in the Figures/ folder!
- %		\caption{Caption text}
- %		\label{fig:figureLabelName}
- %	\end{center}
-%\end{figure}
-
 \section{Performance Scaling}
 \subsection{OpenMP}
 \begin{enumerate}
 	\item \hl{Was linear scalability achieved?}
 
-	Linear scalability was achieved for certain numbers of processors. For the GNU compiler, we see a linear scaling (with regards to speed) if the number of threads is between 1 and 5. We see a similar pattern for the Intel compiler between 1 and 7 threads. These two trends can be seen in Fig. \ref{fig:omp_speedup}. After the maximum speedup is achieved, we then see that speedup decreases sharply and performance worsens. This is especially the case for the Intel compiler---when using more than 26 processors, the speedup drops below 1. 
+	Linear scalability was achieved for certain numbers of processors. For the GNU++ compiler, we see a linear scaling (with regards to speed) if the number of threads is between 1 and 5. We see a similar pattern for the Intel compiler between 1 and 7 threads. These two trends can be seen in Fig.\ref{fig:omp_performance}.a. After the maximum speedup is achieved, we then see that speedup decreases sharply and performance worsens. This is especially the case for the Intel compiler---when using more than 26 processors, the speedup drops below 1.
 
-	% Figure example
-	\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
-	 	\begin{center}
-	 		\includegraphics[width=.7\linewidth]{OMP_speedup.png} % It searches in the Figures/ folder!
-	 		\caption{OpenMP: Speedup vs. \# Processors}
-	 		\label{fig:omp_speedup}
-	 	\end{center}
-	\end{figure}
-
-	We can also identify a problem when increasing the number of threads while keeping the domain constant - the performance of the program cannot be guaranteed if the domain is too small. We observe sudden decreases in speedup with both compiler above 8 threads (seen as spiky segments along the speedup graph)---this is likely due to issues with non-uniform memory access, especially since there is little transparency or control over how memory is accessed in OpenMP.
+	We can also identify a problem when increasing the number of threads while keeping the domain constant---the performance of the program cannot be guaranteed if the domain is too small. We observe sudden decreases in speedup with both compiler above 8 threads (seen as spiky segments along the speedup graph)---this is likely due to issues with non-uniform memory access, especially since there is little transparency or control over how memory is accessed in OpenMP.
+	\vspace{1mm}
 
 	\item \hl{On which thread-count was the maximum performance achieved? Was it the same for both the Intel and the GNU compilers?}
 
-	For the Intel compiler, the maximum speedup was 4.64 (11.32s) with 16 threads. For the GNU compiler, the maximum speedup was 3.43 (19.57s) with 15 threads. The minimum point can be seen in Fig \ref{fig:omp_time}. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
-	
-		\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
-	 	\begin{center}
-	 		\includegraphics[width=.7\linewidth]{OMP_time.png} % It searches in the Figures/ folder!
-	 		\caption{OpenMP: Execution Time vs. \# Processors}
-	 		\label{fig:omp_time}
-	 	\end{center}
-	\end{figure}
-	
-			\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
-	 	\begin{center}
-	 		\includegraphics[width=.7\linewidth]{OMP_efficiency.png} % It searches in the Figures/ folder!
-	 		\caption{OpenMP: Efficiency vs. \# Processors}
-	 		\label{fig:omp_efficiency}
-	 	\end{center}
+	For the Intel compiler, the maximum speedup was 4.64 (11.32s) with 16 threads. For the GNU++ compiler, the maximum speedup was 3.43 (19.57s) with 15 threads. The minimum point can be seen in Fig.\ref{fig:omp_performance}.b. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU++ compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
+
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
+			\includegraphics[width=.7\linewidth]{OMP_speedup.png} & \includegraphics[width=.7\linewidth]{OMP_time.png} \\
+			(a) Speedup vs. \#Processors & Execution Time vs. \#Processors\\[6pt]
+			\multicolumn{2}{c}{\includegraphics[width=.7\linewidth]{OMP_efficiency.png}}\\
+			\multicolumn{2}{c}{(c) Efficiency vs. \#Processors.}
+		\end{tabular}
+		\caption{Performance statistics for OpenMP.}
+		\label{fig:omp_performance}
 	\end{figure}
 
 \end{enumerate}
