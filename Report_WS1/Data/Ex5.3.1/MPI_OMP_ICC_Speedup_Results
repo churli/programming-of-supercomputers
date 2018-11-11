@@ -208,3 +208,37 @@ OMP threads = 1
 MPI processes = 27
 time = 2.59
 
+Test 31
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 126.02
+
+Test 32
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 78.25
+
+Test 32
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 56.75
+
+Test 32
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 45.91
+
+Test 32
+node = 1
+total_tasks = 40
+OMP threads = 1
+MPI processes = 8
+time = 39.79
