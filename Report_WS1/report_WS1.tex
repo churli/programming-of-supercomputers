@@ -6,11 +6,7 @@
 %%%
 
 \title{Programming of Supercomputers\\Worksheet 1}
-\author{
-	Oleksandr Voloshyn \texttt{<o.voloshyn@tum.de>}\\ 
-	Qunsheng Huang \texttt{<keefe.huang@tum.de>}\\ 
-	Tommaso Bianucci \texttt{<bianucci@in.tum.de>}
-	}
+\author{Oleksandr Voloshyn\\ Qunsheng Huang\\ Tommaso Bianucci}
 \date{\today}
 
 \begin{document}
@@ -18,14 +14,12 @@
 \maketitle
 \renewcommand{\abstractname}{Group members's contributions}
 \begin{abstract}
-	\begin{center}
 	% Here write the contributions of the members of the group
-	Oleksandr Voloshyn: worked on 4.1, 4.2, 4.3, 5.1, 5.3
+	Oleksandr Voloshyn: Worked on 4.1, 4.2, 4.3, 5.1, 5.3
 
-	Tommaso Bianucci: worked on 4.1, 4.2, 4.3, 5.2, 5.3
+	Tommaso Bianucci: Worked on 4.1, 4.2, 4.3, 5.2, 5.3
 	
-	Qunsheng Huang: worked on 4.1, 4.3, 4.4, 5.1
-	\end{center}
+	Qunsheng Huang: Worked on 4.1, 4.3, 4.4, 5.1
 \end{abstract}
 
 \section{Performance baseline} % Name of assignment 1
@@ -176,7 +170,7 @@
 	Linear scalability was achieved for certain numbers of processors. For the GNU++ compiler, we see a linear scaling (with regards to speed) if the number of threads is between 1 and 5. We see a similar pattern for the Intel compiler between 1 and 7 threads. These two trends can be seen in Fig. \ref{fig:omp_speedup}. After the maximum speedup is achieved, we then see that speedup decreases sharply and performance worsens. This is especially the case for the Intel compiler---when using more than 26 processors, the speedup drops below 1. 
 
 	% Figure example
-	\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	\begin{figure}[ht!] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	 	\begin{center}
 	 		\includegraphics[width=.7\linewidth]{OMP_speedup.png} % It searches in the Figures/ folder!
 	 		\caption{OpenMP: Speedup vs. \# Processors}
@@ -188,9 +182,9 @@
 
 	\item \hl{On which thread-count was the maximum performance achieved? Was it the same for both the Intel and the GNU compilers?}
 
-	For the Intel compiler, the maximum speedup was 4.64 (11.32s) with 16 threads. For the GNU++ compiler, the maximum speedup was 3.43 (19.57s) with 15 threads. The minimum point can be seen in Fig \ref{omp_time}. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU++ compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
+	For the Intel compiler, the maximum speedup was 4.64 (11.32s) with 16 threads. For the GNU++ compiler, the maximum speedup was 3.43 (19.57s) with 15 threads. The minimum point can be seen in Fig \ref{fig:omp_time}. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU++ compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
 	
-		\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{figure}[ht!] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	 	\begin{center}
 	 		\includegraphics[width=.7\linewidth]{OMP_time.png} % It searches in the Figures/ folder!
 	 		\caption{OpenMP: Execution Time vs. \# Processors}
@@ -198,7 +192,7 @@
 	 	\end{center}
 	\end{figure}
 	
-			\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
+			\begin{figure}[ht!] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	 	\begin{center}
 	 		\includegraphics[width=.7\linewidth]{OMP_efficiency.png} % It searches in the Figures/ folder!
 	 		\caption{OpenMP: Efficiency vs. \# Processors}
@@ -240,7 +234,7 @@
 		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		 	\begin{center}
 		 		\includegraphics[width=.75\linewidth]{MPI_strong_scaling_all.png} % It searches in the Figures/ folder!
-		 		\caption{MPI strong scaling results. Average of $s=24$ and $s=30$.}
+		 		\caption{MPI weak scaling results. Average of $s=24$ and $s=30$.}
 		 		\label{fig:MPI_strongScaling}
 		 	\end{center}
 		\end{figure}
@@ -280,6 +274,14 @@
 	\begin{description}
 		\item[Strong] We ran 2 experiments, one with -s 15 and one with -s 30. We see linear scaling in both cases. However, for the reduced domain size, we see in Fig \ref{fig:hybrid_strongscaling_s15} that the speedup decreases with 5 OpenMP threads. This is expected because, per Amdahl's law, the maximum speedup is limited by problem size. At 5 OpenMP threads, the cost of parallelisation outweights the benefits of parallelisation and we see a decrease in speedup. This can be remedied by increasing the overall domain size. We run the same form of strong scaling with -s=30 in Fig. \ref{fig:hybrid_strongscaling_s30} and we see that speedup continues to increase linearly at 5 OpenMP threads. For the hybrid case, the fastest speedup was for the 
 	\end{description}
+	
+		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	 	\begin{center}
+	 		\includegraphics[width=.75\linewidth]{HYBRID_Speedup_15.png} % It searches in the Figures/ folder!
+	 		\caption{Hybrid strong scaling, $s=30$.}
+	 		\label{fig:hybrid_strongscaling_s15}
+	 	\end{center}
+	\end{figure}
 		
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	 	\begin{center}
