@@ -1,0 +1,45 @@
+Test: 1
+node = 1
+total_tasks = 1
+time = 50.97
+
+Test: 2
+node = 1
+total_tasks = 1
+time = 51.21
+
+Test: 3
+node = 1
+total_tasks = 1
+time = 51.27
+
+Test: 4
+node = 1
+total_tasks = 8
+time = 7.04
+
+Test: 5
+node = 1
+total_tasks = 8
+time = 7.10
+
+Test: 6
+node = 1
+total_tasks = 8
+time = 7.04
+
+Test: 7
+node = 1
+total_tasks = 27
+time = 2.43
+
+Test: 8
+node = 1
+total_tasks = 27
+time = 2.43
+
+Test: 9
+node = 1
+total_tasks = 27
+time = 2.42
+
