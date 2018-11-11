@@ -7,13 +7,10 @@
 % \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{microtype}
-%%% Todo margin notes
-\usepackage{todonotes}
-% \usepackage[disable]{todonotes}
+
 %%%
-% Only if using IEEE
-% \let\labelindent\relax % This is in order not to get clashes with IEEEtran
-\usepackage[inline]{enumitem} % Required for the "description" list.
+% \usepackage[inline]{enumitem} % Required for the "description" list.
+
 %%% Fix for not hyperlinking citations
 \makeatletter
 \let\NAT@parse\undefined
@@ -30,4 +27,18 @@
 \graphicspath{{Figures/}}
 \usepackage{amsmath}
 % \interdisplaylinepenalty=2500
+
+% Shading of questions. Use the "shaded" environment or the "\hl{}" command.
+\usepackage{framed}
+% \usepackage[dvipsnames]{color}
+\usepackage[svgnames]{xcolor}
+\usepackage{soul}
+% Nice colours: Gainsboro, LightGoldenrod, LightSteelBlue
+% furter ref: https://www.latextemplates.com/svgnames-colors
+\definecolor{shadecolor}{named}{Gainsboro}
+\sethlcolor{Gainsboro}
+
+%%% Todo margin notes (enable/disable)
+\usepackage{todonotes}
+% \usepackage[disable]{todonotes}
 %%%
