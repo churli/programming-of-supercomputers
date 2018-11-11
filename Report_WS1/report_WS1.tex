@@ -139,9 +139,9 @@
 
 	Not necessarily. The speed increase is dependent on the implementation on the code - especially when modern compilers already implement many forms of optimization. It is often likely that hand-written assembler code is often slower than compiler optimized assembler code. However, there do exist specific cases where an inline assembler may be faster. The most relevant cases to this module include:
 	\begin{itemize}
-		\item \hl{Implement instructions which are not yet possible in the current language. For example, certain operations, such as a full-multiplication operator in C---2N-bit result from N-bit inputs. Most x86 CPUs can, however, perform this operation in a single instruction. In these rare cases, it would be beneficial to use optimal functions that belong to the specific CPU when available.}
+		\item Implement instructions which are not yet possible in the current language. For example, certain operations, such as a full-multiplication operator in C---2N-bit result from N-bit inputs. Most x86 CPUs can, however, perform this operation in a single instruction. In these rare cases, it would be beneficial to use optimal functions that belong to the specific CPU when available.
 
-		\item \hl{Spot-optimizing specific lines of code. For example, compilers may not optimally vectorize complicated loops, since it has to deal with many general cases. If the programmer understands the problem well, it may be beneficial to use the inline assembler to perform the loop operations.}
+		\item Spot-optimizing specific lines of code. For example, compilers may not optimally vectorize complicated loops, since it has to deal with many general cases. If the programmer understands the problem well, it may be beneficial to use the inline assembler to perform the loop operations.
 	\end{itemize}
 	
 	\item \hl{On the release of a CPU with new instructions, can you use an inline assembler to take advantage of these instructions if the compiler does not support them yet?}
