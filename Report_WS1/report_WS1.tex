@@ -17,11 +17,11 @@
 \renewcommand{\abstractname}{Group members's contributions}
 \begin{abstract}
 	% Here write the contributions of the members of the group
-	Oleksandr Voloshyn: Worked on 4.1, 4.2, 4.3
+	Oleksandr Voloshyn: Worked on 4.1, 4.2, 4.3, 5.1
 
-	Tommaso Bianucci: Worked on 4.1, 4.2, 4.3
+	Tommaso Bianucci: Worked on 4.1, 4.2, 4.3, 5.2, 5.3
 	
-	Qunsheng Huang: Worked on 4.1, 4.3, 4.4
+	Qunsheng Huang: Worked on 4.1, 4.3, 4.4, 5.1
 \end{abstract}
 
 \section{Performance baseline} % Name of assignment 1
@@ -137,8 +137,33 @@ AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512
  %	\end{center}
 %\end{figure}
 
-\section{Name of assignment 2}
-\subsection{Name of sub-assignment 2.1}
+\section{Performance Scaling}
+\subsection{OpenMP}
+\begin{enumerate}
+\item{Was linear scalability achieved?}\\\\
+Linear scalability was achieved for certain numbers of processors. For the GNU++ compiler, we see a linear scaling (with regards to speed) if the number of processors is between 1 and 5, as seen in Fig. \ref{fig:gnu_omp_speedup}. We see a similar pattern for the Intel compiler between X and X, seen in Fig. . After the maximum speedup is achieved, we then see that speedup decreases sharply and performance worsens. This is especially the case for the Intel compiler---when using more than X processors, the speedup drops below 1. 
+
+% Figure example
+\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
+ 	\begin{center}
+ 		\includegraphics[width=.7\linewidth]{OMP_GNU_Speedup.png} % It searches in the Figures/ folder!
+ 		\caption{GNU Compiler with OpenMP: Speedup vs. \# Processors}
+ 		\label{fig:gnu_omp_speedup}
+ 	\end{center}
+\end{figure}
+
+\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
+ 	\begin{center}
+ 		\includegraphics[width=.7\linewidth]{OMP_ICC_speedup.png} % It searches in the Figures/ folder!
+ 		\caption{Intel Compiler without OpenMP: Speedup vs. \# Processors}
+ 		\label{fig:gnu_icc_speedup}
+ 	\end{center}
+\end{figure}
+
+\item{On which thread-count was the maximum performance achieved? Was it the same for both the Intel and the GNU compilers?}\\\\
+For the Intel compiler, the maximum speedup was 4.64 (11.32) with 16 processors. For the GNU++ compiler, the maximum speedup was 3.43 (19.57s) with 10 processors. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU++ compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
+
+\end{enumerate}
 Lorem ipsum
 
 \end{document}
