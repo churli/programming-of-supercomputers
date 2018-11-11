@@ -284,7 +284,7 @@
 	
 	\item \hl{Would you have guessed this best combination before performing the experiments in Sections 5.1, 5.2 and 5.3?}
 
-	This is somewhat unexpected. We thought that the hybrid case should be able to outperform both MPI and OpenMP implementations. However, it appears that a pure MPI process is faster. We limited our experimentation to a single node due to the queue time of multi-node jobs. It is possible that at larger domain sizes, the hybrid approach will scale better. The main cause of the slower hybrid approach appears to be the OpenMP. We see that the runtimes for OpenMP processes can vary sigificantly, especially with a higher number of threads. 
+	This is somewhat unexpected. We thought that the hybrid case should be able to outperform both MPI and OpenMP implementations. However, it appears that a pure MPI process is faster. We limited our experimentation to a single node due to the queue time of multi-node jobs. It is possible that at larger domain sizes, the hybrid approach will scale better.
 \end{enumerate}
 
 \end{document}
