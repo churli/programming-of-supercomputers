@@ -94,7 +94,7 @@ There were differences between the two compilers. In general, the code compiled 
 mization flags are available for each compiler (approximately)?}\\\\
 gcc-help shows approximately 100 compiler flags, icpc-help show approximately 18 optimization flags, 8 interprocedural optimization flags, 60 advanced optimization options and 20 profile guided optimizations, for a total of 106 flags.
 \item{Given how much time it takes to evaluate a combination of compiler flags, is it realistic to test all possible combinations of available compiler flags? What could be a possible solution?}\\\\
- Each test run takes approximately 40-50 seconds to complete, excluding the time required for compilation of the code. Given that there are more than 100 optimiation flags for each compiler, we can conservatively estimate that the total time to completion would exceed $6\times10^{32}s$, which is completely unfeasible. Instead, it would make sense for us to examine the code to determine what possible bottlenecks exist and apply flags that could improve the situation. 
+ Each test run takes approximately 40-50 seconds to complete, excluding the time required for compilation of the code. Given that there are more than 100 optimization flags for each compiler, we can conservatively estimate that the total time to completion would exceed $6\times10^{32}s$, which is completely unfeasible. Instead, it would make sense for us to examine the code to determine what possible bottlenecks exist and apply flags that could improve the situation. 
 \item{Which compiler and optimization flags combination produced the fastest binary?}\\\\
 For the GNU++ compiler, we determined that the effect of the flags was somewhat inconsistent. We performed a simple statistical analysis of the effects of the flags over 3 runs. Overall, we observed that the flags "-march=native" and "-funroll-loops" were constantly associated with binaries with the best performance.
 
@@ -105,7 +105,7 @@ The fastest binary from both compilers was compiled using the Intel compiler wit
 
 \subsection{Optimization pragmas}
 \begin{enumerate}
-\item{What is the difference between Intels simd, vector and ivdep \#pragma directives?}\\\\
+\item{What is the difference between Intel's \verb!simd!, \verb!vector! and \verb!ivdep! \verb!#pragma! directives?}\\\\
 The three pragmas allow the compiler to ignore certain requirements when vectorizing. The simd pragma forces vectorization to occur, ignoring safety or cost. The vector pragma forces the compiler to ignore cost when deciding to vectorize (as a result the code may run slower after vectorization). The ivdep pragma instructs compiler to ignore assumed vector dependencies - ie compiler may choose to treat assumed dependencies as proven dependencies. This pragma instructs compiler to ignore such assumptions and proceed with vectorisation.
 \item{Why did you choose to apply the selected \#pragma in the particular location?}\\\\
 We chose to apply \verb!#pragma loop_count avg(27000)! to the function \verb!CalcHourglassControlForElems! in lulesh.cc. When running the task in serial, more than 70\% of overall runtime time was spent in this function. This function contains a highly complicated loop that may require specific treatment for optimization.
@@ -122,7 +122,7 @@ Not necessarily. The speed increase is dependent on the implementation on the co
 \item{On the release of a CPU with new instructions, can you use an inline assembler to take advantage of these instructions if the compiler does not support them yet?}\\\\
 Yes. One benefit to inline assemblers is that it allows access to processor specific instructions which the compiler may not support. Examples may include FPU instructions that may be faster than compiler generated floating operations. However, the onus of correct usage of these commands then falls on the programmer.
 \item{What is AVX-512? Which CPUs support it? Is there any compiler or language support for these instructions at this moment?}\\\\
-AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512-bit extensions to the preexisting AVX/AVX2 instructions. They were first supported by the Xeon-Phi x200 (Knights Landing) and Skylake-X CPUs. Note that AVX-512 is not the first 512-bit SIMD instructions released by Intel. These commands are supported in the intel C++ compiler under the namespace AVX. The -xCOMMON-AVX512 flag can be used for auto-vectorization using AVX-512 functions.
+AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512-bit extensions to the preexisting AVX/AVX2 instructions. They were first supported by the Xeon-Phi x200 (Knights Landing) and Skylake-X CPUs. Note that AVX-512 is not the first 512-bit SIMD instructions released by Intel. These commands are supported in the intel C++ compiler under the namespace AVX. The \verb!-xCOMMON-AVX512! flag can be used for auto-vectorization using AVX-512 functions.
 
 \end{enumerate}
 
@@ -174,10 +174,13 @@ AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512
 
 	\item Was linear scalability achieved?
 
-	\begin{description}
-		\item[Weak]	 Ideal linear weak scaling occurs when the runtime does not vary with the number of processes. We could instead see (Fig.\ref{fig:MPI_weakScaling}) a marked increase in runtime in this case and the \emph{weak scaling efficiency}\footnote{Defined as $\frac{T(1)}{T(N)}$ where $N$ is the number of processes.} decreasing drastically.
+	% Definitions of strong and weak scaling efficiency from:
+	% https://www.sharcnet.ca/help/index.php/Measuring_Parallel_Scaling_Performance
 
-		\item[Strong] Ideal linear strong scaling is achieved if the speedup equals the number of processes, i.e. if $S(N) = N$. We could observe a quite good linear scaling behaviour, although not perfect. As shown in Fig.\ref{fig:MPI_strongScaling}, the actual speedup (solid blue line) quite follows the ideal linear scaling one (dashed red line). The \emph{strong scaling efficiency}\footnote{Defined as $\frac{T(1)}{N \cdot T(N)}$.} drops to $80\%$ with 27 MPI processes on the same node.
+	\begin{description}
+		\item[Weak]	 Ideal linear weak scaling occurs when the runtime does not vary with the number of processes. We could instead see (Fig.\ref{fig:MPI_weakScaling}) a marked increase in runtime in this case and the \emph{weak scaling efficiency}\footnote{Defined as $speedup(N) = \frac{T(1)}{T(N)}$ where $N$ is the number of processes.} decreasing drastically.
+
+		\item[Strong] Ideal linear strong scaling is achieved if the speedup equals the number of processes, i.e. if $S(N) = N$. We could observe a quite ggod linear scaling behaviour, although not perfect. As shown in Fig.\ref{fig:MPI_strongScaling}, the actual speedup (solid blue line) quite follows the ideal linear scaling one (dashed red line). The \emph{strong scaling efficiency}\footnote{Defined as $speedup(N)/N = \frac{T(1)}{N \cdot T(N)}$.} drops to $80\%$ with 27 MPI processes on the same node.
 
 		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		 	\begin{center}
@@ -201,7 +204,7 @@ AVX stands for Advanced Vector Extensions SIMD instructions. AVX-512 are the 512
 
 	\item How does the performance compare to the results achieved with OpenMP in Section 5.1?
 
-	The results clearly show that using MPI allows for a better strong scaling behaviour compared to OpenMP. With OpenMP we achieve a maximum speedup around 4, both with gcc and intel compilers, while with MPI we reach a speedup of 21 with 27 processes.
+	The results clearly show that using MPI allows for a better strong scaling behaviour compared to OpenMP. With OpenMP we achieve a maximum speedup around 4.5, both with gcc and intel compilers, while with MPI we reach a speedup of 21 with 27 processes.
 
 	TODO
 	}
