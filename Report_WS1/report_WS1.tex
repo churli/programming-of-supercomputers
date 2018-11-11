@@ -254,16 +254,18 @@
 	Strong scaling is achieved by keeping the problem size constant and increasing the number of threads.This is seen when we run with 8 MPI processes and 1-5 OpenMP threads. 
 	
 	\begin{description}
-		\item[Strong] We ran 2 experiments, one with -s 15 and one with -s 30. We do not achieve linear scaling for either case. However, for the smaller domain size, we see in Fig \ref{fig:hybrid_speedup} that the speedup decreases when the number of OpenMP threads is increased to 5. This is expected because, per Amdahl's law, the maximum speedup for strong scaling is limited by problem size. At 5 OpenMP threads, the cost of parallelisation outweights its benefits and we see a decrease in speedup. This can be remedied by increasing the overall domain size. We run the same form of strong scaling with -s=30 in and we see that speedup continues does not decrease with 5 OpenMP threads.
-
+		\item[Strong] We ran 2 experiments, one with -s 15 and one with -s 30. We do not achieve linear scaling for either case. However, for the smaller domain size, we see in Fig.\ref{fig:hybrid}.a that the speedup decreases when the number of OpenMP threads is increased to 5. This is expected because, per Amdahl's law, the maximum speedup for strong scaling is limited by problem size. At 5 OpenMP threads, the cost of parallelisation outweights its benefits and we see a decrease in speedup. This can be remedied by increasing the overall domain size. We run the same form of strong scaling with $s=30$ in and we see that speedup continues does not decrease with 5 OpenMP threads.
 	\end{description}
 		
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-	 	\begin{center}
-	 		\includegraphics[width=.75\linewidth]{HYBRID_Speedup.png} % It searches in the Figures/ folder!
-	 		\caption{Hybrid strong scaling, $s=30$.}
-	 		\label{fig:hybrid_speedup}
-	 	\end{center}
+		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
+			\includegraphics[width=.7\linewidth]{HYBRID_Speedup.png} & \includegraphics[width=.7\linewidth]{Efficiency.png}\\
+			(a) Hybrid strong scaling, $s=15$ and $s=30$. & (b) Parallel efficiency comparison, $s=30$.
+		\end{tabular}
+		% \label{fig:hybrid_speedup}
+		% 	\label{fig:efficiency}
+		\label{fig:hybrid}
+		\caption{Hybrid strong scaling results: comparison of different domain sizes and against other methods.}
 	\end{figure}
 	
 	\item \hl{How does the performance compare to the results achieved with OpenMP in Section 5.1 and with MPI in Section 5.2?}
@@ -272,15 +274,7 @@
 	
 	\item \hl{Which solution is overall the fastest?}
 
-	Overall, the fastest solution is with a pure MPI implementation with a speedup of 21 and a runtime of 2.43 seconds. We can see that pure MPI approach scales much better with total number of processes (\# MPI processes * \# OpenMP threads) in Fig.\ref{fig:efficiency}.
-	
-		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-	 	\begin{center}
-	 		\includegraphics[width=.75\linewidth]{Efficiency.png} % It searches in the Figures/ folder!
-	 		\caption{Parallel Efficiency.}
-	 		\label{fig:efficiency}
-	 	\end{center}
-	\end{figure}
+	Overall, the fastest solution is with a pure MPI implementation with a speedup of 21 and a runtime of 2.43 seconds. We can see that pure MPI approach scales much better with total number of processes (\# MPI processes * \# OpenMP threads) in Fig.\ref{fig:hybrid}.b.
 	
 	\item \hl{Would you have guessed this best combination before performing the experiments in Sections 5.1, 5.2 and 5.3?}
 
