@@ -258,11 +258,15 @@
 	\item \hl{What are the valid combinations of processes and threads?}
 
 	Understanding that the multiple of MPI processes and OpenMP threads must be less than 40 and that the number of processes must increase in a cubic fashion, we have the following possible combinations for a single node:
-	MPI Processes: 8
-	OpenMP Threads: 1-5
+	\begin{itemize}
+	\item   MPI Processes: 8\\
+			OpenMP Threads: 1-5
+	\item	MPI Processes: 27\\
+			OpenMP Threads: 1
+	\end{itemize}
+
 	
-	MPI Processes: 27
-	OpenMP Threads: 1
+
 	
 	We omit the study of when MPI processes = 1 as the scaling should be identical to the strong scaling in the OpenMP study.
 	
@@ -273,22 +277,14 @@
 	Strong scaling is achieved by keeping the problem size constant and increasing the number of threads.This is seen when we run with 8 MPI processes and 1-5 OpenMP threads. 
 	
 	\begin{description}
-		\item[Strong] We ran 2 experiments, one with -s 15 and one with -s 30. We see linear scaling in both cases. However, for the reduced domain size, we see in Fig \ref{fig:hybrid_strongscaling_s15} that the speedup decreases with 5 OpenMP threads. This is expected because, per Amdahl's law, the maximum speedup is limited by problem size. At 5 OpenMP threads, the cost of parallelisation outweights the benefits of parallelisation and we see a decrease in speedup. This can be remedied by increasing the overall domain size. We run the same form of strong scaling with -s=30 in Fig. \ref{fig:hybrid_strongscaling_s30} and we see that speedup continues to increase linearly at 5 OpenMP threads. For the hybrid case, the fastest speedup was for the 
+		\item[Strong] We ran 2 experiments, one with -s 15 and one with -s 30. We see linear scaling in both cases. However, for the reduced domain size, we see in Fig \ref{fig:hybrid_speedup} that the speedup decreases with 5 OpenMP threads. This is expected because, per Amdahl's law, the maximum speedup is limited by problem size. At 5 OpenMP threads, the cost of parallelisation outweights the benefits of parallelisation and we see a decrease in speedup. This can be remedied by increasing the overall domain size. We run the same form of strong scaling with -s=30 and we see that speedup continues to increase at 5 OpenMP threads.
 	\end{description}
-	
-		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-	 	\begin{center}
-	 		\includegraphics[width=.75\linewidth]{HYBRID_Speedup_15.png} % It searches in the Figures/ folder!
-	 		\caption{Hybrid strong scaling, $s=15$.}
-	 		\label{fig:hybrid_strongscaling_s15}
-	 	\end{center}
-	\end{figure}
 		
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	 	\begin{center}
-	 		\includegraphics[width=.75\linewidth]{HYBRID_Speedup_30.png} % It searches in the Figures/ folder!
-	 		\caption{Hybrid strong scaling, $s=30$.}
-	 		\label{fig:hybrid_strongscaling_s30}
+	 		\includegraphics[width=.75\linewidth]{HYBRID_Speedup.png} % It searches in the Figures/ folder!
+	 		\caption{Hybrid strong scaling.}
+	 		\label{fig:hybrid_speedup}
 	 	\end{center}
 	\end{figure}
 	
