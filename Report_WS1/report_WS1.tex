@@ -98,15 +98,19 @@
 	
 	\item \hl{Is gprof capable of analyzing parallel applications?}
 
-	Yes, gprof can be used to analyse some parallel applications. However, typically only the performance of the main thread is recorded (as in the case of MPI implementations). The obscuring of information can be seen especially in the case of openMP, where the code spends more than 50\% of the time in "frame dummy", a function that does not exist in source code.
+	Yes, gprof can be used to analyse some parallel applications. However, additional steps must be taken for proper analysis. Otherwise, some information will be obscured:
+	\begin{itemize}
+		\item In the case of MPI implementations, only the performance of the main thread is recorded. 
+		\item In the case of OpenMP processes, much of the profiling information is obscured---as seen in the attached gprof, the code spends more than 50\% of the time in "frame dummy", a function that does not exist in source code.
+	\end{itemize}
 
 	\item \hl{What is necessary to analyze parallel applications?}
 
-	Gprof typically only produces one \verb!gmon.out! output file for the main process. However, in a parallel process, multiple output files are required. When using MPI processes, it is possible to inform gprof, via environmental variables, of the number of threads produced and run. One \verb!gmon.out! is then produced per thread. These files can then be aggregated to determine the overall behavior of all threads together or analysed separately.
+	Gprof typically only produces one \verb!gmon.out! output file for the main process. However, in a parallel process, multiple output files are required. When using MPI processes, it is possible to inform gprof, via environmental variables, of the number of threads produced and run. One \verb!gmon.out! is then produced per thread. These files can then be aggregated to determine the overall behavior of all threads together or analysed separately. For OpenMP applications, the tag \verb!-openmp-stubs! must be used, which will force a sequential execution of the program for profiling purposes.
 
 	\item \hl{Where there performance differences between the GNU and the Intel compiler?}
 
-	There were differences between the two compilers. In general, the code compiled by the Intel compiler was slightly faster. The difference between the code compiled by the two compilers is approximately 2s and this varied slightly each job. Four jobs were run using the automated script in Section 4.2 of the assignment - in both cases, the Intel compiled code ran approximately ~2s faster with the optimal.
+	There were differences between the two compilers. In general, the code compiled by the Intel compiler was slightly faster. The difference between the code compiled by the two compilers is approximately 2s and this varied slightly each job. Four jobs were run using the automated script in Section 4.2 of the assignment---overall, the Intel compiled code ran approximately ~2s faster than the GNU, both with the optimal flags.
 \end{enumerate}
 
 \subsection{Compiler flags}
@@ -133,7 +137,7 @@
 \begin{enumerate}
 	\item \hl{What is the difference between Intel's \emph{simd}, \emph{vector} and \emph{ivdep} \emph{\#pragma} directives?}
 
-	The three pragmas allow the compiler to ignore certain requirements when vectorizing. The simd pragma forces vectorization to occur, ignoring safety or cost. The vector pragma forces the compiler to ignore cost when deciding to vectorize (as a result the code may run slower after vectorization). The ivdep pragma instructs compiler to ignore assumed vector dependencies - ie compiler may choose to treat assumed dependencies as proven dependencies. This pragma instructs compiler to ignore such assumptions and proceed with vectorisation.
+	The three pragmas allow the compiler to ignore certain requirements when vectorizing. The simd pragma forces vectorization to occur, ignoring safety or cost. The vector pragma forces the compiler to ignore cost when deciding to vectorize (as a result the code may run slower after vectorization). The ivdep pragma instructs compiler to ignore assumed vector dependencies---i.e. the compiler may choose to treat assumed dependencies as proven dependencies. This pragma instructs compiler to ignore such assumptions and proceed with vectorisation.
 	\item \hl{Why did you choose to apply the selected \#pragma in the particular location?}
 
 	We chose to apply \verb!#pragma loop_count avg(27000)! to the function \verb!CalcHourglassControlForElems! in lulesh.cc. When running the task in serial, more than 70\% of overall runtime time was spent in this function. This function contains a highly complicated loop that may require specific treatment for optimization.
@@ -143,9 +147,9 @@
 \begin{enumerate}
 	\item \hl{Is the inline assembler necessarily faster than compiler generated code?}
 
-	Not necessarily. The speed increase is dependent on the implementation on the code - especially when modern compilers already implement many forms of optimization. It is often likely that hand-written assembler code is often slower than compiler optimized assembler code. However, there do exist specific cases where an inline assembler may be faster. The most relevant cases to this module include:
+	Not necessarily. The speed increase is dependent on the implementation on the code---especially when modern compilers already implement many forms of optimization. It is often likely that hand-written assembler code is often slower than compiler optimized assembler code. However, there do exist specific cases where an inline assembler may be faster. The most relevant cases to this module include:
 	\begin{itemize}
-		\item Implement instructions which are not yet possible in the current language. For example, certain operations, such as a full-multiplication operator in C---2N-bit result from N-bit inputs. Most x86 CPUs can, however, perform this operation in a single instruction. In these rare cases, it would be beneficial to use optimal functions that belong to the specific CPU when available.
+		\item Implement instructions which are not yet supported by the current compiler. For example, a full-multiplication operator (2N-bit result from N-bit inputs), which is not available in C . Most x86 CPUs can, however, perform this operation in a single instruction. In these rare cases, one can use inline assemblers to access optimal functions that belong to the specific CPU when available.
 
 		\item Spot-optimizing specific lines of code. For example, compilers may not optimally vectorize complicated loops, since it has to deal with many general cases. If the programmer understands the problem well, it may be beneficial to use the inline assembler to perform the loop operations.
 	\end{itemize}
@@ -227,21 +231,19 @@
 	\item \hl{How does the performance compare to the results achieved with OpenMP in Section 5.1?}
 
 	The results clearly show that using MPI allows for a better strong scaling behaviour compared to OpenMP. With OpenMP we achieve a maximum speedup around 4.5, both with gcc and intel compilers, while with MPI we reach a speedup of 21 with 27 processes.
-
-	TODO
-	
-	
 \end{enumerate}
+
 \subsection{OpenMP + MPI}
 \begin{enumerate}
 	\item \hl{What are the valid combinations of processes and threads?}
 
 	Understanding that the multiple of MPI processes and OpenMP threads must be less than 40 and that the number of processes must increase in a cubic fashion, we have the following possible combinations for a single node:
-	MPI Processes: 8
-	OpenMP Threads: 1-5
-	
-	MPI Processes: 27
-	OpenMP Threads: 1
+	\begin{itemize}
+		\item   MPI Processes: 8\\
+				OpenMP Threads: 1-5
+		\item	MPI Processes: 27\\
+				OpenMP Threads: 1
+	\end{itemize}
 	
 	We omit the study of when MPI processes = 1 as the scaling should be identical to the strong scaling in the OpenMP study.
 	
