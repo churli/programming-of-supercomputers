@@ -171,20 +171,36 @@ Lorem ipsum
 	Only number of processes which are perfect cubes are allowed. So on a single node, which has 40 cores, we can use 1, 8, 27.
 	}
 
-	\item{Was linear scalability achieved?
+	\item Was linear scalability achieved?
 
-	Weak: No, linear weak scaling would ideally be when the runtime does not vary with scaling. We could instead see\todo{Here add reference to the scaling efficiency plot!} a marked increase in runtime in this case.
+	\begin{description}
+		\item[Weak]	 Ideal linear weak scaling occurs when the runtime does not vary with the number of processes. We could instead see (Fig.\ref{fig:MPI_weakScaling}) a marked increase in runtime in this case and the \emph{weak scaling efficiency}\footnote{Defined as $\frac{T(1)}{T(N)}$ where $N$ is the number of processes.} decreasing drastically.
 
-	Strong: Yes for the strong scaling case we could observe almost perfect linear scaling. (TODO: more details here\todo{Here add reference to the scaling efficiency plot!} )
-	}
-	\item{On which process-count was the maximum performance achieved?
+		\item[Strong] Ideal linear strong scaling is achieved if the speedup equals the number of processes, i.e. if $S(N) = N$. We could observe a quite ggod linear scaling behaviour, although not perfect. As shown in Fig.\ref{fig:MPI_strongScaling}, the actual speedup (solid blue line) quite follows the ideal linear scaling one (dashed red line). The \emph{strong scaling efficiency}\footnote{Defined as $\frac{T(1)}{N \cdot T(N)}$.} drops to $80\%$ with 27 MPI processes on the same node.
+
+		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		 	\begin{center}
+		 		\includegraphics[width=.75\linewidth]{MPI_weak_scaling_all.png} % It searches in the Figures/ folder!
+		 		\caption{MPI weak scaling results.}
+		 		\label{fig:MPI_weakScaling}
+		 	\end{center}
+		\end{figure}
+		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		 	\begin{center}
+		 		\includegraphics[width=.75\linewidth]{MPI_strong_scaling_all.png} % It searches in the Figures/ folder!
+		 		\caption{MPI weak scaling results.}
+		 		\label{fig:MPI_strongScaling}
+		 	\end{center}
+		\end{figure}
+	\end{description}
+
+	\item On which process-count was the maximum performance achieved?
+
+	From a strong scaling perspective, the best performance was achieved with 27 MPI processes.
+
+	\item How does the performance compare to the results achieved with OpenMP in Section 5.1?
 
 	TODO
-	}
-	\item{How does the performance compare to the results achieved with OpenMP in Section 5.1?
-
-	TODO
-	}
 \end{enumerate}
 
 \end{document}
