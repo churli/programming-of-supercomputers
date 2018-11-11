@@ -196,28 +196,24 @@
 	% https://www.sharcnet.ca/help/index.php/Measuring_Parallel_Scaling_Performance
 
 	\begin{description}
-		\item[Weak]	 Ideal linear weak scaling occurs when the runtime does not vary with the number of processes. We could instead see (Fig.\ref{fig:MPI_weakScaling}) a marked increase in runtime in this case and the \emph{weak scaling efficiency}\footnote{Defined as $speedup(N) = \frac{T(1)}{T(N)}$ where $N$ is the number of processes.} decreasing drastically.
+		\item[Weak]	 Ideal linear weak scaling occurs when the runtime does not vary with the number of processes. We could instead see (Fig.\ref{fig:MPI_scaling}.a) a marked increase in runtime in this case and the \emph{weak parallel efficiency}\footnote{Defined as $speedup(N) = \frac{T(1)}{T(N)}$ where $N$ is the number of processes.} decreasing drastically.
 
 		\item[Strong]
 		Ideal linear strong scaling is achieved if the speedup equals the number of processes, i.e. if $S(N) = N$.
 
 		To test strong scaling we adjusted the problem size per MPI process in order to keep the volume of the entire domain constant. This means that in our test runs with initial size 24, we used $s=24$, $s=12$, $s=8$ for 1, 8 and 27 MPI processes respectively, while for our test runs with initial size 30, we used $s=30$, $s=15$, $s=10$ for 1, 8 and 27 MPI processes respectively.
 
-		We could observe an almost linear scaling behaviour, although not perfect. As shown in Fig.\ref{fig:MPI_strongScaling}, the actual speedup (solid blue line) quite follows the ideal linear scaling one (dashed red line). The \emph{strong parallel efficiency}\footnote{Defined as $speedup(N)/N = \frac{T(1)}{N \cdot T(N)}$.} drops to $80\%$ with 27 MPI processes on the same node.
+		We could observe an almost linear scaling behaviour, although not perfect. As shown in Fig.\ref{fig:MPI_scaling}.b, the actual speedup (solid blue line) quite follows the ideal linear scaling one (dashed red line). The \emph{strong parallel efficiency}\footnote{Defined as $speedup(N)/N = \frac{T(1)}{N \cdot T(N)}$.} drops to $80\%$ with 27 MPI processes on the same node.
 
 		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		 	\begin{center}
-		 		\includegraphics[width=.75\linewidth]{MPI_weak_scaling_all.png} % It searches in the Figures/ folder!
-		 		\caption{MPI weak scaling results. Average of $s=24$ and $s=30$.}
-		 		\label{fig:MPI_weakScaling}
-		 	\end{center}
-		\end{figure}
-		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		 	\begin{center}
-		 		\includegraphics[width=.75\linewidth]{MPI_strong_scaling_all.png} % It searches in the Figures/ folder!
-		 		\caption{MPI weak scaling results. Average of $s=24$ and $s=30$.}
-		 		\label{fig:MPI_strongScaling}
-		 	\end{center}
+		 	\hspace*{-0.25\linewidth}\begin{tabular}{cc}
+		 		\includegraphics[width=.7\linewidth]{MPI_weak_scaling_all.png} & \includegraphics[width=.7\linewidth]{MPI_strong_scaling_all.png} \\
+		 		(a) Weak scaling & (b) Strong scaling
+		 	\end{tabular}
+		 	\caption{MPI scaling results. Results are averaged between runs with $s=24$ and $s=30$ as base sizes.}
+		 	% \label{fig:MPI_weakScaling}
+		 	% \label{fig:MPI_strongScaling}
+		 	\label{fig:MPI_scaling}
 		\end{figure}
 	\end{description}
 
