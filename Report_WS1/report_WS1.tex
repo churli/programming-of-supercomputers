@@ -294,11 +294,19 @@
 	
 	\item \hl{Which solution is overall the fastest?}
 
-	Overall, the fastest solution is with a pure MPI implementation with a speedup of 21 and a runtime of 2.43 seconds.
+	Overall, the fastest solution is with a pure MPI implementation with a speedup of 21 and a runtime of 2.43 seconds. We can see that pure MPI approach scales much better with total number of processes (\# MPI processes * \# OpenMP threads) in Fig.\ref{fig:efficiency}.
+	
+		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	 	\begin{center}
+	 		\includegraphics[width=.75\linewidth]{Efficiency.png} % It searches in the Figures/ folder!
+	 		\caption{Parallel Efficiency.}
+	 		\label{fig:efficiency}
+	 	\end{center}
+	\end{figure}
 	
 	\item \hl{Would you have guessed this best combination before performing the experiments in Sections 5.1, 5.2 and 5.3?}
 
-	This is not unexpected. We understand that when running an MPI process, the memory allocation happens separately for each MPI process. However, OpenMP is a form of shared memory parallelisation. As the granularity of the implementation decreases, communication overhead increases for MPI processes, while the costs to maintain memory coherence when multiple threads access similar regions in memory increase for OpenMP processes.
+	This is somewhat unexpected. We thought that the hybrid case should be able to outperform both MPI and OpenMP implementations. However, it appears that a pure MPI process is faster. We were slightly limited by the availability of nodes as jobs scheduled on multiple loads had an extremely long wait time. It is possible that at larger domain sizes, the hybrid approach will scale better. The main cause of the slower hybrid approach appears to be the OpenMP. We see that the runtimes for OpenMP processes can vary sigificantly, especially with a higher number of threads. We can also 
 \end{enumerate}
 
 \end{document}
