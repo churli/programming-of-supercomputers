@@ -185,8 +185,41 @@ Lorem ipsum
 
 	TODO
 	}
+	
 \end{enumerate}
+\subsection{OpenMP + MPI}
+\begin{enumerate}
+	\item{What are the valid combinations of processes and threads?
+	Understanding that the multiple of MPI processes and OpenMP threads must be less than 40 and that the number of processes must increase in a cubic fashion, we have the following possible combinations for a single node:
+	MPI Processes: 8
+	OpenMP Threads: 1-5
+	
+	MPI Processes: 27
+	OpenMP Threads: 1
+	
+	We omit the study of when MPI processes = 1 as the scaling should be identical to the strong scaling in the OpenMP study.
+	}
+	\item{Was linear scalability achieved?
+	Weak scaling is achieved when we increase the domain size proportional to the number of processes launched. Currently, if we limit our experiments to a single node, we cannot examine any interesting cases for weak scaling. We would need to keep the number of OpenMP threads per MPI process constant while increasing the domain size to scale with the number of MPI processes. The only possible case would be to examine 1, 8 , and 27 MPI processes with 1 OpenMP thread---the performance is identical to the weak scaling analysed in question 5.2.
+	Strong scaling is achieved by keeping the problem size constant and increasing the number of threads.This is seen when we run with 8 MPI processes and 1-5 OpenMP threads. 
+	Strong scaling: 
+	}
+	\item{How does the performance compare to the results achieved with OpenMP in Section 5.1
+	and with MPI in Section 5.2?
+	We see that the performance of the 
 
+	}
+	\item{Which solution is overall the fastest?
+	
+	}
+	
+	\item{Would you have guessed this best combination before performing the experiments in Sec-
+tions 5.1, 5.2 and 5.3?
+
+	}
+
+
+\end{enumerate}
 \end{document}
 
 %eof
