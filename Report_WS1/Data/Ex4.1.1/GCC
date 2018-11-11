@@ -1,0 +1,17 @@
+GCC
+Fast Tomaso:
+Tomaso:52.31
+Alex: 52.48
+
+Fast Alex:
+Tomaso:
+Alex:
+
+Intel:
+'-unroll'
+Fast Tomaso:
+Tomaso: 50.62
+Alex: 50.43
+
+2nd Fastest is without flags
+Flags Match!!!
