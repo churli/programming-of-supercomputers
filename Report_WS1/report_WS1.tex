@@ -126,7 +126,7 @@
 
 	\item \hl{Which compiler and optimization flags combination produced the fastest binary?}
 
-	For the GNU compiler, we determined that the effect of the flags was somewhat inconsistent. We performed a simple statistical analysis of the effects of the flags over 3 runs. Overall, we observed that the flags "-march=native" and "-funroll-loops" were constantly associated with binaries with the best performance.
+	For the GNU compiler, we determined that the effect of the flags was somewhat inconsistent. We performed a simple statistical analysis of the effects of the flags over 4 runs. Overall, we observed that the flags "-march=native" and "-funroll-loops" were constantly associated with binaries with the best performance.
 
 	For the Intel compiler, the fastest binary only used "-unroll" flag with a time of 50.43s to completion with a speedup of 1.00258. The second fastest binary was without flags with a time of 50.56.
 
@@ -168,14 +168,14 @@
 \begin{enumerate}
 	\item \hl{Was linear scalability achieved?}
 
-	Linear scalability was achieved for certain numbers of processors. For the GNU++ compiler, we see a linear scaling (with regards to speed) if the number of threads is between 1 and 5. We see a similar pattern for the Intel compiler between 1 and 7 threads. These two trends can be seen in Fig.\ref{fig:omp_performance}.a. After the maximum speedup is achieved, we then see that speedup decreases sharply and performance worsens. This is especially the case for the Intel compiler---when using more than 26 processors, the speedup drops below 1.
+	Linear scalability was not achieved. However, for the GNU compiler, we see that speedup increases between 1 and 5 threads. We see a similar pattern for the Intel compiler between 1 and 7 threads. These two trends can be seen in Fig.\ref{fig:omp_performance}. After the point of peak speedup, we then see that performance worsens and speedup values decrease as the costs of parallelization begin to dominate the gains from additional threads. This is especially the case for the Intel compiler---when using more than 26 processors, the speedup drops below 1.
 
-	We can also identify a problem when increasing the number of threads while keeping the domain constant---the performance of the program cannot be guaranteed if the domain is too small. We observe sudden decreases in speedup with both compiler above 8 threads (seen as spiky segments along the speedup graph)---this is likely due to issues with non-uniform memory access, especially since there is little transparency or control over how memory is accessed in OpenMP.
+	We also see that--when increasing the number of threads while keeping the domain constant--the performance of the program cannot be guaranteed. We observe sudden decreases in speedup with both compiler above 8 threads (seen as spiky segments along the speedup graph)---this is may be due to issues with non-uniform memory access.
 	\vspace{1mm}
 
 	\item \hl{On which thread-count was the maximum performance achieved? Was it the same for both the Intel and the GNU compilers?}
 
-	For the Intel compiler, the maximum speedup was 4.64 (11.32s) with 16 threads. For the GNU++ compiler, the maximum speedup was 3.43 (19.57s) with 15 threads. The minimum point can be seen in Fig.\ref{fig:omp_performance}.b. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU++ compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
+	For the Intel compiler, the maximum speedup was 4.64 (11.32s) with 16 threads. For the GNU compiler, the maximum speedup was 3.43 (19.57s) with 15 threads. The minimum point can be seen in Fig.\ref{fig:omp_performance}.b. While the Intel compiler experienced the best speedup (and fastest time), the speedup also rapidly decayed after a certain point (at 40 processors, the program took almost 100s to complete). The program compiled by the GNU++ compiler did also see a reduction in speedup but the overall time remained below 30s at 40 processors.
 
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
@@ -254,20 +254,20 @@
 	Strong scaling is achieved by keeping the problem size constant and increasing the number of threads.This is seen when we run with 8 MPI processes and 1-5 OpenMP threads. 
 	
 	\begin{description}
-		\item[Strong] We ran 2 experiments, one with -s 15 and one with -s 30. We see linear scaling in both cases. However, for the reduced domain size, we see in Fig \ref{fig:hybrid_strongscaling_s15} that the speedup decreases with 5 OpenMP threads. This is expected because, per Amdahl's law, the maximum speedup is limited by problem size. At 5 OpenMP threads, the cost of parallelisation outweights the benefits of parallelisation and we see a decrease in speedup. This can be remedied by increasing the overall domain size. We run the same form of strong scaling with -s=30 in Fig. \ref{fig:hybrid_strongscaling_s30} and we see that speedup continues to increase linearly at 5 OpenMP threads. For the hybrid case, the fastest speedup was for the 
+		\item[Strong] We ran 2 experiments, one with -s 15 and one with -s 30. We do not achieve linear scaling for either case. However, for the smaller domain size, we see in Fig \ref{fig:hybrid_speedup} that the speedup decreases with 5 OpenMP threads. This is expected because, per Amdahl's law, the maximum speedup is limited by problem size. At 5 OpenMP threads, the cost of parallelisation outweights the benefits of parallelisation and we see a decrease in speedup. This can be remedied by increasing the overall domain size. We run the same form of strong scaling with -s=30 in and we see that speedup continues to increase at 5 OpenMP threads.
 	\end{description}
 		
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	 	\begin{center}
-	 		\includegraphics[width=.75\linewidth]{HYBRID_Speedup_30.png} % It searches in the Figures/ folder!
+	 		\includegraphics[width=.75\linewidth]{HYBRID_Speedup.png} % It searches in the Figures/ folder!
 	 		\caption{Hybrid strong scaling, $s=30$.}
-	 		\label{fig:hybrid_strongscaling_s30}
+	 		\label{fig:hybrid_speedup}
 	 	\end{center}
 	\end{figure}
 	
 	\item \hl{How does the performance compare to the results achieved with OpenMP in Section 5.1 and with MPI in Section 5.2?}
 
-	We see that the solutions for the hybrid (where number of OpenMP threads and MPI processes are greater than 1) are slower a pure MPI implementation with 27 processes but faster than a pure OpenMP implementation with 15 threads. The fastest speedup was approximately 16.7 times or an elapsed time of 3.75s. 
+	We see that the solutions for the hybrid (where number of OpenMP threads and MPI processes are greater than 1) are slower a pure MPI implementation with 27 processes but faster than a pure OpenMP implementation with 15 threads. The fastest speedup was approximately 16.7 times or an run time of 3.75s. 
 	
 	\item \hl{Which solution is overall the fastest?}
 
@@ -283,7 +283,7 @@
 	
 	\item \hl{Would you have guessed this best combination before performing the experiments in Sections 5.1, 5.2 and 5.3?}
 
-	This is somewhat unexpected. We thought that the hybrid case should be able to outperform both MPI and OpenMP implementations. However, it appears that a pure MPI process is faster. We were slightly limited by the availability of nodes as jobs scheduled on multiple loads had an extremely long wait time. It is possible that at larger domain sizes, the hybrid approach will scale better. The main cause of the slower hybrid approach appears to be the OpenMP. We see that the runtimes for OpenMP processes can vary sigificantly, especially with a higher number of threads. We can also 
+	This is somewhat unexpected. We thought that the hybrid case should be able to outperform both MPI and OpenMP implementations. However, it appears that a pure MPI process is faster. We limited our experimentation to a single node due to the queue time of mult-node jobs. It is possible that at larger domain sizes, the hybrid approach will scale better. The main cause of the slower hybrid approach appears to be the OpenMP. We see that the runtimes for OpenMP processes can vary sigificantly, especially with a higher number of threads. 
 \end{enumerate}
 
 \end{document}
