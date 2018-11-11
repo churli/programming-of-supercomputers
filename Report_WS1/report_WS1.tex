@@ -92,11 +92,15 @@
 	
 	\item \hl{Is gprof capable of analyzing parallel applications?}
 
-	Yes, gprof can be used to analyse some parallel applications. However, typically only the performance of the main thread is recorded (as in the case of MPI implementations). The obscuring of information can be seen especially in the case of openMP, where the code spends more than 50\% of the time in "frame dummy", a function that does not exist in source code.
+	Yes, gprof can be used to analyse some parallel applications. However, additional steps must be taken for proper analysis. Otherwise, some information will be obscured:
+	\begin{itemize}
+	\item In the case of MPI implementations, only the performance of the main thread is recorded. 
+	\item In the case of OpenMP processes, much of the profiling information is obscured---as seen in the attached gprof, the code spends more than 50\% of the time in "frame dummy", a function that does not exist in source code.
+	\end{itemize}
 
 	\item \hl{What is necessary to analyze parallel applications?}
 
-	Gprof typically only produces one \verb!gmon.out! output file for the main process. However, in a parallel process, multiple output files are required. When using MPI processes, it is possible to inform gprof, via environmental variables, of the number of threads produced and run. One \verb!gmon.out! is then produced per thread. These files can then be aggregated to determine the overall behavior of all threads together or analysed separately.
+	Gprof typically only produces one \verb!gmon.out! output file for the main process. However, in a parallel process, multiple output files are required. When using MPI processes, it is possible to inform gprof, via environmental variables, of the number of threads produced and run. One \verb!gmon.out! is then produced per thread. These files can then be aggregated to determine the overall behavior of all threads together or analysed separately. For OpenMP applications, the tag \verb!-openmp-stubs! must be used, which will force a sequential execution of the program for profiling purposes.
 
 	\item \hl{Where there performance differences between the GNU++ and the Intel compiler?}
 
@@ -278,7 +282,7 @@
 		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	 	\begin{center}
 	 		\includegraphics[width=.75\linewidth]{HYBRID_Speedup_15.png} % It searches in the Figures/ folder!
-	 		\caption{Hybrid strong scaling, $s=30$.}
+	 		\caption{Hybrid strong scaling, $s=15$.}
 	 		\label{fig:hybrid_strongscaling_s15}
 	 	\end{center}
 	\end{figure}
