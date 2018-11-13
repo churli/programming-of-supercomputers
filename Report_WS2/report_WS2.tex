@@ -6,7 +6,13 @@
 %%%
 
 \title{Programming of Supercomputers\\Worksheet 2}
-\author{Oleksandr Voloshyn\\ Qunsheng Huang\\ Tommaso Bianucci}
+\author{
+	\begin{tabular}{rl}
+		Oleksandr Voloshyn& \texttt{<o.voloshyn@tum.de>}\\ 
+		Qunsheng Huang& \texttt{<keefe.huang@tum.de>}\\ 
+		Tommaso Bianucci& \texttt{<bianucci@in.tum.de>}
+	\end{tabular}
+}
 \date{\today}
 
 \begin{document}
@@ -14,19 +20,30 @@
 \maketitle
 \renewcommand{\abstractname}{Group members's contributions}
 \begin{abstract}
-	% Here write the contributions of the members of the group
-	Here briefly state the contributions of the different members of the group!
+	\begin{center}
+		\begin{tabular}{rl}
+		% Here write the contributions of the members of the group
+		Oleksandr Voloshyn:& worked on xx, yy, zz\\
+		Qunsheng Huang:& worked on xx, yy, zz\\
+		Tommaso Bianucci:& worked on xx, yy, zz
+		\end{tabular}
+	\end{center}
 \end{abstract}
 
 \section{Task 1}
 \subsection{Concepts description}
 \begin{description}
-	\item[Race condition] www
-	\item[Deadlock] www
-	\item[Heisenbug] www
-	\item[Cache coherency and false sharing] www
-	\item[Load imbalance] www
-	\item[Amdahl's law] www
+	\item[Race condition] It is a concurrent access to data by two different threads in which the outcome of the program changes depending on the order of the accesses. This leads to non-deterministic behaviour of the program.
+	\item[Deadlock] A condition in which two or more threads are waiting on each other before continuing execution, therefore blocking each other execution indefinitely.
+	\item[Heisenbug] A bug which occurrence is influenced by the presence of a debugger\todo{TO BE CONFIRMED}, therefore it does not happen during debugging, making it more difficult to solve.
+	\item[Cache coherency and false sharing] Two processors, each having its own cache, load the same data from memory to their caches. Then processor 1 changes this data in its own cache. \emph{Cache coherency} mechanisms ensure that this change is propagated also to the cache of processor 2, to avoid it to work on old data which is not valid anymore. \emph{False sharing} is an unwanted side effect of cache coherency mechanisms and occurs when two processors load the same cache line but work on different data within this cache line. Each write operation from one processor will cause the other one to have to reload its cache, even if the change was in data which will not be used by the other processor.\todo{Write this in a better form}
+	\item[Load imbalance] A load imbalance is a situation in which two processors are given different amount of work to perform concurrently. This is usually a cause of performance degradation, as the less loaded processor will have to idle while waiting for the more loaded one to finish.
+	\item[Amdahl's law] If a program has a fraction $f$ which is parallelizable and and the remaining $(1-f)$ which is inherently sequential, we can estimate the time it takes to execute it on $N$ processors as:
+	\begin{align}
+		T(N) =& f \cdot \frac{T(1)}{N} + (1 - f) \cdot T(1)\\
+		=& T(1) \cdot (1 - f + \frac{f}{N})
+	\end{align}
+	Therefore $lim_{N\to\infty} T(N) = T(1) \cdot (1 - f)$. So we can see that performance improvement is limited by the non-parallelizable fraction of the program.
 	\item[Parallelization overhead] www
 	\item[Floating-point arithmetic challenges]
 		\begin{enumerate}[label=\Alph*]
