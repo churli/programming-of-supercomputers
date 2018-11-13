@@ -44,7 +44,7 @@ Lorem ipsum
  	\end{center}
 \end{figure}
 
-\section{Task 2}
+\section{Task 2: TotalView GUI}
 
 \subsection{Include a brief description of the following aspects of TotalViews GUI in the report:}
 \begin{itemize}
@@ -70,7 +70,7 @@ Lorem ipsum
 	\begin{itemize}
 		\item Stack Trace Pane
 		
-		Displays the call stack with any active threads, ie lists the active subroutines of the active thread. Able to move up and down the call stack by clicking on the stack frame (routine name) of interest. Stack Frame pane and Source pane updated for the specific routine when it is selected.
+		Displays the call stack with any active threads, ie lists the active subroutines of the active thread. Able to move up and down the call stack by clicking on the stack frame (routine name) of interest. Stack Frame pane and Source pane updated for the specific routine when it is selected. Local variables are also available in the Local Variables (VAR) Panel.
 		\item Stack Frame Pane
 		
 		Displays information on the current thread's variables, ie allows users to see the current/stored values in existing variables.
@@ -94,6 +94,45 @@ Lorem ipsum
 	Displays information about a program's objects. Allows user to change the element values or to cast these values (changing how the value is displayed). You can define fields which change how objects are viewed, for example: expression field (views result of a particular expression, ie. viewing a particular element in an array with expression 'val[3]' instead of 'val'.); type field (changing the data type of the particular element, and so on. The user can also 'dive' into more complex elements to observe or change members of structures or elements of arrays.
 	
 \end{itemize}
+
+\section{Task 3: Debugging with TotalView}
+\begin{enumerate}
+\item Describe in the report how the above operations are performed in TotalView
+	\begin{itemize}
+	\item Control Execution
+	
+	This controls how the user moves through the program. There are a few options available: go, next, step, out, and run to. Go executes the program normally and only stops with the addition of breakpoints. Next runs the one line of code and advances to the next line. Step runs until the next executable statement is reached. Run to allows the user to run normally until a specific selected line. Out is used to execute the return statement and exit a function. All these options are available as clickable buttons along the top of the Process window.
+	\item Setting breakpoints
+	
+	Breakpoints are the simplest form of Action Point availablein TotalView that stop the current threads execution when a specific line is reached. They can be setup prior to running the process by clicking on the specific line number in the Source Pane or right clicking the line number and selecting "Set Breakpoint". The line number will be highlighted and the new breakpoint will be visible in the Action Point tab.
+	\item Diving into functions
+	
+	"Diving" is the term used by TotalView to focus on a function, process or variable. To dive into a function, one can double-click on the function in the Processes tab or navigate to the function in the source view.
+	\item View memory (variables and arrays)
+	
+	Variables and arrays can be accesed in the Variables window.
+
+	\end{itemize}
+\item Give a short explanation on why these operations are important in a debugger.
+	\begin{itemize}
+	\item Control Execution
+	
+	Control execution is important when debugging because it allow a systematic manner to execute segments of code. For example, if one needs to pinpoint problematic segments of very large code, perhaps a normal "Run" command with certain breakpoints while observing key variables is a good starting point. On the other hand, if one has a short problematic segment of code, repeatedly running Next to examine the effects of each line of code might be necessary to uncover more insidious bugs. The available options allow for the user to move through code in an extremely flexible manner.
+	\item Setting breakpoints
+		
+	Breakpoints are extremely useful when debugging. They cause the program to halt or stop execution at a specific interval for deeper analysis. TotalView also allows for code execution during action points (known as eval points), which is extremely useful for evaluating behavior without having to specifically include calculation of variables of interest inside the examined code. 
+	\item Diving into functions
+	
+	Diving into functions allows for increased granularity when running code. If one function is identified to be problematic, having the diving functionality allows the user to also control the execution inside the problematic function---allowing a more fine-grained view of the problematic function.	
+	\item View memory (variables and arrays)
+	
+	Most of the time, the side-effect of problematic code is incorrect variables or arrays, ie. data is incorrectly calculated. Viewing specific variables or arrays allows the user to more clearly detect when unwanted behavior occurs. This is especially the case when one is able to evaluate internal variables using code fragments (such as identifying the average of an array without explicitly calculating it in the code).
+
+	\end{itemize}
+
+\end{enumerate}
+
+
 Lorem ipsum
 
 \end{document}
