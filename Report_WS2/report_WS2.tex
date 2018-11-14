@@ -25,7 +25,7 @@
 		% Here write the contributions of the members of the group
 		Oleksandr Voloshyn:& worked on xx, yy, zz\\
 		Qunsheng Huang:& worked on xx, yy, zz\\
-		Tommaso Bianucci:& worked on xx, yy, zz
+		Tommaso Bianucci:& worked on Task 1 and Task 6.
 		\end{tabular}
 	\end{center}
 \end{abstract}
@@ -64,12 +64,14 @@
 
 	\item[Parallelization overhead] This is the additional performance cost caused by managing the parallelization, as e.g. the additional time spent in communication, synchronization, creating the new threads.
 	
-	\item[Floating-point arithmetic challenges] ~
+	\item[Floating-point arithmetic challenges] ~\todo{Review this}
 				\begin{description}
-			\item[Comparisons] www
-			\item[Definition of zero and signed zero] www
-			\item[Cancellation or loss of significance] www
-			\item[Amplificatio and error propagation] www
+			\item[Comparisons] Comparing floating point numbers can be challanging because due to errors and rounding they could be slightly different. Also, finite precision representation does not allow for all values to be represented, therefore it is not possible to precisely compare with any arbitrary value.
+
+			Checking \verb!a == b! is therefore dangerous, while an acceptance range should be used, i.e. \verb!fabs(a-b) < tolerance!.
+			\item[Definition of zero and signed zero] The IEEE 754 standard allows for both $+0$ and $-0$ representation: their exponent and mantissa is $0$ for both, but the sign bit can be 0 ($+$ case) or 1 ($-$ case).
+			\item[Cancellation or loss of significance] Cancellation is an undesired side effect coming from performing subtractions in finite precision floating point arithmetics: if we subtract two values which are similar in magnitude, we obtain a result which is very small in magnitude but with increased relative error compared to the initial values, therefore having less significant digits.
+			\item[Amplification and error propagation] Any floating point value given as input to an algorithm is associated with a certain relative error or number of significant digits. The foating point operations which take place in the algorithm may amplify or reduce the relative error on these values, therefore causing the final result to potentially have a very different number of significant digits than the input values. Algorithms which amplify input relative errors are called \emph{unstable}, while those which reduce the relative errors are called \emph{stable}.
 		\end{description}
 \end{description}
 
@@ -77,43 +79,50 @@
 \begin{enumerate}
 	\item \hl{Which of the concepts affect performance but not correctness?}
 
-	www
+	False sharing, load imbalance, Amdahl's law and parallelization overhead.
 
-	\item \hl{Which of the concepts affect the correctness of the application?} ~
+	\item \hl{Which of the concepts affect the correctness of the application?}
+
+	Deadlocks, race conditions, heisenbugs and the floating-point arithmetic challenges.
+
+	Cache coherency is usually an hardware-provided feature: assuming it is correctly implemented it should be just considered as a performance problem. However if the programmer must in some way ensure cache coherency, then there is a risk for correctness issues.
 
 	\begin{enumerate}[label=\Alph*]
 		\item \hl{Of these, which are exclusive to parallel programming?}
 
-		www
+		Deadlocks and race conditions.
 
 		\item \hl{Of these, which are not exclusive to parallel programming?}
 
-		www
+		Heisenbugs and floating-point arithmetic challenges.
+
 	\end{enumerate}
 
 	\item \hl{Which of them can occur in OpenMP applications?}
 
-	www
+	All of them.
 	
 	\item \hl{Which of them can occur in MPI applications?}
 
-	www
+	All of them, except for false sharing and cache coherency.
 	
 	\item \hl{Is cache coherency necessary on MPI applications with a single process and a single thread per rank? Explain.}
 
-	www
+	No, if there is no degree of shared memory parallelization there is no need to ensure coherency, as just one thread can touch its memory region.
 	
 	\item \hl{Is Amdahl's law applicable to strong scaling applications? Explain.}
 
-	www
+	Yes, it is precisely designed to model and explain the challanges of strong scaling as it assumes a fixed problem size and an increase in the number of processors.
 	
 	\item \hl{Is Amdahl's law applicable to weak scaling applications? Explain.}
 
-	www
+	No, as explained in the previous answer, Amdahl's law assumes a fixed fraction of the application cost is parallelizable. However by changing the problem size, the parallelizable and inherently sequential fractions may change.
+
+	A law addressing weak scaling is \emph{Gustafson's law}.
 	
 	\item \hl{Which of these limit the scalability of applications?}
 
-	www
+	Amdahl's law, parallelization overheads, load imbalance and false sharing.
 	
 \end{enumerate}
 
