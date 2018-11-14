@@ -1,3 +1,6 @@
+# Adding Out folder as ignore:
+Out
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
