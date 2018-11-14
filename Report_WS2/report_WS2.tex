@@ -33,33 +33,98 @@
 \section{Task 1}
 \subsection{Concepts description}
 \begin{description}
-	\item[Race condition] It is a concurrent access to data by two different threads in which the outcome of the program changes depending on the order of the accesses. This leads to non-deterministic behaviour of the program.
-	\item[Deadlock] A condition in which two or more threads are waiting on each other before continuing execution, therefore blocking each other execution indefinitely.
-	\item[Heisenbug] A bug which occurrence is influenced by the presence of a debugger\todo{TO BE CONFIRMED}, therefore it does not happen during debugging, making it more difficult to solve.
-	\item[Cache coherency and false sharing] Two processors, each having its own cache, load the same data from memory to their caches. Then processor 1 changes this data in its own cache. \emph{Cache coherency} mechanisms ensure that this change is propagated also to the cache of processor 2, to avoid it to work on old data which is not valid anymore. \emph{False sharing} is an unwanted side effect of cache coherency mechanisms and occurs when two processors load the same cache line but work on different data within this cache line. Each write operation from one processor will cause the other one to have to reload its cache, even if the change was in data which will not be used by the other processor.\todo{Write this in a better form}
-	\item[Load imbalance] A load imbalance is a situation in which two processors are given different amount of work to perform concurrently. This is usually a cause of performance degradation, as the less loaded processor will have to idle while waiting for the more loaded one to finish.
-	\item[Amdahl's law] If a program has a fraction $f$ which is parallelizable and and the remaining $(1-f)$ which is inherently sequential, we can estimate the time it takes to execute it on $N$ processors as:
+	\item[Race condition]
+
+	It is a concurrent access to data by two different threads in which the outcome of the program changes depending on the order of the accesses. This leads to non-deterministic behaviour of the program.
+
+	\item[Deadlock]
+
+	A condition in which two or more threads are waiting on each other before continuing execution, therefore blocking each other execution indefinitely.
+	
+	\item[Heisenbug] 
+
+	A bug which occurrence is influenced by the presence of a debugger\todo{TO BE CONFIRMED}, therefore it does not happen during debugging, making it more difficult to solve.
+	
+	\item[Cache coherency and false sharing] 
+
+	Two processors, each having its own cache, load the same data from memory to their caches. Then processor 1 changes this data in its own cache. \emph{Cache coherency} mechanisms ensure that this change is propagated also to the cache of processor 2, to avoid it to work on old data which is not valid anymore. \emph{False sharing} is an unwanted side effect of cache coherency mechanisms and occurs when two processors load the same cache line but work on different data within this cache line. Each write operation from one processor will cause the other one to have to reload its cache, even if the change was in data which will not be used by the other processor.\todo{Write this in a better form}
+	
+	\item[Load imbalance] 
+
+	A load imbalance is a situation in which two processors are given different amount of work to perform concurrently. This is usually a cause of performance degradation, as the less loaded processor will have to idle while waiting for the more loaded one to finish.
+	
+	\item[Amdahl's law] 
+
+	If a program has a fraction $f$ which is parallelizable and and the remaining $(1-f)$ which is inherently sequential, we can estimate the time it takes to execute it on $N$ processors as:
 	\begin{align}
 		T(N) =& f \cdot \frac{T(1)}{N} + (1 - f) \cdot T(1)\\
 		=& T(1) \cdot (1 - f + \frac{f}{N})
 	\end{align}
 	Therefore $lim_{N\to\infty} T(N) = T(1) \cdot (1 - f)$. So we can see that performance improvement is limited by the non-parallelizable fraction of the program.
-	\item[Parallelization overhead] www
-	\item[Floating-point arithmetic challenges]
-		\begin{enumerate}[label=\Alph*]
-			\item Comparisons
-		\end{enumerate}
-\end{description}
-Lorem ipsum
 
-% Figure example
-\begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
- 	\begin{center}
- 		\includegraphics[width=.9\linewidth]{figure.png} % It searches in the Figures/ folder!
- 		\caption{Caption text}
- 		\label{fig:figureLabelName}
- 	\end{center}
-\end{figure}
+	\item[Parallelization overhead] This is the additional performance cost caused by managing the parallelization, as e.g. the additional time spent in communication, synchronization, creating the new threads.
+	
+	\item[Floating-point arithmetic challenges] ~
+				\begin{description}
+			\item[Comparisons] www
+			\item[Definition of zero and signed zero] www
+			\item[Cancellation or loss of significance] www
+			\item[Amplificatio and error propagation] www
+		\end{description}
+\end{description}
+
+\subsection{Questions}
+\begin{enumerate}
+	\item \hl{Which of the concepts affect performance but not correctness?}
+
+	www
+
+	\item \hl{Which of the concepts affect the correctness of the application?} ~
+
+	\begin{enumerate}[label=\Alph*]
+		\item \hl{Of these, which are exclusive to parallel programming?}
+
+		www
+
+		\item \hl{Of these, which are not exclusive to parallel programming?}
+
+		www
+	\end{enumerate}
+
+	\item \hl{Which of them can occur in OpenMP applications?}
+
+	www
+	
+	\item \hl{Which of them can occur in MPI applications?}
+
+	www
+	
+	\item \hl{Is cache coherency necessary on MPI applications with a single process and a single thread per rank? Explain.}
+
+	www
+	
+	\item \hl{Is Amdahl's law applicable to strong scaling applications? Explain.}
+
+	www
+	
+	\item \hl{Is Amdahl's law applicable to weak scaling applications? Explain.}
+
+	www
+	
+	\item \hl{Which of these limit the scalability of applications?}
+
+	www
+	
+\end{enumerate}
+
+% % Figure example
+% \begin{figure}[h!] % h=here, t=top, b=bottom, p=(extra)page, !=force
+%  	\begin{center}
+%  		\includegraphics[width=.9\linewidth]{figure.png} % It searches in the Figures/ folder!
+%  		\caption{Caption text}
+%  		\label{fig:figureLabelName}
+%  	\end{center}
+% \end{figure}
 
 \section{Task 2: TotalView GUI}
 
@@ -70,7 +135,7 @@ Lorem ipsum
 	Manages debuggin sessions, see Fig.\ref{fig:sess_manager}. Displays previously configured debugging systems---allowing editing, copying and deleting of preivous settings, and view their respective configuration setups. Availble configurations include type of session (parallel/sequential), parallel implementation (poe-linux/MPICH etc.), number of parallel processes, number of nodes, environmental variables and input to parallel program upon startup.
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 			\includegraphics[width=.7\linewidth]{SessionManager.png}
-		\caption{Session Manager}
+		\caption{Session manager}
 		\label{fig:sess_manager}
 	\end{figure}
 	\item Root Window
@@ -150,7 +215,7 @@ Lorem ipsum
 \end{enumerate}
 
 
-Lorem ipsum
+\listoftodos[TODO List (to be removed in final version)]
 
 \end{document}
 
