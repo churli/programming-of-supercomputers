@@ -141,19 +141,23 @@
 \begin{itemize}
 	\item Session Manager
 	
-	Manages debuggin sessions, see Fig.\ref{fig:sess_manager}. Displays previously configured debugging systems---allowing editing, copying and deleting of preivous settings, and view their respective configuration setups. Availble configurations include type of session (parallel/sequential), parallel implementation (poe-linux/MPICH etc.), number of parallel processes, number of nodes, environmental variables and input to parallel program upon startup.
+	Manages debugging sessions, see Fig.\ref{fig:sess_manager}. Displays previously configured debugging systems---allowing editing, copying and deleting of preivous settings, and view their respective configuration setups. Availble configurations include type of session (parallel/sequential), parallel implementation (poe-linux/MPICH etc.), number of parallel processes, number of nodes, environmental variables and input to parallel program upon startup.
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-			\includegraphics[width=.7\linewidth]{SessionManager.png}
+		\begin{center}	
+		\includegraphics[width=.7\linewidth]{SessionManager.png}
 		\caption{Session manager}
 		\label{fig:sess_manager}
+		\end{center}
 	\end{figure}
 	\item Root Window
 	
 	Lists all processes and threads controlled by TotalView, see \ref{fig:root_window}. Allows user to "Dive" into processes easily, which launches a process window for the selected process. Allows grouping of threads/processes for easier debugging.
-		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	\begin{center}
 			\includegraphics[width=.7\linewidth]{RootWindow.png}
 		\caption{Root Window}
 		\label{fig:root_window}
+	\end{center}
 	\end{figure}
 	\item Process Window
 	
@@ -164,25 +168,55 @@
 		Displays the call stack with any active threads, ie lists the active subroutines of the active thread. Able to move up and down the call stack by clicking on the stack frame (routine name) of interest. Stack Frame pane and Source pane updated for the specific routine when it is selected. Local variables are also available in the Local Variables (VAR) Panel.
 		\item Stack Frame Pane
 		
-		Displays information on the current thread's variables, ie allows users to see the current/stored values in existing variables.
+		Displays information on the current thread's variables, ie allows users to see the current/stored values in existing variables. The frame is seen in Fig \ref{fig:diving}.
+		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.7\linewidth]{SourceFrame.png}
+		\caption{Diving in Function}
+		\label{fig:diving}
+		\end{center}
+	\end{figure}
 		\item Source Pane
 		
 		Displays the source code for the main() function of the thread, process or selected routine
 		\item Action Points, Processes, Threads Pane
 		\begin{itemize}
+		\item The three tabs can be seen in Fig \ref{fig:action_proc_thread_tabs}.
 		\item Process Tab: The processes tab, or Ranks tab for MPI programs, contains a grid. Each block in the grid represents one process. The color of the respective segments indicates the state of the process. 
 		\item Threads Tab: The Threads Tab displays information about the state of your threads. Clicking on a thread tells TotalView to shift the focus within the Process Window to that thread.
 		\item Actions Points Tab: Action points are specific actions performed when a particular source line is reached. There are four possible actions: breakpoints, barrier points, eval points, and watch points. Totalview assigns unique ID numbers for each action point, these are seen in the actions points tab
 		\end{itemize}
 	\end{itemize}
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}	
+		\includegraphics[width=.7\linewidth]{ActionTab.png}
+		\includegraphics[width=.7\linewidth]{ProcessTab.png}
+		\includegraphics[width=.7\linewidth]{ThreadTab.png}
+		\caption{Action, Process \& Thread Tabs}
+		\label{fig:action_proc_thread_tabs}
+			\end{center}
+	\end{figure}
+
+
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
 			\includegraphics[width=.7\linewidth]{ProcessWindow.png}
 		\caption{Process Window}
 		\label{fig:proc_window}
+		\end{center}
 	\end{figure}
+
 	\item Variable Window
 	
-	Displays information about a program's objects. Allows user to change the element values or to cast these values (changing how the value is displayed). You can define fields which change how objects are viewed, for example: expression field (views result of a particular expression, ie. viewing a particular element in an array with expression 'val[3]' instead of 'val'.); type field (changing the data type of the particular element, and so on. The user can also 'dive' into more complex elements to observe or change members of structures or elements of arrays.
+	Displays information about a program's objects. Allows user to change the element values or to cast these values (changing how the value is displayed). You can define fields which change how objects are viewed, for example: expression field (views result of a particular expression, ie. viewing a particular element in an array with expression 'val[3]' instead of 'val'.); type field (changing the data type of the particular element, and so on. The user can also 'dive' into more complex elements to observe or change members of structures or elements of arrays. An example is seen in Fig \ref{fig:variable}.
+	
+			\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.7\linewidth]{VariableWindow.png}
+		\caption{Variable Window}
+		\label{fig:variable}
+		\end{center}
+	\end{figure}
 	
 \end{itemize}
 
@@ -192,16 +226,24 @@
 	\begin{itemize}
 	\item Control Execution
 	
-	This controls how the user moves through the program. There are a few options available: go, next, step, out, and run to. Go executes the program normally and only stops with the addition of breakpoints. Next runs the one line of code and advances to the next line. Step runs until the next executable statement is reached. Run to allows the user to run normally until a specific selected line. Out is used to execute the return statement and exit a function. All these options are available as clickable buttons along the top of the Process window.
+	This controls how the user moves through the program. There are a few options available: go, next, step, out, and run to. Go executes the program normally and only stops with the addition of breakpoints. Next runs the one line of code and advances to the next line. Step runs until the next executable statement is reached. Run to allows the user to run normally until a specific selected line. Out is used to execute the return statement and exit a function. All these options are available as clickable buttons along the top of the Process window, seen in Fig \ref{fig:stepping}.
+		\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.7\linewidth]{ControlStepping.png}
+		\caption{Control Execution}
+		\label{fig:stepping}
+		\end{center}
+	\end{figure}
 	\item Setting breakpoints
 	
-	Breakpoints are the simplest form of Action Point availablein TotalView that stop the current threads execution when a specific line is reached. They can be setup prior to running the process by clicking on the specific line number in the Source Pane or right clicking the line number and selecting "Set Breakpoint". The line number will be highlighted and the new breakpoint will be visible in the Action Point tab.
+	Breakpoints are the simplest form of Action Point availablein TotalView that stop the current threads execution when a specific line is reached. They can be setup prior to running the process by clicking on the specific line number in the Source Pane or right clicking the line number and selecting "Set Breakpoint". The line number will be highlighted and the new breakpoint will be visible in the Action Point tab. Sample breakpoints can be seen in the Action Point tab in Fig \ref{fig:action_proc_thread_tabs}.
 	\item Diving into functions
 	
-	"Diving" is the term used by TotalView to focus on a function, process or variable. To dive into a function, one can double-click on the function in the Processes tab or navigate to the function in the source view.
+	"Diving" is the term used by TotalView to focus on a function, process or variable. To dive into a function, one can double-click on the function in the Processes tab or navigate to the function in the source view. An example of diving into a function is seen in Fig \ref{fig:diving}, where we dive into function \verb!CalcFBHourglassForceForElems()!.
+	
 	\item View memory (variables and arrays)
 	
-	Variables and arrays can be accesed in the Variables window.
+	Variables and arrays can be accesed in the Variables window. This is accessed by double-clicking or right clicking and diving into specific variables in the Stack Frame menu. An example is seen in Fig \ref{fig:variable}, where we view the values in array \verb!hourgam! in thread 24.
 
 	\end{itemize}
 \item Give a short explanation on why these operations are important in a debugger.
@@ -220,6 +262,28 @@
 	Most of the time, the side-effect of problematic code is incorrect variables or arrays, ie. data is incorrectly calculated. Viewing specific variables or arrays allows the user to more clearly detect when unwanted behavior occurs. This is especially the case when one is able to evaluate internal variables using code fragments (such as identifying the average of an array without explicitly calculating it in the code).
 
 	\end{itemize}
+
+\end{enumerate}
+
+\section{Task 4: MPI with TotalView}
+\begin{enumerate}
+	\item State the name of the array you decided to visualize and include a snapshot of its visualization in the report. It is not necessary to understand the actual meaning of the values in the array.
+	The array we chose to visualise is the B \verb!Real_t! array in the \verb!CalcKinematicsForElems()!. The snapshot of its visualisation can be seen in Fig \ref{fig:visual_array}.
+	
+			\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.7\linewidth]{VisualiseArray.png}
+		\caption{Visualising Array}
+		\label{fig:visual_array}
+		\end{center}
+	\end{figure}
+	
+	\item What is the name of the MPI rank variable in the benchmark?
+	The variable is \verb!myRank!
+	\item What is the name of the MPI size variable in the benchmark?
+	The variable is \verb!numRanks!
+	\item Where are these variables first set in the benchmark’s source code (file name and line number)?
+	numRanks is set by \verb!MPI_Comm_size()! in lulesh.cc in line 2708 and \verb!myRank! is set by \verb!MPI_Comm_rank()! in lulesh.cc line 2709. These are set in each process right after the MPI communication is set up in \verb!MPI_Init()!.
 
 \end{enumerate}
 
