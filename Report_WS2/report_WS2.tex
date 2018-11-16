@@ -375,6 +375,54 @@
 
 \end{enumerate}
 
+\section{Task 5: MPI+OpenMP with TotalView}
+\begin{enumerate}
+	\item \hl{Justify in the report the core and thread combination used.} ~
+
+	We have decided to use 8 processes with 10 openMP threads for each. We need to
+	use number of processes which is perfect cube. So the smallest number of processes bigger
+	than 1 is 8. We decided to stick with this number because our total number of cores for 
+	2 nodes is 80 and we can utilize all of them by using 10 openMP threads per process.
+	This amount of openMP threads was close to optimal for openMP only benchmark done at the
+	previous worksheet.
+	
+	Other options like 27 processes and 2 threads per process will allow us to use only half
+	of the compute power available on the node. 64 processes restrict us to use 1 thread which
+	means that our execution becomes MPI only and we can't observe any of the effects of hybrid
+	program.
+
+	\item \hl{Explain how threads and process counts are controlled in TotalView.} ~
+
+	TotalView allows to see all the processes that were created by the session. All threads
+	that are spawned by this processes are grouped according to their parrent. You can switch between
+	different processes by clicking on the process tab at the bottom of the view or in the session
+	window. \todo{ref}There you can also see current state of each process and thread.
+
+	\item \hl{Explain what the fork-join model is.} ~
+
+	Fork-join model is the model that is used by OpenMP. This model clearly specifies the master
+	thread that is doing all of the sequential computations. At the point specified by programmer
+	main thread distribute the work to all of the worker threads and becomes worker itself.
+	At the end of the parallel region all of the threads wait at the implicit barier and 
+	return control to master thread which continuing to work on sequential execution. 
+	
+	Overall program
+	that use this model can be described as a sequence of parallel blocks and sequential regions
+	between them. All of the sequential regions are done by master thread only, and parallel
+	blocks are done by all(or part) of the available threads.
+
+	\item \hl{Include a screen capture of the before and after effect of the fork-join model by navigatin to a parallel region and looking at the Threads Pane in TotalView.} ~
+	
+	\todo{add reference} Spawning threads is quite expencive task because it involves a lot of 
+	communication with kernel. Before first fork we see that there is only master thread running.
+	After we reach first openMP pragma we can observe that new threads were created by each of the 
+	processes. However after implicit join at the end of the parallel block we see that all of the
+	threads except of the master are in \todo{find a word for a mode, ex idle but it is not
+	100\% correct} mode.
+
+\end{enumerate}
+
+
 \section{Task 6: MPI+OpenMP with Vampir}
 \begin{enumerate}
 	\item \hl{What are the main differences in the way events are recorded by gprof and Score-P?} ~
