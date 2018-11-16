@@ -23,9 +23,9 @@
 	\begin{center}
 		\begin{tabular}{rl}
 		% Here write the contributions of the members of the group
-		Oleksandr Voloshyn:& worked on Task 2, 3, 4 and 5.
-		Qunsheng Huang:& worked on Task 2, 3, 4 and 5.
-		Tommaso Bianucci:& worked on Task 1 and Task 6.
+		Oleksandr Voloshyn:& worked on Task 2 to 5. \\
+		Qunsheng Huang:& worked on Task 2 to 5.\\
+		Tommaso Bianucci:& worked on Task 1 and Task 6.\\
 		\end{tabular}
 	\end{center}
 \end{abstract}
@@ -327,7 +327,7 @@
 	The array we chose to visualise is the B \verb!Real_t! array in the \verb!CalcKinematicsForElems()!. 
 	The snapshot of its visualisation can be seen in Fig \ref{fig:visual_array}.
 	
-			\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\begin{center}
 			\includegraphics[width=.7\linewidth]{VisualiseArray.png}
 		\caption{Visualising Array}
@@ -343,8 +343,35 @@
 	The variable is \verb!numRanks!
 	\item \hl{Where are these variables first set in the benchmark’s source code (file name and line number)?}
 	
+	When analysing the MPI function, we run on one node with 27 processes due to limited availability of nodes.
+	We set breakpoints on lines 2708 and 2709. At breakpoint 2708, prior to the execution of \verb!MPI_Comm_size()!, we see that the variables \verb!numRanks! and \verb!myRank! are uninitialized and still contain trash values in Fig. \ref{fig:before_init}. 
+	After \verb!MPI_Comm_size()! runs, we see that the values across the multiple processes all show 27 in Fig. \ref{fig:init_numranks}, which is the total number of threads. 
+	The value of \verb!myRank! is still unchanged and is yet to be initialized. This then occurs when we look at the values of \verb!myRank! after \verb!MPI_Comm_rank()! is run, as seen in Fig. \ref{fig:init_myrank}. 
 	\verb!numRanks! is set by \verb!MPI_Comm_size()! in lulesh.cc in line 2708 and \verb!myRank! is set by \verb!MPI_Comm_rank()! in lulesh.cc line 2709. 
-	These are set in each process right after the MPI communication is set up in \verb!MPI_Init()!.
+	
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.7\linewidth]{StepBeforeInit.png}
+		\caption{Before Initialising myRank and numRanks}
+		\label{fig:before_init}
+		\end{center}
+	\end{figure}
+	
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.7\linewidth]{numRankInit.png}
+		\caption{Initialised numRanks}
+		\label{fig:init_numranks}
+		\end{center}
+	\end{figure}
+	
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.7\linewidth]{myRankInit.png}
+		\caption{Initialised myRank}
+		\label{fig:init_myrank}
+		\end{center}
+	\end{figure}
 
 \end{enumerate}
 
