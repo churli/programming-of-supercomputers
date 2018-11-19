@@ -439,17 +439,72 @@
 
 	\item \hl{Explain the communication bottlenecks that occur in point-to-point and collective MPI communication. For example, late-sender, ...} ~
 
-	www
+	Whether point-to-point or collective, blocking or non-blocking, in order for communication to take place processes need to coordinate and, ultimately, to synchronize at some point. If the working phase preceding the communication has different duration on the processes, e.g. because of load imbalance, then the communication can only be finalized when the slowest process has terminated its work and is able to communicate.
+
+	\begin{description}
+		\item[Point-to-point] In MPI P2P communication, an usual bottleneck is represented by the sender arriving at the communication point later than the receiver, making the receiver idle to wait for it. The reverse, i.e. the sender waiting for the receiver, is a rarer scenario, as usually MPI implementation are able to internally buffer the message being sent and make the original send buffer available again to the user, making the \verb!MPI_Send()! call to return.
+
+		\item[Collectives] MPI collectives have to be executed by all processes belonging to the given communicator at the same time. Therefore all processes have to wait for the slowest one to reach the collective instruction.
+	\end{description}
+
+	Latencies can, to a certain degree, be hidden by using non-blocking communication schemes, i.e allowing processes to work on tasks which are independent of the communicated data while waiting for the communication to complete. However a consistent imbalance between the processes will ultimately cause idling also when using non-blocking communication.
+
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.7\linewidth]{MPI_Allreduce_idling.png}
+		\cprotect\caption{Idling caused by processes arriving at an \verb!MPI_Allreduce()! call at different times.}
+		\label{fig:MPI_Allreduce_latency}
+		\end{center}
+	\end{figure}
 
 	\item \hl{Take a screen capture of one of the MPI communication bottlenecks from the above question, and describe the situation.} ~
 
+	The example chosen is that of a call to the \verb!MPI_Allreduce()! collective. Its effects are visible in Fig.\ref{fig:MPI_Allreduce_latency}: the different processes arrive at the \verb!MPI_Allreduce()! call at different times and ultimately they have to wait for process 0 to complete its work before all processes can resume.
+
 	\item \hl{How does the Performance Radar help in analysis?} ~
+
+	The Performance Radar allows defining a metric and getting the respective heatmap showing how the metric behaves across the different processes and threads over time. It is a quick way to locate specific problems based on the metric that describes them.
+	An example related to the previous question is given by selecting the \emph{MPI Latencies} metric in the Performance Radar: with this we can quickly locate where MPI latencies originate and also immediately understand their severity.
 
 	\item \hl{Describe the MPI message pattern in the Communication Matrix tab.} ~
 
+	The Communication Matrix view highlights how each process communicates with any other process, in a fully interconnected way. However, if the metric used is \emph{Number of messages} or \emph{Aggregated message volume}, the Communication Matrix, shown in Fig.\ref{fig:commuMatrix}, appears to reveal the topology used for the MPI processes. Indeed the most used connection paths form a symmetric pattern---although not exactly symmetric in intensity---which suggests a \emph{neighbourhood} relationship.
+
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.9\linewidth]{commuMatrix.png}
+		\cprotect\caption{The \emph{hot} connections (in red and green) appear to reveal the topology used for MPI procesess.}
+		\label{fig:commuMatrix}
+		\end{center}
+	\end{figure}
+
 	\item \hl{Take a screen capture of a fork-join, and describe the situation.} ~
 
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.99\linewidth]{OMP_fork_join.png}
+		\cprotect\caption{Timeline between OpenMP \emph{Fork} and \emph{Join} events on the various MPI processes.}
+		\label{fig:ompForkJoin}
+		\end{center}
+	\end{figure}
+
+	In Fig.\ref{fig:ompForkJoin} we can see a fork-join section of the benchmark execution. Before and after this block MPI communication takes place between the 8 \emph{master processes}---MPI communication arrows have been removed from the timeline for clarity. Within this block, additional join and forks take place for each master process: we have therefore a block with several OpenMP fork-join events between two MPI communication events.
+
+	A closer inspection at one of these fork-join events reveals it comes from a parallelized for loop within the \verb!CalcAccelerationForNodes()! function.
+
 	\item \hl{Do you observe any performance bottlenecks from Section 3.1 (Task 1) in the code?} ~
+
+	Yes, the clearest to see is \emph{load imbalance}: its consequences appear either as a long \verb!MPI_Wait()! or \verb!omp implicit barrier! blocks in the timeline for some threads or processes while the slowest one is still working.
+
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{center}
+			\includegraphics[width=.9\linewidth]{functionSummary.png}
+		\cprotect\caption{Function summary aggregating per-function execution times on the entire benchmark run.}
+		\label{fig:functionSummary}
+		\end{center}
+	\end{figure}
+
+	We can also see the impact of the \emph{parallelization overhead}: it is represented in its various forms as red blocks in the timeline, however the clearest way to quantify its cumulative impact on the performance is by using the \emph{Function summary} tool. As it can be seen in Fig.\ref{fig:functionSummary}, the overhead generated by OpenMP's loop management has a significant impact. On the other hand MPI\_Wait and OpenMP's barriers come much further down in the list, meaning that the impact of parallelization overhead in Lulesh is way greater than that caused by any load imbalance.
 \end{enumerate}
 
 \listoftodos[TODO List (to be removed in final version)]
