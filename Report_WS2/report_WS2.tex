@@ -427,11 +427,15 @@
 \begin{enumerate}
 	\item \hl{What are the main differences in the way events are recorded by gprof and Score-P?} ~
 
-	Profiling v.s. tracing.\todo{Complete this}
+	Gprof perform \emph{profiling}, this means that the data it collects are aggregated by event type (e.g. the function called) and it provides a cumulative impact of each function over the entire application run. Profiling therefore discards any temporal information about the events.
+
+	Score-P instead performs \emph{tracing}, meaning that each event detected is logged singularly together with its timestamp. This allows not only to understand the global impact each function has, but also to investigate the interplay of single events.
+
+	It is worth also mentioning that both Gprof and Score-P support both sampling and instrumentation as techniques to obtain events data.
 
 	\item \hl{Does Vampir support post-mortem or online analysis? Explain.} ~
 
-	Post-mortem?\todo{Check}
+	Post-mortem, as we need to first run the application with \verb!scorep! to collect the tracing data and, afterwards, we can analyze this data with Vampir. Therefore analysis can be performed only after the application ends.
 
 	\item \hl{Explain the communication bottlenecks that occur in point-to-point and collective MPI communication. For example, late-sender, ...} ~
 
