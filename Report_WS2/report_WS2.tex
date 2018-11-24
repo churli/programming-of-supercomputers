@@ -43,11 +43,13 @@
 	
 	\item[Heisenbug] 
 
-	A bug which occurrence is influenced by the presence of a debugger\todo{TO BE CONFIRMED}, therefore it does not happen during debugging, making it more difficult to solve.
+	A bug which occurrence is influenced by the use of a debugging technique or tool, as e.g. the presence of a debugger. The debugging technique prevents the bug from occurring or alters its behaviour, making it more difficult to locate and adress the problem.
 	
 	\item[Cache coherency and false sharing] 
 
-	Two processors, each having its own cache, load the same data from memory to their caches. Then processor 1 changes this data in its own cache. \emph{Cache coherency} mechanisms ensure that this change is propagated also to the cache of processor 2, to avoid it to work on old data which is not valid anymore. \emph{False sharing} is an unwanted side effect of cache coherency mechanisms and occurs when two processors load the same cache line but work on different data within this cache line. Each write operation from one processor will cause the other one to have to reload its cache, even if the change was in data which will not be used by the other processor.\todo{Write this in a better form}
+	\emph{Cache coherency} refers to the coherency that shared data must have when loaded into multiple local processor caches. Cache coherency is typically enforced by hardware mechanisms propagating the changes across caches, ensuring that multiple processors working on the same data do not end up working on different and incoherent versions of it.
+
+	\emph{False sharing} is an unwanted side effect of cache coherency mechanisms and of the fact that caches do not store data in an individual fashion but in blocks, called cache lines. False sharing occurs when two processors load the same cache line but work on different data within this cache line. Each write operation from one processor will cause the other one to have to reload this cache line, even if the change was in data which will not be used by the other processor.
 	
 	\item[Load imbalance] 
 
@@ -60,17 +62,18 @@
 		T(N) =& f \cdot \frac{T(1)}{N} + (1 - f) \cdot T(1)\\
 		=& T(1) \cdot (1 - f + \frac{f}{N})
 	\end{align}
-	Therefore $lim_{N\to\infty} T(N) = T(1) \cdot (1 - f)$. So we can see that performance improvement is limited by the non-parallelizable fraction of the program.
+	Therefore $lim_{N\to\infty} T(N) = T(1) \cdot (1 - f)$. So we can see that performance improvement is asymptotically limited by the non-parallelizable fraction of the program.
 
-	\item[Parallelization overhead] This is the additional performance cost caused by managing the parallelization, as e.g. the additional time spent in communication, synchronization, creating the new threads.
+	\item[Parallelization overhead] This is the additional performance cost caused by managing the parallelization, as e.g. the additional time spent in communication, synchronization or creating, destroying and scheduling threads.
 	
-	\item[Floating-point arithmetic challenges] ~\todo{Review this}
-				\begin{description}
-			\item[Comparisons] Comparing floating point numbers can be challanging because due to errors and rounding they could be slightly different. Also, finite precision representation does not allow for all values to be represented, therefore it is not possible to precisely compare with any arbitrary value.
+	\item[Floating-point arithmetic challenges] ~
+		\begin{description}
+			\item[Comparisons] Comparing floating point numbers can be challanging because due to finite precision representation, errors and rounding it is always possible to get results which are slightly different than the expected ones.
+			Also, finite precision representation does not allow for all real values to be represented and it even fails to represent all integers from a certain threshold onwards\footnote{If $mb$ is the number of bits the mantissa consists of, then $1+2^{mb + 1}$ is the first non representable integer.}.
 
 			Checking \verb!a == b! is therefore dangerous, while an acceptance range should be used, i.e. \verb!fabs(a-b) < tolerance!.
 			\item[Definition of zero and signed zero] The IEEE 754 standard allows for both $+0$ and $-0$ representation: their exponent and mantissa is $0$ for both, but the sign bit can be 0 ($+$ case) or 1 ($-$ case).
-			\item[Cancellation or loss of significance] Cancellation is an undesired side effect coming from performing subtractions in finite precision floating point arithmetics: if we subtract two values which are similar in magnitude, we obtain a result which is very small in magnitude but with increased relative error compared to the initial values, therefore having less significant digits.
+			\item[Cancellation or loss of significance] Cancellation is an undesired side effect coming from performing subtractions in finite precision floating point arithmetics: if we subtract two values which are similar in magnitude, we obtain a result which is very small in magnitude but with increased relative error compared to the initial values, therefore losing significant digits in the process.
 			\item[Amplification and error propagation] Any floating point value given as input to an algorithm is associated with a certain relative error or number of significant digits. The foating point operations which take place in the algorithm may amplify or reduce the relative error on these values, therefore causing the final result to potentially have a very different number of significant digits than the input values. Algorithms which amplify input relative errors are called \emph{unstable}, while those which reduce the relative errors are called \emph{stable}.
 		\end{description}
 \end{description}
@@ -429,7 +432,7 @@
 
 	Gprof perform \emph{profiling}, this means that the data it collects are aggregated by event type (e.g. the function called) and it provides a cumulative impact of each function over the entire application run. Profiling therefore discards any temporal information about the events.
 
-	Score-P instead performs \emph{tracing}, meaning that each event detected is logged singularly together with its timestamp. This allows not only to understand the global impact each function has, but also to investigate the interplay of single events.
+	Score-P instead performs \emph{tracing}, meaning that each event detected is logged singularly together with its timestamp. This allows not only to understand the global impact each function has, but also to investigate the interplay of single events in time.
 
 	It is worth also mentioning that both Gprof and Score-P support both sampling and instrumentation as techniques to obtain events data.
 
@@ -442,7 +445,10 @@
 	Whether point-to-point or collective, blocking or non-blocking, in order for communication to take place processes need to coordinate and, ultimately, to synchronize at some point. If the working phase preceding the communication has different duration on the processes, e.g. because of load imbalance, then the communication can only be finalized when the slowest process has terminated its work and is able to communicate.
 
 	\begin{description}
-		\item[Point-to-point] In MPI P2P communication, an usual bottleneck is represented by the sender arriving at the communication point later than the receiver, making the receiver idle to wait for it. The reverse, i.e. the sender waiting for the receiver, is a rarer scenario, as usually MPI implementation are able to internally buffer the message being sent and make the original send buffer available again to the user, making the \verb!MPI_Send()! call to return.
+		\item[Point-to-point] In MPI P2P communication, an usual bottleneck is represented by the sender arriving at the communication point later than the receiver, making the receiver idle to wait for it. The reverse, i.e. the sender waiting for the receiver, 
+		% is a rarer scenario, 
+		is also possible but not necessarily leading to an idling sending process:
+		in case of small enough messages, usually MPI implementations are able to internally buffer the message being sent and make the original send buffer available again to the user, making the \verb!MPI_Send()! call to return even if the corresponding \verb!MPI_Recv()! has not been posted yet.
 
 		\item[Collectives] MPI collectives have to be executed by all processes belonging to the given communicator at the same time. Therefore all processes have to wait for the slowest one to reach the collective instruction.
 	\end{description}
@@ -468,12 +474,12 @@
 
 	\item \hl{Describe the MPI message pattern in the Communication Matrix tab.} ~
 
-	The Communication Matrix view highlights how each process communicates with any other process, in a fully interconnected way. However, if the metric used is \emph{Number of messages} or \emph{Aggregated message volume}, the Communication Matrix, shown in Fig.\ref{fig:commuMatrix}, appears to reveal the topology used for the MPI processes. Indeed the most used connection paths form a symmetric pattern---although not exactly symmetric in intensity---which suggests a \emph{neighbourhood} relationship.
+	The Communication Matrix view highlights how each process communicates with any other process, in a fully interconnected way. However, if the metric used is \emph{Number of messages} or \emph{Aggregated message volume}, the Communication Matrix, shown in Fig.\ref{fig:commuMatrix}, appears to reveal the cube topology used for the MPI processes. Indeed the most used connection paths form a symmetric pattern---although not exactly symmetric in intensity---which suggests a \emph{neighbourhood} relationship.
 
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\begin{center}
 			\includegraphics[width=.9\linewidth]{commuMatrix.png}
-		\cprotect\caption{The \emph{hot} connections (in red and green) appear to reveal the topology used for MPI procesess.}
+		\cprotect\caption{The \emph{hot} connections (in red and green) appear to reveal the topology used for MPI procesess (cube).}
 		\label{fig:commuMatrix}
 		\end{center}
 	\end{figure}
@@ -494,7 +500,7 @@
 
 	\item \hl{Do you observe any performance bottlenecks from Section 3.1 (Task 1) in the code?} ~
 
-	Yes, the clearest to see is \emph{load imbalance}: its consequences appear either as a long \verb!MPI_Wait()! or \verb!omp implicit barrier! blocks in the timeline for some threads or processes while the slowest one is still working.
+	Yes, the clearest to see is \emph{load imbalance}: its consequences appear either as a long \verb!MPI_Wait()!, uneven MPI collectives as \verb!MPI_Allreduce()! or \verb!omp implicit barrier! blocks in the timeline for some threads or processes while the slowest one is still working.
 
 	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\begin{center}
