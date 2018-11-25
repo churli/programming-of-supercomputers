@@ -416,15 +416,40 @@
 
 	\item \hl{Include a screen capture of the before and after effect of the fork-join model by navigatin to a parallel region and looking at the Threads Pane in TotalView.} ~
 	
-	\todo{add reference} Spawning threads is quite expencive task because it involves a lot of 
-	communication with kernel. Before first fork we see that there is only master thread running.
-	After we reach first openMP pragma we can observe that new threads were created by each of the 
-	processes. However after implicit join at the end of the parallel block we see that all of the
-	threads except of the master are in \todo{find a word for a mode, ex idle but it is not
-	100\% correct} mode.
-
+	Spawning threads is quite expencive task because it involves a lot of 
+	communication with kernel. Before entering MPI init threads function we observe only one 
+	main thread for each of the processes (Fig. \ref{fig:before_init_hybrid}).
+	After call of the MPI init thread function we observe that each process creates internal threads
+	for MPI (Fig. \ref{fig:after_init_hybrid}).
+    After we reach first openMP pragma we can observe that 10 new threads were created by each of the 
+	processes(Fig. \ref{fig:after_omp_region_hybrid}.
+	However after implicit join at the end of the parallel block we see that all of the
+	threads except of the master are in idle mode.
+	
 \end{enumerate}
 
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=.7\linewidth]{omp_before_init_squeeze_crop.png}
+    \caption{Before MPI init threads}
+    \label{fig:before_init_hybrid}
+    \end{center}
+\end{figure}
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=.7\linewidth]{omp_after_init_squeeze_crop.png}
+    \caption{After MPI init threads}
+    \label{fig:after_init_hybrid}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=.7\linewidth]{omp_after_omp_squeeze_crop.png}
+    \caption{After openMP parallel region}
+    \label{fig:after_omp_region_hybrid}
+    \end{center}
+\end{figure}
 
 \section{Task 6: MPI+OpenMP with Vampir}
 \begin{enumerate}
