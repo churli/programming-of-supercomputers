@@ -378,6 +378,7 @@
 
 \end{enumerate}
 
+\vspace{5mm}
 \section{Task 5: MPI+OpenMP with TotalView}
 \begin{enumerate}
 	\item \hl{Justify in the report the core and thread combination used.} ~
@@ -441,14 +442,14 @@
 	
 \end{enumerate}
 
-\begin{figure}
+\begin{figure}[p]
     \begin{center}
         \includegraphics[width=.7\linewidth]{omp_before_init_squeeze_crop.png}
     \caption{Before MPI init threads}
     \label{fig:before_init_hybrid}
     \end{center}
 \end{figure}
-\begin{figure}
+\begin{figure}[p]
     \begin{center}
         \includegraphics[width=.7\linewidth]{omp_after_init_squeeze_crop.png}
     \caption{After MPI init threads}
@@ -456,7 +457,7 @@
     \end{center}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[p]
     \begin{center}
         \includegraphics[width=.7\linewidth]{omp_after_omp_squeeze_crop.png}
     \caption{After openMP parallel region}
