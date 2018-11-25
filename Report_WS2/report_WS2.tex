@@ -382,49 +382,62 @@
 \begin{enumerate}
 	\item \hl{Justify in the report the core and thread combination used.} ~
 
-	We have decided to use 8 processes with 10 openMP threads for each. We need to
-	use number of processes which is perfect cube. So the smallest number of processes bigger
-	than 1 is 8. We decided to stick with this number because our total number of cores for 
-	2 nodes is 80 and we can utilize all of them by using 10 openMP threads per process.
-	This amount of openMP threads was close to optimal for openMP only benchmark done at the
-	previous worksheet.
+	We decided to use 8 processes with 10 openMP threads each---the number of MPI processes
+	must be a perfect cube and the smallest acceptable number greater than 1 is 8. 
+	Because the total number of cores for 2 nodes is 80, we can utilize all 
+	cores by using 10 openMP threads per process.
+	This number of openMP threads is close to the optimal number we determined in the
+	previous worksheet for the pure openMP benchmark.
 	
-	Other options like 27 processes and 2 threads per process will allow us to use only half
-	of the compute power available on the node. 64 processes restrict us to use 1 thread which
-	means that our execution becomes MPI only and we can't observe any of the effects of hybrid
-	program.
+	Other options, like 27 processes with 2 threads per process, only allow us to use half
+	of the compute power available on the node. 64 processes restrict us to 1 thread per process, which
+	means that our execution is effectively pure MPI and we cannot observe any of 
+	the effects of utilizing an OpenMP + MPI hybrid program.
 
 	\item \hl{Explain how threads and process counts are controlled in TotalView.} ~
 
-	TotalView allows to see all the processes that were created by the session. All threads
-	that are spawned by this processes are grouped according to their parrent. You can switch between
-	different processes by clicking on the process tab at the bottom of the view or in the session
-	window. \todo{ref}There you can also see current state of each process and thread.
+	TotalView allows to see all the processes that were created by the session. 
+	All threads that are spawned by these processes are grouped according to their parent. 
+	You can switch between different processes by clicking on the various processes in the process tab
+	or in the session window, a sample of the process tab is seen in Fig. \ref{fig:action_proc_thread_tabs}. 
+	The state of each process can be seen in the process tab (the color of the process indicates
+	if it is running or is halted at a breakpoint or barrier). 
+	When double-clicking on a process, the source window focuses on the process 
+	(indicating its position along the code). A root window can also be opened to display the 
+	various child threads associated with each parent process, see Fig. \ref{fig:after_omp_region_hybrid}.
 
 	\item \hl{Explain what the fork-join model is.} ~
 
-	Fork-join model is the model that is used by OpenMP. This model clearly specifies the master
-	thread that is doing all of the sequential computations. At the point specified by programmer
-	main thread distribute the work to all of the worker threads and becomes worker itself.
-	At the end of the parallel region all of the threads wait at the implicit barier and 
-	return control to master thread which continuing to work on sequential execution. 
+	OpenMP uses the fork-join model. Programs that use this model can be described 
+	as a sequence of parallel blocks with sequential regions
+	between them. Instructions in the sequential regions are performed a single, master thread, 
+	and parallel blocks are executed by multiple threads.
 	
-	Overall program
-	that use this model can be described as a sequence of parallel blocks and sequential regions
-	between them. All of the sequential regions are done by master thread only, and parallel
-	blocks are done by all(or part) of the available threads.
+	At the start of a parallel block,
+	the master thread "forks" by distributing the work to worker threads and then acts as a worker itself.
+	At the end of the parallel region, all of the threads wait at an implicit barrier and then "join" by
+	returning control to the master thread, which works sequentially until the next fork.
+	Thread spawning and deletion can vary depending on the specific implementation, as thread creation is 
+	often very expensive.
 
 	\item \hl{Include a screen capture of the before and after effect of the fork-join model by navigatin to a parallel region and looking at the Threads Pane in TotalView.} ~
 	
-	Spawning threads is quite expencive task because it involves a lot of 
-	communication with kernel. Before entering MPI init threads function we observe only one 
-	main thread for each of the processes (Fig. \ref{fig:before_init_hybrid}).
-	After call of the MPI init thread function we observe that each process creates internal threads
-	for MPI (Fig. \ref{fig:after_init_hybrid}).
-    After we reach first openMP pragma we can observe that 10 new threads were created by each of the 
-	processes(Fig. \ref{fig:after_omp_region_hybrid}.
-	However after implicit join at the end of the parallel block we see that all of the
-	threads except of the master are in idle mode.
+	Spawning threads is an expensive task because it involves significant 
+	communication with the kernel. Therefore, we can see that threads are not 
+	terminated during the execution of the program.
+	Instead, we see that worker threads idle during sequential regions of the code.
+	We can observe the spawning of OMP threads at the first openMP pragma by comparing Fig. \ref{fig:after_init_hybrid} 
+	and \ref{fig:after_omp_region_hybrid}. 9 additional threads spawn 
+	for parallel computation per the environmental variable \verb!OMP_NUM_THREADS!.
+	After the join at the end of the parallel block, we see, in Fig. \ref{fig:after_omp_region_hybrid}, 
+	that all of the threads except the master thread idling.
+	
+	One strange observation when performing this task was that the total number of threads spawned by each process varies. 
+	A non-uniform number of additional threads are spawned for each process after the \verb!MPI_init_threads! function is called. 
+	We determined this by comparing the number of threads before and after the function: Fig. \ref{fig:before_init_hybrid} and \ref{fig:after_init_hybrid} respectively.
+	We theorize that these threads may be used to set-up the hybrid environment---by 	
+	examining the status of these threads at multiple breakpoints, 
+	it appears that they remain idle for the remainder of the program execution.
 	
 \end{enumerate}
 
