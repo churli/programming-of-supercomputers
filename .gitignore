@@ -1,6 +1,12 @@
 # Adding Out folder as ignore:
 Out
 
+# Archives
+*.bz2
+
+# ge_data folder
+ge_data/
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
