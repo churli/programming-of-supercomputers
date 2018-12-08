@@ -140,12 +140,16 @@ int main(int argc, char **argv) {
   // Create memory to get pivots
   double *pivots_in;
   MPI_Win window_in;
-  printf("Window creation started\n");
-  fflush(stdout);
-  MPI_Win_allocate(window_size, sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD,
-                   &pivots_in, &window_in);
-  printf("Window successfully created\n");
-  fflush(stdout);
+  // printf("Window creation started\n");
+  // fflush(stdout);
+  MPI_Alloc_mem(window_size, MPI_INFO_NULL, &pivots_in);
+  // MPI_Win_allocate(window_size, sizeof(double), MPI_INFO_NULL,
+  // MPI_COMM_WORLD,
+  //                  &pivots_in, &window_in);
+  MPI_Win_create(pivots_in, window_size, sizeof(double), MPI_INFO_NULL,
+                 MPI_COMM_WORLD, &window_in);
+  // printf("Window successfully created\n");
+  // fflush(stdout);
   double *local_work_buffer =
       (double *)malloc(local_block_size * sizeof(double));
 
@@ -177,15 +181,15 @@ int main(int argc, char **argv) {
   setup_time = MPI_Wtime() - setup_start;
   kernel_start = MPI_Wtime();
   for (process = 0; process < rank; process++) {
-    printf("%d Starting %d\n", rank, process);
-    fflush(stdout);
+    mpi_start = MPI_Wtime();
+    // printf("%d Starting %d\n", rank, process);
+    // fflush(stdout);
     MPI_Win_fence(0, window_in);
     // printArr(pivots_in, window_size / sizeof(double), "Before receive");
     // MPI_Recv(pivots, (local_block_size * rows + local_block_size + 1),
     //          MPI_DOUBLE, process, process, MPI_COMM_WORLD, &status);
     // MPI_Get(pivots_in, local_block_size + 1, MPI_DOUBLE, process, 0,
     //         local_block_size + 1, MPI_DOUBLE, window_in);
-    mpi_start = MPI_Wtime();
     MPI_Get(pivots_in, (local_block_size * rows + local_block_size + 1),
             MPI_DOUBLE, process, 0,
             (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
@@ -246,8 +250,8 @@ int main(int argc, char **argv) {
   }
 
   for (process = (rank + 1); process < size; process++) {
-    printf("%d waiting %d\n", rank, process);
-    fflush(stdout);
+    // printf("%d waiting %d\n", rank, process);
+    // fflush(stdout);
     mpi_start = MPI_Wtime();
     MPI_Win_fence(0, window_in);
     mpi_time += MPI_Wtime() - mpi_start;
@@ -369,7 +373,7 @@ int main(int argc, char **argv) {
   // MPI_Free_mem(pivots_out);
 
   MPI_Win_free(&window_in);
-  // MPI_Free_mem(pivots_in);
+  MPI_Free_mem(pivots_in);
 
   MPI_Finalize();
   return 0;
