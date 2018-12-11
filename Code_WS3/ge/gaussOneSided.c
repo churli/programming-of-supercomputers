@@ -129,25 +129,20 @@ int main(int argc, char **argv) {
   double *rhs_local_block = (double *)malloc(local_block_size * sizeof(double));
 
   // Create memory for windows to send pivots
-  size_t window_size =
-      (local_block_size + (rows * local_block_size) + 1) * sizeof(double);
-  // double *pivots_out;
-  // MPI_Win window_out;
-  // MPI_Win_allocate(window_size, sizeof(double), MPI_INFO_NULL,
-  // MPI_COMM_WORLD,
-  //                  &pivots_out, &window_out);
+  int window_size = (local_block_size + (rows * local_block_size) + 1);
+  size_t window_size_b = window_size * sizeof(double);
 
-  // Create memory to get pivots
   double *pivots_in;
   MPI_Win window_in;
-  // printf("Window creation started\n");
-  // fflush(stdout);
-  MPI_Alloc_mem(window_size, MPI_INFO_NULL, &pivots_in);
-  // MPI_Win_allocate(window_size, sizeof(double), MPI_INFO_NULL,
-  // MPI_COMM_WORLD,
-  //                  &pivots_in, &window_in);
-  MPI_Win_create(pivots_in, window_size, sizeof(double), MPI_INFO_NULL,
+  MPI_Alloc_mem(window_size_b, MPI_INFO_NULL, &pivots_in);
+  MPI_Win_create(pivots_in, window_size_b, sizeof(double), MPI_INFO_NULL,
                  MPI_COMM_WORLD, &window_in);
+
+  //  MPI_Win_allocate(window_size, sizeof(double), MPI_INFO_NULL,
+  // MPI_COMM_WORLD,
+  //                  &pivots_out, &window_out);
+  MPI_Win_allocate_shared(window_size_b, sizeof(double), MPI_INFO_NULL,
+                          MPI_COMM_WORLD, &pivots_in, &window_in);
   // printf("Window successfully created\n");
   // fflush(stdout);
   double *local_work_buffer =
@@ -190,23 +185,14 @@ int main(int argc, char **argv) {
     //          MPI_DOUBLE, process, process, MPI_COMM_WORLD, &status);
     // MPI_Get(pivots_in, local_block_size + 1, MPI_DOUBLE, process, 0,
     //         local_block_size + 1, MPI_DOUBLE, window_in);
-    MPI_Get(pivots_in, (local_block_size * rows + local_block_size + 1),
-            MPI_DOUBLE, process, 0,
-            (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
-            window_in);
+    // MPI_Get(pivots_in, (local_block_size * rows + local_block_size + 1),
+    //         MPI_DOUBLE, process, 0,
+    //         (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
+    //         window_in);
+    // MPI_Win_sync(window_in);
     mpi_time += MPI_Wtime() - mpi_start;
     // printArr(pivots_in, window_size / sizeof(double), "After receive");
     for (row = 0; row < local_block_size; row++) {
-      // rowwise communication not implemented yet
-      // printArr(pivots_in, window_size / sizeof(double), "Before receive");
-      // mpi_start = MPI_Wtime();
-      // MPI_Get(pivots_in + row * rows + local_block_size + 1, rows,
-      // MPI_DOUBLE,
-      //         process,
-      //         row * rows + local_block_size + 1,
-      //         rows, MPI_DOUBLE, window_in);
-      // mpi_time += MPI_Wtime() - mpi_start;
-      // printArr(pivots_in, window_size / sizeof(double), "After receive");
       column_pivot = ((int)pivots_in[0]) * local_block_size + row;
       for (i = 0; i < local_block_size; i++) {
         index = i * rows;
@@ -249,9 +235,16 @@ int main(int argc, char **argv) {
     }
   }
 
+  // send computed data
   for (process = (rank + 1); process < size; process++) {
-    // printf("%d waiting %d\n", rank, process);
-    // fflush(stdout);
+    mpi_start = MPI_Wtime();
+    MPI_Put(pivots_in, window_size, MPI_DOUBLE, process, 0, window_size,
+            MPI_DOUBLE, window_in);
+    mpi_time += MPI_Wtime() - mpi_start;
+  }
+
+  // Wait for end of computation
+  for (process = (rank + 1); process < size; ++process) {
     mpi_start = MPI_Wtime();
     MPI_Win_fence(0, window_in);
     mpi_time += MPI_Wtime() - mpi_start;
@@ -373,7 +366,7 @@ int main(int argc, char **argv) {
   // MPI_Free_mem(pivots_out);
 
   MPI_Win_free(&window_in);
-  MPI_Free_mem(pivots_in);
+  // MPI_Free_mem(pivots_in);
 
   MPI_Finalize();
   return 0;
