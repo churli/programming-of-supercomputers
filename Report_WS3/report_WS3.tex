@@ -31,69 +31,6 @@
 \end{abstract}
 
 \input{Sections/baseline}
-\subsection{Questions}
-\begin{enumerate}
-\item Briefly describe the Gaussian Elimination and the provided implementation.
-
-The Gaussian Elimination (GE) is a program that converts a dense matrix into an upper-right triangular matrix. This is done via a recursive algorithm that sets entire columns of the matrix to zero by:
-\begin{enumerate}
-\item Choosing a pivot. This is typically the value in the diagonal. Pivoting may be performed to shift the row with the largest value in that column into the correct position
-\item The factor $\frac{a_{ij}}{a_{ii}}$ is calculated for each row in the column that is below the diagonal, such that $i > j$ if the topmost leftmost matrix entry is set as $a_{00}$.
-\item All rows in the column below the diagonal are set to zero using the calculated factor
-\end{enumerate}
-
-The provided implementation uses segments the matrix into rows and provides a set of rows to each process. The value of pivots are sent to each processor in a sequential, cascading manner. Each row then calculates the factor mentioned in the algorithm and then performs the linear operations to set the correct column values to 0.
-
-Gaussian Elmination code presents a major challenge in load-balancing---as the algorithm progresses, the amount of work available for each process decreases. When the last few rows are undergoing GE, all but one process is still performing work. 
-
-\item How is data distributed among the processes?
-
-Each process takes a number of rows of the matrix equal to $\frac{row}/{#processes}$. There are checks in place such that the number of processes must be able to fully divide the total number of rows.
-
-\item Explain the changes applied to the provided Load-Leveler batch script.
-
-One of the main difficulties is getting a good average value for the times. As such, the main way to reduce variance in results is to run each instance multiple times. In our case, we ran the code 5 times for each combination of MPI processes and domain size.
-
-\item What were the challenges in getting an accurate baseline time for Gaussian Elimination.
-
-The main challenges were to determine what was important when determining a baseline. The Gaussian When improving the aglorithm, the main focus will be to reduce the amount of sequential communication---so that each process is able to receive updated information with as little wait time as possible. Thus, our chosen baseline should show improvement when the communication algorithm is improved. The following show the respective baselines chosen for each of the measured times:
-\begin{enumerate}
-	\item I/O Time
-
-	I/O is only performed on the main process or process 0. Thus, it only makes sense to note this from process 0. Fig. shows the average time for IO operations in process 0 for the various domain sizes. Since the IO operation takes place completely sequentially, the number of processes does not affect the times. 
-
-	\item Setup Time
-
-	The setup time measures the amount of time each process waits before they fully receive their local matrix rows and local rows of the RHS vector. Since the sending process from process 0 is sequential---process 0 uses blocking communication to send data to process 1, 2, 3 ... etc, some processes with higher rank will wait for longer. Improvement will then be indicated by the \textit{longest} wait time of all processes. The provided data shows either the longest wait time for each process
-	
-	\item Compute Time
-	
-	The compute time measures the amount of time between the start of the gaussian elimination steps to the end of the gaussian elimination steps. This includes the MPI time. Therefore, to determine the actual compute time, we subtract the MPI time from the compute time. The compute time is extremely small for low values of the domain but grows significantly for larger domains. The compute time always decreases with increasing number of processes.
-	
-	\time MPI Time
-	
-	The MPI time sums up the total amount of time spent during communication. We hope to decrease this value by improving the communication and computation overlap. The MPI time increases with increased domain size as well and generally decreases with an increased number of nodes (as the amount sent to each node decreases). However, for very small domain sizes, we see the cost of communication overtake the benefits of multiple nodes. This is seen for domain sizes of 64x64 with 64 processes.
-	
-
-	\end{enumerate}
-
-
-\item Describe the compute and MPI times scalability with fixed process counts and varying size of input
-files for the Sandy Bridge and Haswell nodes. Did you observe any differences?
-
-With fixed process count and increasing the domain size, we see that the compute time increases with domain size. This is not surprising as there is more time required for computation. We see in Fig. that this remains true for any number of processes. However, we see that while the Haswell nodes are faster at a 8 processes, the Sandy Bridge nodes are faster when the number of nodes is increased to 64. This seems to indicate that Sandy Bridge processors scale better with a larger number of processes.
-
-We see that the MPI times follow a similar pattern---with a larger domain size, the amount of time in communication increases. This remains true at any number of processes. The shape of the graphs are very similar to that seen for the compute time. We also see similar behavior that the Sandy Bridge processors scale better with a larger number of processes.
- 
-\item Describe the compute and MPI times scalability with fixed input sets and varying process counts for
-the Sandy Bridge and Haswell nodes. Did you observe any differences?
-
-With fixed domain size and increasing the process count, we see that the compute time decreases with process count. This is not surprising because each process works on a smaller segment of the full matrix. We see in Fig. that this remains true for any domain size. For small domain sizes, such as 64x64, the compute time is completely negligible in comparison to the communication time. For larger domain sizes, the compute time becomes much more significant. We see that the Haswell nodes remain faster for any processor when the domain size is small. Once the domain size exceeds a certain threshold, the Sandy Bridge nodes are seen to scale better with a larger number of processes.
-
-We see that the MPI times follow a similar pattern---with more processors, MPI time decreases. This is somewhat surprising as we would expect the cost of comnunication to increase with increased processes. We attribute this observed effect to the sequential nature of the MPI passing---the first process waits for all other processes to finish computing before it returns. As a result, by reducing overall computational time, we decrease the time spent waiting for blocking MPI calls. We see that the Sandy Bridge architecture performs better overall---at very small process counts it is, overall, slightly faster than the Haswell architecture. At larger domain sizes, the difference in MPI times very large, but shrinks with an increasing number of processors.
-
-\end{enumerate}
-
 \input{Sections/mpi_p2p}
 \input{Sections/mpi_oneSide}
 
