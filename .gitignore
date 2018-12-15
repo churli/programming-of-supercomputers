@@ -253,3 +253,8 @@ TSWLatexianTemp*
 #kile
 .kile**
 *.kile*
+
+#binart files ws3
+gauss
+mgen
+**.o
