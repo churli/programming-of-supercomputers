@@ -117,10 +117,24 @@ int main(int argc, char **argv) {
   double *matrix_local_block =
       (double *)malloc(local_block_size * rows * sizeof(double));
   double *rhs_local_block = (double *)malloc(local_block_size * sizeof(double));
-  double *pivots = (double *)malloc(
-      (local_block_size + (rows * local_block_size) + 1) * sizeof(double));
+
+  // Create memory for windows to send pivots
+  int window_size = (local_block_size + (rows * local_block_size) + 1);
+  size_t window_size_b = window_size * sizeof(double);
+
+  double *pivots_in;
+  MPI_Win window_in;
+  MPI_Alloc_mem(window_size_b, MPI_INFO_NULL, &pivots_in);
+  MPI_Win_create(pivots_in, window_size_b, sizeof(double), MPI_INFO_NULL,
+                 MPI_COMM_WORLD, &window_in);
+
+  MPI_Group group_all;
+
+  MPI_Win_allocate_shared(window_size_b, sizeof(double), MPI_INFO_NULL,
+                          MPI_COMM_WORLD, &pivots_in, &window_in);
   double *local_work_buffer =
       (double *)malloc(local_block_size * sizeof(double));
+
   double *accumulation_buffer =
       (double *)malloc(local_block_size * 2 * sizeof(double));
   double *solution_local_block =
@@ -148,28 +162,39 @@ int main(int argc, char **argv) {
 
   setup_time = MPI_Wtime() - setup_start;
   kernel_start = MPI_Wtime();
+  MPI_Comm_group(MPI_COMM_WORLD, &group_all);
 
   for (process = 0; process < rank; process++) {
     mpi_start = MPI_Wtime();
-    MPI_Recv(pivots, (local_block_size * rows + local_block_size + 1),
-             MPI_DOUBLE, process, process, MPI_COMM_WORLD, &status);
+    MPI_Group group;
+    // create group of only one process which is process
+    MPI_Group_incl(group_all, 1, &process, &group);
+    MPI_Win_start(group, 0, window_in);
+    // get data
+    MPI_Get(pivots_in, (local_block_size * rows + local_block_size + 1),
+            MPI_DOUBLE, process, 0,
+            (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
+            window_in);
+    // finish communication
+    MPI_Win_complete(window_in);
     mpi_time += MPI_Wtime() - mpi_start;
 
     for (row = 0; row < local_block_size; row++) {
-      column_pivot = ((int)pivots[0]) * local_block_size + row;
+      column_pivot = ((int)pivots_in[0]) * local_block_size + row;
       for (i = 0; i < local_block_size; i++) {
         index = i * rows;
         tmp = matrix_local_block[index + column_pivot];
         for (column = column_pivot; column < columns; column++) {
           matrix_local_block[index + column] -=
-              tmp * pivots[(row * rows) + (column + local_block_size + 1)];
+              tmp * pivots_in[(row * rows) + (column + local_block_size + 1)];
         }
-        rhs_local_block[i] -= tmp * pivots[row + 1];
+        rhs_local_block[i] -= tmp * pivots_in[row + 1];
         matrix_local_block[index + column_pivot] = 0.0;
       }
     }
   }
 
+  pivots_in[0] = (double)rank;
   for (row = 0; row < local_block_size; row++) {
     column_pivot = (rank * local_block_size) + row;
     index = row * rows;
@@ -179,29 +204,33 @@ int main(int argc, char **argv) {
     for (column = column_pivot; column < columns; column++) {
       matrix_local_block[index + column] =
           matrix_local_block[index + column] / pivot;
-      pivots[index + column + local_block_size + 1] =
+      pivots_in[index + column + local_block_size + 1] =
           matrix_local_block[index + column];
     }
 
     local_work_buffer[row] = (rhs_local_block[row]) / pivot;
-    pivots[row + 1] = local_work_buffer[row];
+    pivots_in[row + 1] = local_work_buffer[row];
 
     for (i = (row + 1); i < local_block_size; i++) {
       tmp = matrix_local_block[i * rows + column_pivot];
       for (column = column_pivot + 1; column < columns; column++) {
         matrix_local_block[i * rows + column] -=
-            tmp * pivots[index + column + local_block_size + 1];
+            tmp * pivots_in[index + column + local_block_size + 1];
       }
       rhs_local_block[i] -= tmp * local_work_buffer[row];
       matrix_local_block[i * rows + row] = 0;
     }
   }
 
-  for (process = (rank + 1); process < size; process++) {
-    pivots[0] = (double)rank;
+  // send computed data
+  if (rank + 1 < size) {
     mpi_start = MPI_Wtime();
-    MPI_Send(pivots, (local_block_size * rows + local_block_size + 1),
-             MPI_DOUBLE, process, rank, MPI_COMM_WORLD);
+    MPI_Group group;
+    // from rank + 1 to size - 1 with stride 1
+    int procs_to_send[3] = {rank + 1, size - 1, 1}; 
+    MPI_Group_range_incl(group_all, 1, &procs_to_send, &group);
+    MPI_Win_post(group, 0, window_in);
+    MPI_Win_wait(window_in);
     mpi_time += MPI_Wtime() - mpi_start;
   }
 
@@ -313,10 +342,12 @@ int main(int argc, char **argv) {
   }
   free(matrix_local_block);
   free(rhs_local_block);
-  free(pivots);
   free(local_work_buffer);
   free(accumulation_buffer);
   free(solution_local_block);
+
+  MPI_Win_free(&window_in);
+  // MPI_Free_mem(pivots_in);
 
   MPI_Finalize();
   return 0;
