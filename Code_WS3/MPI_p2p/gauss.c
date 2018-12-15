@@ -135,11 +135,13 @@ int main(int argc, char** argv) {
 			rhs_local_block[i] = rhs[i];
 		}
 		MPI_Waitall(2*(size-1), sendRequests, MPI_STATUSES_IGNORE);
+    free(sendRequests);
 	} else {
 		MPI_Request *recvRequests = malloc(2 * sizeof(MPI_Request));
 		MPI_Irecv(matrix_local_block, local_block_size * rows, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, recvRequests);
 		MPI_Irecv(rhs_local_block, local_block_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, recvRequests+1);
 		MPI_Waitall(2, recvRequests, MPI_STATUSES_IGNORE);
+    free(recvRequests);
 	}
 
 	setup_time = MPI_Wtime() - setup_start;
@@ -175,6 +177,7 @@ int main(int argc, char** argv) {
 				}
 			}
 		}
+    free(recvRequests);
 	}
 	else // rank==0
 	{
@@ -252,7 +255,9 @@ int main(int argc, char** argv) {
 	// Synch
 	MPI_Waitall(size-rank-1, pivotSendRequests, MPI_STATUSES_IGNORE);
 	MPI_Waitall(rank, accuBufferSendRequests, MPI_STATUSES_IGNORE);
-
+  free(pivotSendRequests);
+  free(accuBufferSendRequests);
+  free(accuBufferRecvRequests);
 	if(rank == 0) {
 		for(i = 0; i < local_block_size; i++){
 			solution[i] = solution_local_block[i];
