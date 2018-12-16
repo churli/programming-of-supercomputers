@@ -175,8 +175,6 @@ int main(int argc, char **argv) {
             MPI_DOUBLE, process, 0,
             (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
             window_in);
-    // finish communication
-    MPI_Win_complete(window_in);
     mpi_time += MPI_Wtime() - mpi_start;
 
     for (row = 0; row < local_block_size; row++) {
@@ -192,6 +190,11 @@ int main(int argc, char **argv) {
         matrix_local_block[index + column_pivot] = 0.0;
       }
     }
+
+    mpi_start = MPI_Wtime();
+    // finish communication
+    MPI_Win_complete(window_in);
+    mpi_time += MPI_Wtime() - mpi_start;
   }
 
   pivots_in[0] = (double)rank;
@@ -227,7 +230,7 @@ int main(int argc, char **argv) {
     mpi_start = MPI_Wtime();
     MPI_Group group;
     // from rank + 1 to size - 1 with stride 1
-    int procs_to_send[3] = {rank + 1, size - 1, 1}; 
+    int procs_to_send[3] = {rank + 1, size - 1, 1};
     MPI_Group_range_incl(group_all, 1, &procs_to_send, &group);
     MPI_Win_post(group, 0, window_in);
     MPI_Win_wait(window_in);
