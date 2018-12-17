@@ -99,99 +99,113 @@ int main(int argc, char** argv) {
 	setup_start = MPI_Wtime();
 
 	int i;
-	if(rank == 0) {
-		for(i = 1; i < size; i++){
-			MPI_Send(&rows, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
-			MPI_Send(&columns, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
-		}
-	} else {
-		MPI_Recv(&rows, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
-		MPI_Recv(&columns, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
-	}	
+	// if(rank == 0) {
+	// 	for(i = 1; i < size; i++){
+	// 		MPI_Send(&rows, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+	// 		MPI_Send(&columns, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+	// 	}
+	// } else {
+	// 	MPI_Recv(&rows, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+	// 	MPI_Recv(&columns, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+	// }
+	MPI_Bcast(&rows, 1, MPI_INT, 0, MPI_COMM_WORLD);
+	MPI_Bcast(&columns, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
 	int local_block_size = rows / size;
 	int process, column_pivot;
+	int n = rows;
 
 	double tmp, pivot;
-	double *matrix_local_block = (double *) malloc(local_block_size * rows * sizeof(double));
+	double *matrix_local_block = (double *) malloc(local_block_size * n * sizeof(double));
 	double *rhs_local_block = (double *) malloc(local_block_size * sizeof(double));
-	double *pivots = (double *) malloc((local_block_size + (rows * local_block_size) + 1) * sizeof(double));
+	double *pivots = (double *) malloc((local_block_size + (n * local_block_size) + 1) * sizeof(double));
 	double *local_work_buffer = (double *) malloc(local_block_size * sizeof(double));
 	double *accumulation_buffer = (double *) malloc(local_block_size * 2 * sizeof(double));
 	double *solution_local_block = (double *) malloc(local_block_size * sizeof(double));
 
+	// MPI_Request bcastReqs[2];
+	// MPI_Ibcast((matrix_1D_mapped + (i * (local_block_size * n))), (local_block_size * n), 
+	// 	MPI_DOUBLE, 0, MPI_COMM_WORLD, bcastReqs+0);
+	// MPI_Ibcast((rhs + (i * local_block_size)), local_block_size, 
+	// 	MPI_DOUBLE, 0, MPI_COMM_WORLD, bcastReqs+1);
 	if(rank == 0) {
-		MPI_Request *sendRequests = malloc(2*(size-1) * sizeof(MPI_Request));
 		for(i = 1; i < size; i++){
-			MPI_Isend((matrix_1D_mapped + (i * (local_block_size * rows))), (local_block_size * rows), 
-				MPI_DOUBLE, i, 0, MPI_COMM_WORLD, sendRequests+((i-1)*2));
-			MPI_Isend((rhs + (i * local_block_size)), local_block_size, 
-				MPI_DOUBLE, i, 0, MPI_COMM_WORLD, sendRequests+((i-1)*2)+1);
+			MPI_Send((matrix_1D_mapped + (i * (local_block_size * n))), (local_block_size * n), MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
+			MPI_Send((rhs + (i * local_block_size)), local_block_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
 		}
-		for(i = 0; i < local_block_size * rows; i++){
+		for(i = 0; i < local_block_size * n; i++){
 			matrix_local_block[i] = matrix_1D_mapped[i];
 		}
 		for(i = 0; i < local_block_size; i++){
 			rhs_local_block[i] = rhs[i];
 		}
-		MPI_Waitall(2*(size-1), sendRequests, MPI_STATUSES_IGNORE);
-    free(sendRequests);
-	} else {
-		MPI_Request *recvRequests = malloc(2 * sizeof(MPI_Request));
-		MPI_Irecv(matrix_local_block, local_block_size * rows, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, recvRequests);
-		MPI_Irecv(rhs_local_block, local_block_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, recvRequests+1);
-		MPI_Waitall(2, recvRequests, MPI_STATUSES_IGNORE);
-    free(recvRequests);
 	}
+	else {
+		MPI_Recv(matrix_local_block, local_block_size * n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv(rhs_local_block, local_block_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
+	}
+	// MPI_Waitall(2, bcastReqs, MPI_STATUSES_IGNORE);
 
 	setup_time = MPI_Wtime() - setup_start;
-	// MPI_Barrier(MPI_COMM_WORLD);
 	kernel_start = MPI_Wtime();
 
-	mpi_start = MPI_Wtime();
-	if (rank > 0)
-	{
-		int pivotSize = (local_block_size + (rows * local_block_size) + 1);
-		double *recvPivots = (double *) malloc(rank * pivotSize * sizeof(double));
-		MPI_Request *recvRequests = malloc(rank * sizeof(MPI_Request));
-		for(process = 0; process < rank; process++) {
-			MPI_Irecv(recvPivots+(process*pivotSize), pivotSize, MPI_DOUBLE, process, process, MPI_COMM_WORLD, recvRequests+process);
-		}
+	// Recv pivots from left (and forward to right)
+	MPI_Request *fwdReqs = malloc(rank*2*local_block_size * sizeof(MPI_Request));
+	for(process = 0; process < rank; process++) {
+		// //
+		// mpi_start = MPI_Wtime();
+		// MPI_Recv(pivots, (local_block_size * n + local_block_size + 1), 
+		// 	MPI_DOUBLE, rank-1, process, MPI_COMM_WORLD, &status);
+		
+		// // Forward to right in an async way
+		// MPI_Request fwdReq;	
+		// if (rank < size - 1)
+		// {
+		// 	MPI_Isend(pivots, (local_block_size * n + local_block_size + 1),
+		// 		MPI_DOUBLE, rank+1, process, MPI_COMM_WORLD, &fwdReq);
+		// }
+		// mpi_time += MPI_Wtime() - mpi_start;
+		// //
 
-		mpi_time += MPI_Wtime() - mpi_start;
-
-		for(process = 0; process < rank; process++) {
-			// Here wait for the commu to finish
-			MPI_Wait(recvRequests+process, MPI_STATUS_IGNORE);
-			double *localPivots = recvPivots+(process*pivotSize);
-			for(row = 0; row < local_block_size; row++){
-				column_pivot = ((int) localPivots[0]) * local_block_size + row;
-				for (i = 0; i < local_block_size; i++){
-					index = i * rows;
-					tmp = matrix_local_block[index + column_pivot];
-					for (column = column_pivot; column < columns; column++){
-						matrix_local_block[index + column] -=  tmp * localPivots[(row * rows) + (column + local_block_size + 1)];
-					}
-					rhs_local_block[i] -= tmp * localPivots[row + 1];
-					matrix_local_block[index + column_pivot] = 0.0;
+		for(row = 0; row < local_block_size; row++){
+			// Receive in small chunks
+			mpi_start = MPI_Wtime();
+			MPI_Recv(pivots + row + 1, 1, 
+				MPI_DOUBLE, rank-1, (666*process*n)+row, MPI_COMM_WORLD, &status);
+			MPI_Recv(pivots + local_block_size + 1 + (n*row), n, 
+				MPI_DOUBLE, rank-1, (process*n)+row, MPI_COMM_WORLD, &status);
+			// Forward to right in an async way
+			if (rank < size - 1)
+			{
+				MPI_Isend(pivots + row + 1, 1,
+					MPI_DOUBLE, rank+1, (666*process*n)+row, MPI_COMM_WORLD, fwdReqs+(process*2*local_block_size)+(row*2));
+				MPI_Isend(pivots + local_block_size + 1 + (n*row), n,
+					MPI_DOUBLE, rank+1, (process*n)+row, MPI_COMM_WORLD, fwdReqs+(process*2*local_block_size)+(row*2)+1);
+			}
+			mpi_time += MPI_Wtime() - mpi_start;
+			//
+			column_pivot = process * local_block_size + row;
+			for (i = 0; i < local_block_size; i++){
+				index = i * n;
+				tmp = matrix_local_block[index + column_pivot];
+				for (column = column_pivot; column < n; column++){
+					matrix_local_block[index + column] -=  tmp * pivots[(row * n) + (column + local_block_size + 1)];
 				}
+				rhs_local_block[i] -= tmp * pivots[row + 1];
+				matrix_local_block[index + column_pivot] = 0.0;
 			}
 		}
-    free(recvRequests);
-	}
-	else // rank==0
-	{
-		mpi_time += MPI_Wtime() - mpi_start;
 	}
 
+	// Compute LU and pivots here
+	MPI_Request *sendReqs = malloc(2*local_block_size * sizeof(MPI_Request));
 	for(row = 0; row < local_block_size; row++){
 		column_pivot = (rank * local_block_size) + row;
-		index = row * rows;
+		index = row * n;
 		pivot = matrix_local_block[index + column_pivot];
 		assert(pivot!= 0);
 
-		for (column = column_pivot; column < columns; column++)
-		{
+		for (column = column_pivot; column < n; column++){
 			matrix_local_block[index + column] = matrix_local_block[index + column]/pivot; 
 			pivots[index + column + local_block_size + 1] = matrix_local_block[index + column];
 		}
@@ -199,38 +213,58 @@ int main(int argc, char** argv) {
 		local_work_buffer[row] = (rhs_local_block[row])/pivot;
 		pivots[row+1] =  local_work_buffer[row];
 
+		// Send pivots right, just to next one!
+		if (rank < size - 1)
+		{
+			pivots[0] = (double) rank;
+			mpi_start = MPI_Wtime();
+			MPI_Isend( pivots + row + 1, 1, 
+				MPI_DOUBLE, rank+1, (666*rank*n)+row, MPI_COMM_WORLD, sendReqs+(2*row));
+			MPI_Isend( pivots + local_block_size + 1 + (n*row), n, 
+				MPI_DOUBLE, rank+1, (rank*n)+row, MPI_COMM_WORLD, sendReqs+(2*row)+1);
+			mpi_time += MPI_Wtime() - mpi_start;
+		}
+		//
+
 		for (i = (row + 1); i < local_block_size; i++) {
-			tmp = matrix_local_block[i*rows + column_pivot];
-			for (column = column_pivot+1; column < columns; column++){
-				matrix_local_block[i*rows+column] -=  tmp * pivots[index + column + local_block_size + 1];
+			tmp = matrix_local_block[i*n + column_pivot];
+			for (column = column_pivot+1; column < n; column++){
+				matrix_local_block[i*n+column] -=  tmp * pivots[index + column + local_block_size + 1];
 			}
 			rhs_local_block[i] -= tmp * local_work_buffer[row];
-			matrix_local_block[i * rows + row] = 0;
+			matrix_local_block[i * n + row] = 0;
 		}
 	}
 
-	MPI_Request *pivotSendRequests = malloc((size-rank-1) * sizeof(MPI_Request));
-	for (process = (rank + 1); process < size; process++) {
-		pivots[0] = (double) rank;
-		mpi_start = MPI_Wtime();
-		MPI_Isend( pivots, (local_block_size * rows + local_block_size + 1), 
-			MPI_DOUBLE, process, rank, MPI_COMM_WORLD, pivotSendRequests + process - rank - 1);
-		mpi_time += MPI_Wtime() - mpi_start;
-	} 
+	// // Send pivots right, just to next one!
+	// if (rank < size - 1)
+	// {
+	// 	pivots[0] = (double) rank;
+	// 	mpi_start = MPI_Wtime();
+	// 	MPI_Send( pivots, (local_block_size * n + local_block_size + 1), 
+	// 		MPI_DOUBLE, rank+1, rank, MPI_COMM_WORLD);
+	// 	mpi_time += MPI_Wtime() - mpi_start;
+	// }
 
-	MPI_Request *accuBufferRecvRequests = malloc((size-rank-1) * sizeof(MPI_Request));
+	mpi_start = MPI_Wtime();
+	if (rank < size - 1)
+	{
+		MPI_Waitall(rank*2*local_block_size, fwdReqs, MPI_STATUSES_IGNORE);
+		MPI_Waitall(2*local_block_size, sendReqs, MPI_STATUSES_IGNORE);
+	}
+	mpi_time += MPI_Wtime() - mpi_start;
+	free(fwdReqs);
+	free(sendReqs);	
+	// Accumulation
 	for (process = (rank + 1); process<size; ++process) {
 		mpi_start = MPI_Wtime();
-		MPI_Irecv( accumulation_buffer, (2 * local_block_size), 
-			MPI_DOUBLE, process, process, MPI_COMM_WORLD, accuBufferRecvRequests + process - rank - 1); 
+		MPI_Recv( accumulation_buffer, (2 * local_block_size), MPI_DOUBLE, process, process, MPI_COMM_WORLD, &status); 
 		mpi_time += MPI_Wtime() - mpi_start;
-	}
-	for (process = (rank + 1); process<size; ++process) {
-		MPI_Wait(accuBufferRecvRequests + process - rank - 1, MPI_STATUS_IGNORE);
+
 		for (row  = (local_block_size - 1); row >= 0; row--) {
 			for (column = (local_block_size - 1);column >= 0; column--) {
 				index = (int) accumulation_buffer[column];
-				local_work_buffer[row] -= accumulation_buffer[local_block_size + column] * matrix_local_block[row * rows + index];
+				local_work_buffer[row] -= accumulation_buffer[local_block_size + column] * matrix_local_block[row * n + index];
 			}
 		}
 	}
@@ -240,24 +274,16 @@ int main(int argc, char** argv) {
 		accumulation_buffer[row] = (double) index;
 		accumulation_buffer[local_block_size+row] = solution_local_block[row] = local_work_buffer[row];
 		for (i = (row - 1); i >= 0; i--){
-			local_work_buffer[i] -= solution_local_block[row] * matrix_local_block[ (i * rows) + index];
+			local_work_buffer[i] -= solution_local_block[row] * matrix_local_block[ (i * n) + index];
 		}
 	}
 
-	MPI_Request *accuBufferSendRequests = malloc(rank * sizeof(MPI_Request));
 	for (process = 0; process < rank; process++){
 		mpi_start = MPI_Wtime();
-		MPI_Isend( accumulation_buffer, (2 * local_block_size), 
-			MPI_DOUBLE, process, rank, MPI_COMM_WORLD, accuBufferSendRequests + process); 
+		MPI_Send( accumulation_buffer, (2 * local_block_size), MPI_DOUBLE, process, rank, MPI_COMM_WORLD); 
 		mpi_time += MPI_Wtime() - mpi_start;
 	}
 
-	// Synch
-	MPI_Waitall(size-rank-1, pivotSendRequests, MPI_STATUSES_IGNORE);
-	MPI_Waitall(rank, accuBufferSendRequests, MPI_STATUSES_IGNORE);
-  free(pivotSendRequests);
-  free(accuBufferSendRequests);
-  free(accuBufferRecvRequests);
 	if(rank == 0) {
 		for(i = 0; i < local_block_size; i++){
 			solution[i] = solution_local_block[i];
@@ -282,8 +308,8 @@ int main(int argc, char** argv) {
 			MPI_Abort(MPI_COMM_WORLD, -1);
 		}
 
-		fprintf(solution_file, "%d\n", rows);
-		for(i = 0; i < rows; i++) {
+		fprintf(solution_file, "%d\n", n);
+		for(i = 0; i < n; i++) {
 			fprintf(solution_file, "%f ", solution[i]);
 		}
 		fprintf(solution_file, "\n");
@@ -292,8 +318,8 @@ int main(int argc, char** argv) {
 
 		if(print_a){
 			printf("\nSystem Matrix (A):\n");
-			for (row = 0; row < rows; row++) {
-				for (column = 0; column < columns; column++){
+			for (row = 0; row < n; row++) {
+				for (column = 0; column < n; column++){
 					printf("%4.1f ", matrix_2d_mapped[row][column]);
 				}
 				printf("\n");
@@ -302,14 +328,14 @@ int main(int argc, char** argv) {
 
 		if(print_b){
 			printf("\nRHS Vector (b):\n");
-			for (row = 0; row < rows; row++) {
+			for (row = 0; row < n; row++) {
 				printf("%4.1f\n", rhs[row]);
 			}
 		}
 
 		if(print_x){
 			printf("\n\nSolution Vector (x):\n");
-			for(row = 0; row < rows; row++){
+			for(row = 0; row < n; row++){
 				printf("%4.4f\n",solution[row]);
 			}
 		}
@@ -321,7 +347,7 @@ int main(int argc, char** argv) {
 			rank, io_time, setup_time, kernel_time, mpi_time, total_time);
 
 	if(rank == 0){
-		for(i = 0; i < rows; i++){
+		for(i = 0; i < n; i++){
 			free(matrix_2d_mapped[i]);
 		}
 		free(matrix_2d_mapped);
