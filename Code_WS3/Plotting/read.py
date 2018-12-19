@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,7 +25,7 @@ colorType = ["blue", "red", "orange", "green", "brown", "purple"]
 
 X, Y = np.meshgrid(process, sizes)
 
-PIC_DIRECTORY = "/home/keefe/Documents/TUM/Sem3/IN2190/Assignment3/one_sided_figure"
+PIC_DIRECTORY = "."
 
 class OutputData:
 	def __init__(self, fileName, case, architecture, isUpdated=False, entries=5):
@@ -294,7 +296,7 @@ if __name__ == '__main__':
 
 ####### Plots all combinations present in casesToPlot ######################
 	# casesToPlot = ["Baseline", "NB", "OS"]
-	casesToPlot = ["Baseline", "OS"]
+	casesToPlot = ["Baseline", "NB", "OS"]
 	caseCombinations = combinations(casesToPlot, 2)
 	dataToPlot = ["Compute", "MPI", "Total"]
 	architectureToPlot = ["Haswell", "Sandy"]
