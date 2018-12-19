@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <mpi.h>
 
@@ -99,15 +100,6 @@ int main(int argc, char** argv) {
 	setup_start = MPI_Wtime();
 
 	int i;
-	// if(rank == 0) {
-	// 	for(i = 1; i < size; i++){
-	// 		MPI_Send(&rows, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
-	// 		MPI_Send(&columns, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
-	// 	}
-	// } else {
-	// 	MPI_Recv(&rows, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
-	// 	MPI_Recv(&columns, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
-	// }
 	MPI_Bcast(&rows, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	MPI_Bcast(&columns, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -121,17 +113,16 @@ int main(int argc, char** argv) {
 	double *pivots = (double *) malloc((local_block_size + (n * local_block_size) + 1) * sizeof(double));
 	double *local_work_buffer = (double *) malloc(local_block_size * sizeof(double));
 	double *accumulation_buffer = (double *) malloc(local_block_size * 2 * sizeof(double));
+	double *accumulation_buffer_tmp = (double *) malloc(local_block_size * 2 * sizeof(double));
 	double *solution_local_block = (double *) malloc(local_block_size * sizeof(double));
 
-	// MPI_Request bcastReqs[2];
-	// MPI_Ibcast((matrix_1D_mapped + (i * (local_block_size * n))), (local_block_size * n), 
-	// 	MPI_DOUBLE, 0, MPI_COMM_WORLD, bcastReqs+0);
-	// MPI_Ibcast((rhs + (i * local_block_size)), local_block_size, 
-	// 	MPI_DOUBLE, 0, MPI_COMM_WORLD, bcastReqs+1);
+	MPI_Request *initialDataSendReqs = malloc(2*(size-1) * sizeof(MPI_Request));
 	if(rank == 0) {
 		for(i = 1; i < size; i++){
-			MPI_Send((matrix_1D_mapped + (i * (local_block_size * n))), (local_block_size * n), MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
-			MPI_Send((rhs + (i * local_block_size)), local_block_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
+			MPI_Isend((matrix_1D_mapped + (i * (local_block_size * n))), (local_block_size * n), 
+				MPI_DOUBLE, i, 0, MPI_COMM_WORLD, initialDataSendReqs+(2*(i-1)));
+			MPI_Isend((rhs + (i * local_block_size)), local_block_size, 
+				MPI_DOUBLE, i, 0, MPI_COMM_WORLD, initialDataSendReqs+(2*(i-1))+1);
 		}
 		for(i = 0; i < local_block_size * n; i++){
 			matrix_local_block[i] = matrix_1D_mapped[i];
@@ -144,43 +135,43 @@ int main(int argc, char** argv) {
 		MPI_Recv(matrix_local_block, local_block_size * n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
 		MPI_Recv(rhs_local_block, local_block_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
 	}
-	// MPI_Waitall(2, bcastReqs, MPI_STATUSES_IGNORE);
 
 	setup_time = MPI_Wtime() - setup_start;
 	kernel_start = MPI_Wtime();
 
 	// Recv pivots from left (and forward to right)
+	MPI_Request recvReqs[2];
 	MPI_Request *fwdReqs = malloc(rank*2*local_block_size * sizeof(MPI_Request));
 	for(process = 0; process < rank; process++) {
-		// //
-		// mpi_start = MPI_Wtime();
-		// MPI_Recv(pivots, (local_block_size * n + local_block_size + 1), 
-		// 	MPI_DOUBLE, rank-1, process, MPI_COMM_WORLD, &status);
-		
-		// // Forward to right in an async way
-		// MPI_Request fwdReq;	
-		// if (rank < size - 1)
-		// {
-		// 	MPI_Isend(pivots, (local_block_size * n + local_block_size + 1),
-		// 		MPI_DOUBLE, rank+1, process, MPI_COMM_WORLD, &fwdReq);
-		// }
-		// mpi_time += MPI_Wtime() - mpi_start;
-		// //
-
+		row = 0;
+		int reqBaseOffset = (process*2*local_block_size)+(row*2);
+		mpi_start = MPI_Wtime();
+		MPI_Irecv(pivots + row + 1, 1, 
+			MPI_DOUBLE, rank-1, (666*process*n)+row, MPI_COMM_WORLD, recvReqs);
+		MPI_Irecv(pivots + local_block_size + 1 + (n*row), n, 
+			MPI_DOUBLE, rank-1, (process*n)+row, MPI_COMM_WORLD, recvReqs+1);
+		mpi_time += MPI_Wtime() - mpi_start;
 		for(row = 0; row < local_block_size; row++){
 			// Receive in small chunks
+			reqBaseOffset = (process*2*local_block_size)+(row*2);
 			mpi_start = MPI_Wtime();
-			MPI_Recv(pivots + row + 1, 1, 
-				MPI_DOUBLE, rank-1, (666*process*n)+row, MPI_COMM_WORLD, &status);
-			MPI_Recv(pivots + local_block_size + 1 + (n*row), n, 
-				MPI_DOUBLE, rank-1, (process*n)+row, MPI_COMM_WORLD, &status);
+			// Wait for comm
+			MPI_Waitall(2, recvReqs, MPI_STATUSES_IGNORE);
+			// Spawn new comm for next round
+			if (row < local_block_size - 1)
+			{
+				MPI_Irecv(pivots + (row+1) + 1, 1, 
+					MPI_DOUBLE, rank-1, (666*process*n)+(row+1), MPI_COMM_WORLD, recvReqs);
+				MPI_Irecv(pivots + local_block_size + 1 + (n*(row+1)), n, 
+					MPI_DOUBLE, rank-1, (process*n)+(row+1), MPI_COMM_WORLD, recvReqs+1);
+			}
 			// Forward to right in an async way
 			if (rank < size - 1)
 			{
 				MPI_Isend(pivots + row + 1, 1,
-					MPI_DOUBLE, rank+1, (666*process*n)+row, MPI_COMM_WORLD, fwdReqs+(process*2*local_block_size)+(row*2));
+					MPI_DOUBLE, rank+1, (666*process*n)+row, MPI_COMM_WORLD, fwdReqs+reqBaseOffset);
 				MPI_Isend(pivots + local_block_size + 1 + (n*row), n,
-					MPI_DOUBLE, rank+1, (process*n)+row, MPI_COMM_WORLD, fwdReqs+(process*2*local_block_size)+(row*2)+1);
+					MPI_DOUBLE, rank+1, (process*n)+row, MPI_COMM_WORLD, fwdReqs+reqBaseOffset+1);
 			}
 			mpi_time += MPI_Wtime() - mpi_start;
 			//
@@ -198,7 +189,7 @@ int main(int argc, char** argv) {
 	}
 
 	// Compute LU and pivots here
-	MPI_Request *sendReqs = malloc(2*local_block_size * sizeof(MPI_Request));
+	MPI_Request *sendReqs = malloc(2*local_block_size * sizeof(MPI_Request)); //When sending just to next one
 	for(row = 0; row < local_block_size; row++){
 		column_pivot = (rank * local_block_size) + row;
 		index = row * n;
@@ -224,7 +215,6 @@ int main(int argc, char** argv) {
 				MPI_DOUBLE, rank+1, (rank*n)+row, MPI_COMM_WORLD, sendReqs+(2*row)+1);
 			mpi_time += MPI_Wtime() - mpi_start;
 		}
-		//
 
 		for (i = (row + 1); i < local_block_size; i++) {
 			tmp = matrix_local_block[i*n + column_pivot];
@@ -236,30 +226,40 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	// // Send pivots right, just to next one!
-	// if (rank < size - 1)
-	// {
-	// 	pivots[0] = (double) rank;
-	// 	mpi_start = MPI_Wtime();
-	// 	MPI_Send( pivots, (local_block_size * n + local_block_size + 1), 
-	// 		MPI_DOUBLE, rank+1, rank, MPI_COMM_WORLD);
-	// 	mpi_time += MPI_Wtime() - mpi_start;
-	// }
-
 	mpi_start = MPI_Wtime();
+	if (rank == 0)
+	{
+		MPI_Waitall(2*(size-1), initialDataSendReqs, MPI_STATUSES_IGNORE);
+	}
 	if (rank < size - 1)
 	{
 		MPI_Waitall(rank*2*local_block_size, fwdReqs, MPI_STATUSES_IGNORE);
 		MPI_Waitall(2*local_block_size, sendReqs, MPI_STATUSES_IGNORE);
 	}
 	mpi_time += MPI_Wtime() - mpi_start;
+	free(initialDataSendReqs);
 	free(fwdReqs);
-	free(sendReqs);	
+	free(sendReqs);
+
 	// Accumulation
-	for (process = (rank + 1); process<size; ++process) {
+	MPI_Request abRecvReq;
+	process = size - 1;
+	mpi_start = MPI_Wtime();
+	MPI_Irecv( accumulation_buffer_tmp, (2 * local_block_size), 
+		MPI_DOUBLE, process, process, MPI_COMM_WORLD, &abRecvReq);
+	mpi_time += MPI_Wtime() - mpi_start;
+	for (process = size - 1; process>rank; --process) {
 		mpi_start = MPI_Wtime();
-		MPI_Recv( accumulation_buffer, (2 * local_block_size), MPI_DOUBLE, process, process, MPI_COMM_WORLD, &status); 
+		MPI_Wait(&abRecvReq, MPI_STATUS_IGNORE);
 		mpi_time += MPI_Wtime() - mpi_start;
+		// Copy current data into local buffer
+		memcpy(accumulation_buffer, accumulation_buffer_tmp, local_block_size * 2 * sizeof(double));
+		// Spawn next Irecv
+		if (process > rank + 1)
+		{
+			MPI_Irecv( accumulation_buffer_tmp, (2 * local_block_size), 
+				MPI_DOUBLE, process-1, process-1, MPI_COMM_WORLD, &abRecvReq);
+		}
 
 		for (row  = (local_block_size - 1); row >= 0; row--) {
 			for (column = (local_block_size - 1);column >= 0; column--) {
@@ -278,7 +278,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	for (process = 0; process < rank; process++){
+	for (process = rank - 1; process >= 0; --process){
 		mpi_start = MPI_Wtime();
 		MPI_Send( accumulation_buffer, (2 * local_block_size), MPI_DOUBLE, process, rank, MPI_COMM_WORLD); 
 		mpi_time += MPI_Wtime() - mpi_start;
