@@ -17,17 +17,17 @@
 
 	The Gaussian Elimination (GE) is a program that converts a dense matrix into an upper-right triangular matrix. Typically, this is done via a recursive algorithm that sets entire columns of the matrix to zero by. A naive implementation is as follows:
 \begin{enumerate}
-\item Choosing a pivot. This is typically the value in the diagonal. In the current implementation, no shifting of rows is done and this ignored for the naive implementation.
-\item The factor $\frac{a_{ij}}{a_{ii}}$ is calculated for each row in the column that is below the diagonal, such that $i > j$ if the topmost leftmost matrix entry is set as $a_{00}$.
-\item All rows in the column below the diagonal are set to zero by linear operations using calculated factor.
+	\item Choosing a pivot. This is typically the value in the diagonal. In the current implementation, no shifting of rows is done and this ignored for the naive implementation.
+	\item The factor $\frac{a_{ij}}{a_{ii}}$ is calculated for each row in the column that is below the diagonal, such that $i > j$ if the topmost leftmost matrix entry is set as $a_{00}$.
+	\item All rows in the column below the diagonal are set to zero by linear operations using calculated factor.
 \end{enumerate}
 
 The provided implementation implements a few changes to simplify the calculations done in parallel.
 
 Firstly, the full matrix is read in by process 0. The root process then performs some ordering of the matrix data and sends rows of the matrix to each process. Asserts are put in place to ensure that:
 \begin{itemize}
-\item The number of rows are equal to the number of columns
-\item The number of processes must fully divide the number of rows/columns. $\#Rows%\#Processes==0$
+	\item The number of rows are equal to the number of columns
+	\item The number of processes must fully divide the number of rows/columns.
 \end{itemize}
 
 The algorithm then works as follows:
@@ -35,9 +35,20 @@ The algorithm then works as follows:
 \item Determine pivot entry. Each loop in the GE algorithm sets all values in a column below the diagonal to zero via linear operations. This is a purely sequential task, there is always only one pivot entry at one point in time and the current pivot is always on the diagonal entry of the current worked row. We refer to the process in charge of updating the rows containing the current pivot entry as the \textit{current process}. 
 
 An assert is put in place to ensure that this pivot value not zero. 
-\item Given a particular pivot, the entire row, including the RHS value, is first normalized by the pivot entry $norma_{ij} = \frac{a_{ij}}{a_{ii}} \forall j \in #Cols}$ and $normrhs_{i} = \frac{rhs_{i}}{a_{ii}}
-$. 
-\item Then, an elimation step is performed in the current process, where all values directly below the current pivot entry are set to zero by linear operations. Since the pivot entry is always set to 1, the linear operation reduces each element in the given row per ${a_{kj} -= norma_{ij} * a_{kj} \forall #Cols > j > i, #Rows > k > i}$ where i is the row of the pivot entry. 
+\item Given a particular pivot, the entire row, including the RHS value, is first normalized by the pivot entry 
+\begin{equation*}
+	a_{ij}^{(norm)} = \frac{a_{ij}}{a_{ii}} \quad \forall j \in [1, \# Cols]
+\end{equation*}
+and 
+\begin{equation*}
+rhs_{i}^{(norm)} = \frac{rhs_{i}}{a_{ii}} \quad \forall i \in [1, \# Rows].
+\end{equation*}
+
+\item Then, an elimation step is performed in the current process, where all values directly below the current pivot entry are set to zero by linear operations. Since the pivot entry is always set to 1, the linear operation reduces each element in the given row per
+\begin{equation*}
+	a_{kj} \,-=\, a_{ij}^{(norm)} \cdot a_{kj} \quad \forall \,\# Cols > j > i, \,\# Rows > k > i
+\end{equation*}
+where i is the row of the pivot entry. 
 \item The pivot then shifts to the diagonal entry in the next row and the process is repeated until the current process has looped through all rows it controls.
 \item All normalized values in the matrix and in the rhs are stored in given buffers and sent to each process with a higher rank than the current process.
 \item Each process then performs the eliminations steps using the provided information.

@@ -7,7 +7,7 @@
 
 	\item \hl{The new performance plots and description in the report.}
 
-		Please refer to Fig. \ref{fig:compute_multdomain_nb_baseline}, \ref{fig:compute_multproc_nb_baseline}, \ref{fig:mpi_multdomain_nb_baseline}, \ref{fig:mpi_multproc_nb_baseline}, \ref{fig:total_multdomain_nb_baseline}, and \ref{fig:total_multproc_nb_baseline}.
+		Figures \ref{fig:compute_multdomain_nb_baseline}, \ref{fig:compute_multproc_nb_baseline}, \ref{fig:mpi_multdomain_nb_baseline}, \ref{fig:mpi_multproc_nb_baseline}, \ref{fig:total_multdomain_nb_baseline} and \ref{fig:total_multproc_nb_baseline} show the various performance plots for the MPI P2P case. A Vampir plot is shown in Fig. \ref{fig:vampir_nonblocking}.
 
 \end{enumerate}
 
@@ -27,7 +27,15 @@
 
 	\item \hl{Was communication and computation overlap achieved? Use Vampir.}
 
-	Not really. It is true that some degree of overlap whas achieved mainly by performing the communication for the following loop iteration while computing the current one. However the Vampir output \todo{Here refer to Vampir screenshot} confirms the theoretical understading of the gaussian elimination as an inherently sequential algorithm. In the figure \todo{ref} we often see red patches within the green bands: these are because processes are waiting for information from the ones with lower rank in order to perform their calculations.
+	Not really. It is true that some degree of overlap whas achieved mainly by performing the communication for the following loop iteration while computing the current one. However the Vampir output --- see Fig.\ref{fig:vampir_nonblocking} --- confirms the theoretical understading of the gaussian elimination as an inherently sequential algorithm. In the figure we often see red patches within the green bands: these are because processes are waiting for information from other processes with lower rank in order to perform their calculations.
+
+	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
+	\begin{center}
+		\includegraphics[width=.8\linewidth]{MPI_p2p/vampir_nonblocking.png}
+		\caption{Vampir output for non-blocking communication}
+		\label{fig:vampir_nonblocking}
+	\end{center}
+	\end{figure}
 
 	We also changed the communication pattern so that pivots are propagated after each row computation, instead of communicating after the computation entire local block. This has the benefit of allowing an earlier start of all the processes, however it does not really improve the cumulative time spent by the various processes waiting for data.
 
@@ -35,7 +43,7 @@
 
 	\item \hl{Was a speedup observed versus the baseline for the Sandy Bridge and Haswell nodes?}
 
-	On average, the non-blocking version performed slightly better than the baseline, however it does not constitute a significant speedup by any means.\todo{Here refer to NB vs Baseline total time plot (or compute time one)}
+	On average, the non-blocking version performed on par or slightly better than the baseline --- see Fig.\ref{fig:total_multdomain_nb_baseline} and \ref{fig:total_multproc_nb_baseline} --- however it does not constitute a significant speedup by any means.
 
 	This is, again, due to the inherently unbalanced nature of Gaussian Elimination: each process needs the data computed by the previous ones and the further it proceeds in the computation, the more processes are left idle.
 	
@@ -91,6 +99,60 @@
 			(a) Haswell &  (b) Sandy Bridge\\[6pt]
 		\end{tabular}
 		\caption{Total Time vs. Domain Size., Non-Blocking vs. Baseline}
+		\label{fig:total_multproc_nb_baseline}
+	\end{figure}
+
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/compute_multdomain_haswell_nb_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/compute_multdomain_sandy_nb_baseline.png} \\
+			\hspace*{-0.45\linewidth}(a) Haswell & \hspace*{-0.15\linewidth}(b) Sandy Bridge\\[6pt]
+		\end{tabular}
+		\caption{Non-blocking: Compute Time vs. \#Processes.}
+		\label{fig:compute_multdomain_nb_baseline}
+	\end{figure}
+	
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/compute_multproc_haswell_nb_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/compute_multproc_sandy_nb_baseline.png} \\
+			\hspace*{-0.45\linewidth}(a) Haswell & \hspace*{-0.15\linewidth}(b) Sandy Bridge\\[6pt]
+		\end{tabular}
+		\caption{Non-blocking: Compute Time vs. Domain Size.}
+		\label{fig:compute_multproc_nb_baseline}
+	\end{figure}
+	
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/mpi_multdomain_haswell_nb_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/mpi_multdomain_sandy_nb_baseline.png} \\
+			\hspace*{-0.45\linewidth}(a) Haswell & \hspace*{-0.15\linewidth}(b) Sandy Bridge\\[6pt]
+		\end{tabular}
+		\caption{Non-blocking: MPI Time vs. \#Processes.}
+		\label{fig:mpi_multdomain_nb_baseline}
+	\end{figure}
+	
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/mpi_multproc_haswell_nb_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/mpi_multproc_sandy_nb_baseline.png} \\
+			\hspace*{-0.45\linewidth}(a) Haswell & \hspace*{-0.15\linewidth}(b) Sandy Bridge\\[6pt]
+		\end{tabular}
+		\caption{Non-blocking: MPI Time vs. Domain Size.}
+		\label{fig:mpi_multproc_nb_baseline}
+	\end{figure}
+	
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/total_multdomain_haswell_nb_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/total_multdomain_sandy_nb_baseline.png} \\
+			\hspace*{-0.45\linewidth}(a) Haswell & \hspace*{-0.15\linewidth}(b) Sandy Bridge\\[6pt]
+		\end{tabular}
+		\caption{Non-blocking: Total Time vs. \#Processes.}
+		\label{fig:total_multdomain_nb_baseline}
+	\end{figure}
+	
+	\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/total_multproc_haswell_nb_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{MPI_p2p/total_multproc_sandy_nb_baseline.png} \\
+			\hspace*{-0.45\linewidth}(a) Haswell & \hspace*{-0.15\linewidth}(b) Sandy Bridge\\[6pt]
+		\end{tabular}
+		\caption{Non-blocking: Total Time vs. Domain Size.}
 		\label{fig:total_multproc_nb_baseline}
 	\end{figure}
 
