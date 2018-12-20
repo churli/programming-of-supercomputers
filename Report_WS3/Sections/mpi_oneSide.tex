@@ -15,10 +15,10 @@
 \begin{enumerate}
   \item \hl{Which one-sided operations were used? Justify your choice.}
 
-	We targeted the blocking \verb!MPI_Send! and \verb!MPI_Recv! functions passing pivot data for optimization for optimization.
-	These were the most affected by the blocking operations and was the most likely to benefit from overlapping communication and computation.
+	We targeted the blocking \verb!MPI_Send! and \verb!MPI_Recv! functions passing pivot data for optimization.
+	These were the most affected by the blocking operations and were the most likely to benefit from overlapping communication and computation.
     We decided to use the Post-Start-Wait-Complete methodology, which uses the following 
-    MPI functions: \verb!MPI_Win_start!, \verb!MPI_Win_post!, \verb!MPI_Get! and \verb!MPI_Win_complete!. 
+    MPI functions: \verb!MPI_Win_start!, \verb!MPI_Win_post!, \verb!MPI_Win_wait!, \verb!MPI_Win_complete!, and \verb!MPI_Win_get!. 
     This methodology allows the use of unique MPI communication groups---specifying the specific processes which are allowed to participate in a particular exposure/access epoch.
     This is useful for this use case as the communication of information only goes from processes with a lower rank number to processes with a higher rank number when distributing the pivot data.
     There is additionally a final aggregation phase where the computed information is passed back to process 0.
@@ -28,8 +28,11 @@
 
   \item \hl{Was communication and computation overlap achieved? Use Vampir.}
 
-    Yes it was achieved and it can be seen in Fig \ref{fig:vampir_haswell_one_sided} \& \ref{fig:vampir_sandy_one_sided}. 
-    We can clearly see in both examples that there is computation occuring as certain processes are performing communication. 
+    No, this was not achieved. 
+    The execution of the program is purely sequential because the no computation occurs during communication.
+    No computation occured during the exposure or the access epochs.
+    This can be seen from Fig. \ref{fig:vampir_haswell_one_sided} and \ref{fig:vampir_sandy_one_sided}.
+    The applied code should reduce the sequential nature of the sends and receives, such that multiple sends and receives can take place concurrently.
     \begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	\begin{center}
 			\includegraphics[width=.8\linewidth]{/one_sided/vampir_onesided_hw.png}
@@ -45,24 +48,24 @@
 		\label{fig:vampir_sandy_one_sided}
 	\end{center}
 	\end{figure}
+	
 
   \item \hl{Was a speedup observed versus the baseline for the Sandy Bridge and Haswell nodes?}
 
-    Results performed on Haswell and Sandy Bridge for One-sided communication are almost the same.
+    Results performed on Haswell and Sandy Bridge for one-sided communication are similar.
   
-    Despite the fact that overlap of the communication and computation was achieved, overall time
-    was even worse than for baseline. 
-    This was due the fact that processors with a higher rank number 
-    had long computation times. Therefore, they become a bottleneck
-    for this implementation. 
-    This is expected since these portions will perform the Gaussian Elimination
-    steps more times than the processes with lower ranks.
+    Despite the implementation of the one-sided communication, overall time was general worse than
+    that for baseline. 
+    This was due the fact that processors with a higher rank number had longer computation times. 
+    Therefore, they become a bottleneck for this implementation. 
     
-    Additionally, the Guassian Elimination algorithm is inherently sequential and hard to load balance
-    properly---resulting in the observed phenomenon where certain processes perform far more compuation
-    than others.
+    We can view the results comparing the computational time and MPI time of the Baseline and the One-Sided communication below. 
     
-    We can view the results comparing the computational time and MPI time of the Baseline and the One-Sided communication below.
+    When comparing the compute times for the baseline and one-sided communication. We see that the baseline implementation is generally faster.
+    This is true for most domains, as can be seen in Fig. \ref{fig:compute_multdomain_os_baseline}.
+    However, we also see that the one-sided implementation is faster for certain combinations of domain size and process counts.
+    This is true, for Haswell nodes with a domain size of 4096, we see that the one-sided communication has a slightly shorted compute time.
+    This general trend is not seen for Sandy Bridge nodes, and compute times are overall slower when comparing the two implementations. 
     
     	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
@@ -72,16 +75,9 @@
 		\caption{Compute Time vs. \#Processes., One-Sided vs. Baseline}
 		\label{fig:compute_multdomain_os_baseline}
 	\end{figure}
-	
-	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/compute_multproc_haswell_os_baseline.png} & \includegraphics[width=.8\linewidth]{one_sided/compute_multproc_sandy_os_baseline.png} \\
-			(a) Haswell &  (b) Sandy Bridge\\[6pt]
-		\end{tabular}
-		\caption{Compute Time vs. Domain Size., One-Sided vs. Baseline}
-		\label{fig:compute_multproc_os_baseline}
-	\end{figure}
-	
+	When comparing the MPI times for the baseline and the one-sided implentation, the baseline is generally faster. 
+	However, for certain combinations of domain size and process counts, the non-blocking implementation is faster. 
+	This is generally true when the domain size is 4096 and for higher process counts at small domain sizes for Haswell nodes, as seen in Fig. \ref{fig:mpi_multdomain_os_baseline}.
 		\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
 			\includegraphics[width=.8\linewidth]{one_sided/mpi_multdomain_haswell_os_baseline.png} & \includegraphics[width=.8\linewidth]{one_sided/mpi_multdomain_sandy_os_baseline.png} \\
@@ -90,16 +86,7 @@
 		\caption{MPI Time vs. \#Processes., One-Sided vs. Baseline}
 		\label{fig:mpi_multdomain_os_baseline}
 	\end{figure}
-	
-		\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/mpi_multproc_haswell_os_baseline.png} & \includegraphics[width=.8\linewidth]{one_sided/mpi_multproc_sandy_os_baseline.png} \\
-			(a) Haswell &  (b) Sandy Bridge\\[6pt]
-		\end{tabular}
-		\caption{MPI Time vs. Domain Size., One-Sided vs. Baseline}
-		\label{fig:mpi_multproc_os_baseline}
-	\end{figure}
-	
+	Similar trends are seen when comparing the total time of the two implementations, which is shown in Fig. \ref{fig:total_multdomain_os_baseline}. 	
 			\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
 			\includegraphics[width=.8\linewidth]{one_sided/total_multdomain_haswell_os_baseline.png} & \includegraphics[width=.8\linewidth]{one_sided/total_multdomain_sandy_os_baseline.png} \\
@@ -109,19 +96,14 @@
 		\label{fig:total_multdomain_os_baseline}
 	\end{figure}
 	
-		\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/total_multproc_haswell_os_baseline.png} & \includegraphics[width=.8\linewidth]{one_sided/total_multproc_sandy_os_baseline.png} \\
-			(a) Haswell &  (b) Sandy Bridge\\[6pt]
-		\end{tabular}
-		\caption{Total Time vs. Domain Size., One-Sided vs. Baseline}
-		\label{fig:total_multproc_os_baseline}
-	\end{figure}
+	Theoretically, we are be able to overlap communication and computation. However, this comes with the cost of additional synchronization. The optimal of combination both is very case specific. This would be done by splitting the local number of rows into chunks and interleaving communication and computation. However, finding the optimal chunk size is extremely task-specific optimization.
 
   \item \hl{Was a speedup observed versus the non-blocking version for the Sandy Bridge and Haswell nodes?}
 
 	There was little speedup when comparing with the non-blocking version. Due to the inherent sequential nature of the communication. The non-blocking more consistently performed better than the one-sided communication. We can compare these results in the following plots.
 	
+	We can compare the compute times of the two implementations. Generally, the compute times are shorter for the non-blocking communication. 
+	We do see that the non-blocking is slightly faster for certain domain sizes for both Haswell and Sandy bridge nodes, as seen in Fig. \ref{fig:compute_multdomain_os_nb}.
 	    	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
 			\includegraphics[width=.75\linewidth]{one_sided/compute_multdomain_haswell_os_nb.png} & \includegraphics[width=.75\linewidth]{one_sided/compute_multdomain_sandy_os_nb.png} \\
@@ -131,33 +113,8 @@
 		\label{fig:compute_multdomain_os_nb}
 	\end{figure}
 	
-	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/compute_multproc_haswell_os_nb.png} & \includegraphics[width=.8\linewidth]{one_sided/compute_multproc_sandy_os_nb.png} \\
-			(a) Haswell &  (b) Sandy Bridge\\[6pt]
-		\end{tabular}
-		\caption{Compute Time vs. Domain Size., One-Sided vs Non-Blocking}
-		\label{fig:compute_multproc_os_nb}
-	\end{figure}
-	
-		\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/mpi_multdomain_haswell_os_nb.png} & \includegraphics[width=.8\linewidth]{one_sided/mpi_multdomain_sandy_os_nb.png} \\
-			(a) Haswell &  (b) Sandy Bridge\\[6pt]
-		\end{tabular}
-		\caption{MPI Time vs. \#Processes., One-Sided vs Non-Blocking}
-		\label{fig:mpi_multdomain_os_nb}
-	\end{figure}
-	
-		\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/mpi_multproc_haswell_os_nb.png} & \includegraphics[width=.8\linewidth]{one_sided/mpi_multproc_sandy_os_nb.png} \\
-			(a) Haswell &  (b) Sandy Bridge\\[6pt]
-		\end{tabular}
-		\caption{MPI Time vs. Domain Size., One-Sided vs Non-Blocking}
-		\label{fig:mpi_multproc_os_nb}
-	\end{figure}
-	
+	We see similar trends in MPI times, that the Haswell nodes are generally slightly slower. 
+	However, interestingly, we see that the non-blocking performs generally better when the process count is increased to 64---for both Sandy Bridge and Haswell nodes, this is see in Fig. \ref{fig:mpi_multdomain_os_baseline}.
 			\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
 			\includegraphics[width=.8\linewidth]{one_sided/total_multdomain_haswell_os_nb.png} & \includegraphics[width=.8\linewidth]{one_sided/total_multdomain_sandy_os_nb.png} \\
@@ -167,15 +124,10 @@
 		\label{fig:total_multdomain_os_nb}
 	\end{figure}
 	
-		\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/total_multproc_haswell_os_baseline.png} & \includegraphics[width=.8\linewidth]{one_sided/total_multproc_sandy_os_baseline.png} \\
-			(a) Haswell &  (b) Sandy Bridge\\[6pt]
-		\end{tabular}
-		\caption{Total Time vs. Domain Size.}
-		\label{fig:total_multproc_os_nb}
-	\end{figure}
-Theoretically, we should be able to optimize the communication by minimizing synchronization costs in the one-sided. However, this requires very situation specific tuning of parameters. One way we could perform this tuning is via chunking the rows in one-sided and changing the size of chunks to optimize the communication. However, this would be an extremely task-specific optimization.
+	However, when we see the total times for both non-blocking and one-sided implementations, it seems that the non-blocking is generally faster overall.
+	This trend can be seen across the board except for very specific combinations of domain sizes and process counts. 
+	We can also see from \ref{fig:total_multdomain_os_nb} that the points at which the non-blocking perform better differ between the Haswel and Sandy Bridge implementation.
+
 
 \end{enumerate}
 % % Figure example
