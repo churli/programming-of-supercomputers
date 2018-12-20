@@ -173,6 +173,7 @@ int main(int argc, char **argv) {
             MPI_DOUBLE, process, 0,
             (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
             window_in);
+    MPI_Win_complete(window_in);
     mpi_time += MPI_Wtime() - mpi_start;
 
     for (row = 0; row < local_block_size; row++) {
@@ -189,10 +190,6 @@ int main(int argc, char **argv) {
       }
     }
 
-    mpi_start = MPI_Wtime();
-    // finish communication
-    MPI_Win_complete(window_in);
-    mpi_time += MPI_Wtime() - mpi_start;
   }
 
   pivots_in[0] = (double)rank;
