@@ -15,7 +15,7 @@
 \begin{enumerate}
 	\item \hl{Briefly describe the Gaussian Elimination and the provided implementation.}
 
-	The Gaussian Elimination (GE) is a program that converts a dense matrix into an upper-right triangular matrix. Typically, this is done via a recursive algorithm that sets entire columns of the matrix to zero by. A naive implementation is as follows:
+	The Gaussian Elimination (GE) is a program that converts a dense matrix into an upper-right triangular matrix. Typically, this is done via a recursive algorithm that sets entire columns of the matrix to zero by\todo{broken sentence}. A naive implementation is as follows:
 \begin{enumerate}
 	\item Choosing a pivot. This is typically the value in the diagonal. In the current implementation, no shifting of rows is done and this ignored for the naive implementation.
 	\item The factor $\frac{a_{ij}}{a_{ii}}$ is calculated for each row in the column that is below the diagonal, such that $i > j$ if the topmost leftmost matrix entry is set as $a_{00}$.
@@ -75,20 +75,21 @@ We ran vampir on the baseline process to observe the blocking \verb!MPI_Send! an
 
 	One of the main difficulties is getting a good average value for the times. As such, the main way to reduce variance in results is to run each instance multiple times. In our case, we ran the code 5 times for each combination of MPI processes and domain size.
 
+	\vspace{5mm} % This is to push next item to next page
 	\item \hl{What were the challenges in getting an accurate baseline time for Gaussian Elimination.}
 
 	The main challenges were to determine what was important when determining a baseline. When improving the aglorithm, the main focus will be to reduce the amount of sequential communication---so that each process is able to receive updated information with as little wait time as possible. Thus, our chosen baseline should show improvement when the communication algorithm is improved. The following show the respective baselines chosen for each of the measured times:
 \begin{enumerate}
 	\item I/O Time
 
-	I/O is only performed on the main process or process 0. Thus, it only makes sense to note this from process 0. Fig. shows the average time for IO operations in process 0 for the various domain sizes. Since the IO operation takes place completely sequentially, the number of processes does not affect the times. We see the average IO times for each domain size in the Fig. \ref{fig:IO}.
+	I/O is only performed on the main process or process 0. Thus, it only makes sense to note this from process 0. Fig. shows the average time for I/O operations in process 0 for the various domain sizes. Since the I/O operation takes place completely sequentially, the number of processes does not affect the times. We see the average I/O times for each domain size in the Fig. \ref{fig:IO}.
 	
 	
 % % Figure example
  \begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
  	\begin{center}
   		\includegraphics[width=.7\linewidth]{Baseline/io_baseline.png} % It searches in the Figures/ folder!
-  		\caption{IO Time vs. Domain Size}
+  		\caption{I/O Time vs. Domain Size}
   		\label{fig:IO}
   	\end{center}
  \end{figure}
@@ -103,9 +104,9 @@ We ran vampir on the baseline process to observe the blocking \verb!MPI_Send! an
 	
 	
 	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{Baseline/setup_multdomain_baseline.png} & \includegraphics[width=.8\linewidth]{Baseline/setup_multproc_baseline.png} \\
-		    (a) Fixed Domain Size Varying \#Processes & (b) Fixed \#Processes Varying Domain Size\\[6pt]\\
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{Baseline/setup_multdomain_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{Baseline/setup_multproc_baseline.png} \\
+		    \hspace*{-0.45\linewidth}(a) Fixed Domain Size Varying \#Processes & \hspace*{-0.15\linewidth}(b) Fixed \#Processes Varying Domain Size\\[6pt]\\
 		\end{tabular}
 		\caption{Setup Time, Haswell vs. Sandy Bridge.}
 		\label{fig:setup}
@@ -125,9 +126,9 @@ We ran vampir on the baseline process to observe the blocking \verb!MPI_Send! an
  	
  	
  	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{Baseline/total_multdomain_baseline.png} & \includegraphics[width=.8\linewidth]{Baseline/total_multproc_baseline.png} \\
-		    (a) Fixed Domain Size Varying \#Processes & (b) Fixed \#Processes Varying Domain Size\\[6pt]\\
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{Baseline/total_multdomain_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{Baseline/total_multproc_baseline.png} \\
+		    \hspace*{-0.45\linewidth}(a) Fixed Domain Size Varying \#Processes & \hspace*{-0.15\linewidth}(b) Fixed \#Processes Varying Domain Size\\[6pt]\\
 		\end{tabular}
 		\caption{Total Time, Haswell vs. Sandy Bridge.}
 		\label{fig:total}
@@ -138,9 +139,9 @@ We ran vampir on the baseline process to observe the blocking \verb!MPI_Send! an
 	
 	
 	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{Baseline/compute_multproc_baseline.png} & \includegraphics[width=.8\linewidth]{Baseline/mpi_multproc_baseline.png} \\
-		    (a) Compute Time vs. Domain Size & (b) MPI Time vs. Domain Size\\[6pt]\\
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{Baseline/compute_multproc_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{Baseline/mpi_multproc_baseline.png} \\
+		    \hspace*{-0.45\linewidth}(a) Compute Time vs. Domain Size & \hspace*{-0.15\linewidth}(b) MPI Time vs. Domain Size\\[6pt]\\
 		\end{tabular}
 		\caption{Fixed Process Counts \& Varying Size.}
 		\label{fig:varying_size}
@@ -152,19 +153,20 @@ We ran vampir on the baseline process to observe the blocking \verb!MPI_Send! an
 	
 	Overall, this seems to indicate that, within these constraints, the Haswell nodes will perform slightly better. However, these results also imply that the Sandy Bridge nodes may scale better with a larger domain size and an increased process count (assuming that the chosen process count is suitable for the given domain size). 
 
+	% \vspace{10mm} % This is to push next item to next page
 	\item \hl{Describe the compute and MPI times scalability with fixed input sets and varying process counts for the Sandy Bridge and Haswell nodes. Did you observe any differences?}
 
 	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{Baseline/compute_multdomain_baseline.png} & \includegraphics[width=.8\linewidth]{Baseline/mpi_multdomain_baseline.png} \\
-			(a) Compute Time vs. \#Processors & MPI Time vs. \#Processors\\[6pt]
+		\begin{tabular}{cc}
+			\hspace*{-0.35\linewidth}\includegraphics[width=.85\linewidth]{Baseline/compute_multdomain_baseline.png} & \hspace*{-0.05\linewidth}\includegraphics[width=.85\linewidth]{Baseline/mpi_multdomain_baseline.png} \\
+			\hspace*{-0.45\linewidth}(a) Compute Time vs. \#Processors & \hspace*{-0.15\linewidth}(b) MPI Time vs. \#Processors\\[6pt]
 		\end{tabular}
 		\caption{Fixed Size \& Varying Process Counts.}
 		\label{fig:varying_domain}
 	\end{figure}
 
 
-With fixed domain size and increasing the process count, we see that the compute time decreases with process count. This is not surprising because each process works on a smaller segment of the full matrix. We see in Fig. \ref{fig:varying_domain} that this remains true for any domain size. For small domain sizes, such as 64x64, the compute time is completely negligible in comparison to the communication time. For larger domain sizes, the compute time becomes much more significant. We see that the Haswell nodes has generally shorter compute times for any processor count. However, the Sandy Bridge nodes still seem to scale better with a larger number of processes at a large domain size.
+With fixed domain size and increasing the process count, we see that the compute time decreases with process count. This is not surprising because each process works on a smaller segment of the full matrix. We see in Fig.\ref{fig:varying_domain} that this remains true for any domain size. For small domain sizes, such as 64x64, the compute time is completely negligible in comparison to the communication time. For larger domain sizes, the compute time becomes much more significant. We see that the Haswell nodes has generally shorter compute times for any processor count. However, the Sandy Bridge nodes still seem to scale better with a larger number of processes at a large domain size.
 
 We expect to see a longer MPI time as the number of processes increase. However, this does not seem to be the case across the board. This is true for the smaller domain sizes, but not the larger domain sizes, as seen in Fig \ref{fig:varying_domain}. This is somewhat surprising as we would expect the cost of comnunication to increase with increased processes. We attribute this observed effect to the sequential nature of the MPI passing---the first process waits for all other processes to finish computing before it returns. As a result, if we successfully overlap compute time with MPI time, we will see a decrease in the time spent waiting for blocking MPI calls.
 
