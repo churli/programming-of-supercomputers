@@ -7,6 +7,9 @@ Out
 # ge_data folder
 ge_data/
 
+# Plots
+Code_WS3/Plotting/*.png
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
