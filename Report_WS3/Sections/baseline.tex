@@ -44,7 +44,7 @@ and
 rhs_{i}^{(norm)} = \frac{rhs_{i}}{a_{ii}} \quad \forall i \in [1, \# Rows].
 \end{equation*}
 
-\item Perform elimation step in current process: All values directly below the current pivot entry are set to zero by linear operations. Since the pivot entry is always set to 1, the linear operation reduces each non-zero element in the given rows $k$ per:
+\item Perform elimation step in current process: All values directly below the current pivot entry are set to zero by subtracting the pivot row multiplied by $a_{ki}$. Since the pivot entry is always set to 1, the linear operation reduces each non-zero element in the given rows $k$ per:
 \begin{equation*}
 	a_{kj} \,-=\, a_{ij}^{(norm)} \cdot a_{ki} \quad \forall \,\# Cols > j > i, \,\# Rows > k > i,
 \end{equation*}
