@@ -7,7 +7,7 @@
 
 	\item \hl{The performance plots and description in the report.}
 
-		Figures \ref{fig:IO}, \ref{fig:setup}, \ref{fig:total}, \ref{fig:varying_size}, and\ref{fig:varying_domain} show the various performance plots for the baseline.
+		Figures \ref{fig:IO}, \ref{fig:setup}, \ref{fig:total}, \ref{fig:varying_size}, and\ref{fig:varying_domain} show the various performance plots for the baseline. A Vampir baseline plot is shown in Fig. \ref{fig:vampir_baseline}.
 
 \end{enumerate}
 
@@ -15,16 +15,37 @@
 \begin{enumerate}
 	\item \hl{Briefly describe the Gaussian Elimination and the provided implementation.}
 
-	The Gaussian Elimination (GE) is a program that converts a dense matrix into an upper-right triangular matrix. This is done via a recursive algorithm that sets entire columns of the matrix to zero by:
+	The Gaussian Elimination (GE) is a program that converts a dense matrix into an upper-right triangular matrix. Typically, this is done via a recursive algorithm that sets entire columns of the matrix to zero by. A naive implementation is as follows:
 \begin{enumerate}
-\item Choosing a pivot. This is typically the value in the diagonal. Pivoting may be performed to shift the row with the largest value in that column into the correct position
+\item Choosing a pivot. This is typically the value in the diagonal. In the current implementation, no shifting of rows is done and this ignored for the naive implementation.
 \item The factor $\frac{a_{ij}}{a_{ii}}$ is calculated for each row in the column that is below the diagonal, such that $i > j$ if the topmost leftmost matrix entry is set as $a_{00}$.
-\item All rows in the column below the diagonal are set to zero using the calculated factor
+\item All rows in the column below the diagonal are set to zero by linear operations using calculated factor.
 \end{enumerate}
 
-The provided implementation uses segments the matrix into rows and provides a set of rows to each process. The value of pivots are sent to each processor in a sequential, cascading manner. Each row then calculates the factor mentioned in the algorithm and then performs the linear operations to set the correct column values to 0.
+The provided implementation implements a few changes to simplify the calculations done in parallel.
 
-The Gaussian Elimination (GE) code presents a major challenge in load-balancing---as the algorithm progresses, the amount of work available for each process decreases. When the last few rows are undergoing GE, all but one process is still performing work. 
+Firstly, the full matrix is read in by process 0. The root process then performs some ordering of the matrix data and sends rows of the matrix to each process. Asserts are put in place to ensure that:
+\begin{itemize}
+\item The number of rows are equal to the number of columns
+\item The number of processes must fully divide the number of rows/columns. $\#Rows%\#Processes==0$
+\end{itemize}
+
+The algorithm then works as follows:
+\begin{enumerate}
+\item Determine pivot entry. Each loop in the GE algorithm sets all values in a column below the diagonal to zero via linear operations. This is a purely sequential task, there is always only one pivot entry at one point in time and the current pivot is always on the diagonal entry of the current worked row. We refer to the process in charge of updating the rows containing the current pivot entry as the \textit{current process}. 
+
+An assert is put in place to ensure that this pivot value not zero. 
+\item Given a particular pivot, the entire row, including the RHS value, is first normalized by the pivot entry $norma_{ij} = \frac{a_{ij}}{a_{ii}} \forall j \in #Cols}$ and $normrhs_{i} = \frac{rhs_{i}}{a_{ii}}
+$. 
+\item Then, an elimation step is performed in the current process, where all values directly below the current pivot entry are set to zero by linear operations. Since the pivot entry is always set to 1, the linear operation reduces each element in the given row per ${a_{kj} -= norma_{ij} * a_{kj} \forall #Cols > j > i, #Rows > k > i}$ where i is the row of the pivot entry. 
+\item The pivot then shifts to the diagonal entry in the next row and the process is repeated until the current process has looped through all rows it controls.
+\item All normalized values in the matrix and in the rhs are stored in given buffers and sent to each process with a higher rank than the current process.
+\item Each process then performs the eliminations steps using the provided information.
+\item The pivot then shifts a row controlled by a new process and the normalization and elimination steps are repeated until all processes are complete.
+\item The solution data is aggregated to process 0 and is stored as necessary.
+\end{enumerate}
+
+Effectively, information is sent to each processor in a sequential, cascading manner. The Gaussian Elimination (GE) code presents a major challenge in load-balancing---as the algorithm progresses, the amount of work available for each process decreases. When the last few rows are undergoing GE, all but one process is still performing work. 
 
 We ran vampir on the baseline process to observe the blocking \verb!MPI_Send! and \verb!MPI_Recv! functions. This can be seen in Fig. \ref{fig:vampir_baseline}.
 
