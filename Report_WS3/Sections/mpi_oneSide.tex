@@ -72,7 +72,8 @@
 	This is generally true when the domain size is 4096 and for higher process counts at small domain sizes for Haswell nodes, as seen in Fig. \ref{fig:mpi_multdomain_os_baseline}.
 		\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/mpi_multdomain_haswell_os_baseline.png} & \includegraphics[width=.8\linewidth]{one_sided/mpi_multdomain_sandy_os_baseline.png} \\
+			\includegraphics[width=.8\linewidth]{one_sided/mpi_multdomain_haswell_os_baseline.png} &
+			 \includegraphics[width=.8\linewidth]{one_sided/mpi_multdomain_sandy_os_baseline.png} \\
 			(a) Haswell &  (b) Sandy Bridge\\[6pt]
 		\end{tabular}
 		\caption{MPI Time vs. \#Processes., One-Sided vs. Baseline}
@@ -81,7 +82,8 @@
 	Similar trends are seen when comparing the total time of the two implementations, which is shown in Fig. \ref{fig:total_multdomain_os_baseline}. 	
 			\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\hspace*{-0.25\linewidth}\begin{tabular}{cc}
-			\includegraphics[width=.8\linewidth]{one_sided/total_multdomain_haswell_os_baseline.png} & \includegraphics[width=.8\linewidth]{one_sided/total_multdomain_sandy_os_baseline.png} \\
+			\includegraphics[width=.8\linewidth]{one_sided/total_multdomain_haswell_os_baseline.png} &
+			 \includegraphics[width=.8\linewidth]{one_sided/total_multdomain_sandy_os_baseline.png} \\
 			(a) Haswell &  (b) Sandy Bridge\\[6pt]
 		\end{tabular}
 		\caption{Total Time vs. \#Processes., One-Sided vs. Baseline}
@@ -111,7 +113,7 @@
 			\includegraphics[width=.75\linewidth]{one_sided/mpi_multdomain_haswell_os_nb.png} & \includegraphics[width=.75\linewidth]{one_sided/mpi_multdomain_sandy_os_nb.png} \\
 			(a) Haswell &  (b) Sandy Bridge\\[6pt]
 		\end{tabular}
-		\caption{Compute Time vs. \#Processes., One-Sided vs Non-Blocking}
+		\caption{MPI Time vs. \#Processes., One-Sided vs Non-Blocking}
 		\label{fig:mpi_multdomain_os_nb}
 	\end{figure}
 	
@@ -122,7 +124,7 @@
 			\includegraphics[width=.8\linewidth]{one_sided/total_multdomain_haswell_os_nb.png} & \includegraphics[width=.8\linewidth]{one_sided/total_multdomain_sandy_os_nb.png} \\
 			(a) Haswell &  (b) Sandy Bridge\\[6pt]
 		\end{tabular}
-		\caption{Total Time vs. \#Processes.}
+		\caption{Total Time vs. \#Processes., One-Sided vs. Non-Blocking}
 		\label{fig:total_multdomain_os_nb}
 	\end{figure}
 	
