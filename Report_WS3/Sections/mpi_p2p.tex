@@ -37,7 +37,7 @@
 	\end{center}
 	\end{figure}
 
-	We also changed the communication pattern so that pivots are propagated after each row computation, instead of communicating after the computation entire local block. This has the benefit of allowing an earlier start of all the processes, however it does not really improve the cumulative time spent by the various processes waiting for data.
+	We also changed the communication pattern so that pivots are propagated after each row computation, instead of communicating after the computation entire local block. This has the benefit of allowing an earlier start of all the processes, however it does not really improve the cumulative time spent by the various processes waiting for data. This can also be seen in Fig.\ref{fig:mpi_multdomain_nb_baseline} and \ref{fig:mpi_multproc_nb_baseline}: the time spent in MPI operations or waits is not reduced in a relevant way with non-blocking communication and in some cases it even increases.
 
 	So there is some overlap, but the inherent load imbalance of the algorithm and the sequential dependencies across the processes basically nullify any benefit coming from the computation-communication overlap.
 
