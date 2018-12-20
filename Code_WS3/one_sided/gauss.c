@@ -182,15 +182,14 @@ int main(int argc, char **argv) {
     MPI_Group group;
     // create group of only one process which is process
     MPI_Group_incl(group_all, 1, &process, &group);
-    for(chunk_num = 0; chunk_num < chunks; chunk_num++){
-	    MPI_Win_start(group, 0, window_in);
+    MPI_Win_start(group, 0, window_in);
 	    // get data
-	    MPI_Get(pivots_in, (local_block_size * rows + local_block_size + 1),
-	            MPI_DOUBLE, process, 0,
-	            (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
-	            window_in);
-	    mpi_time += MPI_Wtime() - mpi_start;
-
+    MPI_Get(pivots_in, (local_block_size * rows + local_block_size + 1),
+            MPI_DOUBLE, process, 0,
+            (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
+            window_in);
+		MPI_Win_complete(window_in);
+    for(chunk_num = 0; chunk_num < chunks-1; chunk_num++){
 	    for (row = chunk_num*chunk_size; row < (chunk_num+1)*chunk_size; row++) {
 	      column_pivot = ((int)pivots_in[0]) * local_block_size + row;
 	      for (i = 0; i < local_block_size; i++) {
@@ -204,17 +203,34 @@ int main(int argc, char **argv) {
 	        matrix_local_block[index + column_pivot] = 0.0;
 	      }
 	    }
-	    
-	    mpi_start = MPI_Wtime();
 	    // finish communication
-	    MPI_Win_complete(window_in);
+	    MPI_Win_start(group, 0, window_in);
+	    // get data
+	    mpi_start = MPI_Wtime();
+	    MPI_Get(pivots_in, (local_block_size * rows + local_block_size + 1),
+	            MPI_DOUBLE, process, 0,
+	            (local_block_size * rows + local_block_size + 1), MPI_DOUBLE,
+	            window_in);
 	    mpi_time += MPI_Wtime() - mpi_start;
+	    MPI_Win_complete(window_in);
 	  }
+	  for (row = chunk_num*chunk_size; row < (chunk_num+1)*chunk_size; row++) {
+	      column_pivot = ((int)pivots_in[0]) * local_block_size + row;
+	      for (i = 0; i < local_block_size; i++) {
+	        index = i * rows;
+	        tmp = matrix_local_block[index + column_pivot];
+	        for (column = column_pivot; column < columns; column++) {
+	          matrix_local_block[index + column] -=
+	              tmp * pivots_in[(row * rows) + (column + local_block_size + 1)];
+	        }
+	        rhs_local_block[i] -= tmp * pivots_in[row + 1];
+	        matrix_local_block[index + column_pivot] = 0.0;
+	      }
+	    }
   }
 
   pivots_in[0] = (double)rank;
-  for (chunk_num = 0; chunk_num < chunks; chunk_num++){
-    for (row = chunk_num*chunk_size; row < (chunk_num+1)*chunk_size; row++) {
+  for (row = 0; row < chunk_size; row++) {
       column_pivot = (rank * local_block_size) + row;
       index = row * rows;
       pivot = matrix_local_block[index + column_pivot];
@@ -240,31 +256,59 @@ int main(int argc, char **argv) {
         matrix_local_block[i * rows + row] = 0;
       }
     }
+
+  for (chunk_num = 1; chunk_num < chunks; chunk_num++){
+  	if (rank + 1 < size) {
+	      mpi_start = MPI_Wtime();
+	      MPI_Group group;
+	      // from rank + 1 to size - 1 with stride 1
+	      int procs_to_send[3] = {rank + 1, size - 1, 1};
+	      MPI_Group_range_incl(group_all, 1, &procs_to_send, &group);
+	      MPI_Win_post(group, 0, window_in);
+    	}
+    for (row = chunk_num*chunk_size; row < (chunk_num+1)*chunk_size; row++) {
+      column_pivot = (rank * local_block_size) + row;
+      index = row * rows;
+      pivot = matrix_local_block[index + column_pivot];
+      assert(pivot != 0);
+      for (column = column_pivot; column < columns; column++) {
+        matrix_local_block[index + column] =
+            matrix_local_block[index + column] / pivot;
+        pivots_in[index + column + local_block_size + 1] =
+            matrix_local_block[index + column];
+      }
+
+      local_work_buffer[row] = (rhs_local_block[row]) / pivot;
+      pivots_in[row + 1] = local_work_buffer[row];
+
+      for (i = (row + 1); i < local_block_size; i++) {
+        tmp = matrix_local_block[i * rows + column_pivot];
+        for (column = column_pivot + 1; column < columns; column++) {
+          matrix_local_block[i * rows + column] -=
+              tmp * pivots_in[index + column + local_block_size + 1];
+        }
+        rhs_local_block[i] -= tmp * local_work_buffer[row];
+        matrix_local_block[i * rows + row] = 0;
+      }
+    }
     // send computed data 
     if (rank + 1 < size) {
-      mpi_start = MPI_Wtime();
-      MPI_Group group;
-      // from rank + 1 to size - 1 with stride 1
-      int procs_to_send[3] = {rank + 1, size - 1, 1};
-      MPI_Group_range_incl(group_all, 1, &procs_to_send, &group);
-      MPI_Win_post(group, 0, window_in);
       MPI_Win_wait(window_in);
       mpi_time += MPI_Wtime() - mpi_start;
     }
-
   }
 
-  // // send computed data
-  // if (rank + 1 < size) {
-  //   mpi_start = MPI_Wtime();
-  //   MPI_Group group;
-  //   // from rank + 1 to size - 1 with stride 1
-  //   int procs_to_send[3] = {rank + 1, size - 1, 1};
-  //   MPI_Group_range_incl(group_all, 1, &procs_to_send, &group);
-  //   MPI_Win_post(group, 0, window_in);
-  //   MPI_Win_wait(window_in);
-  //   mpi_time += MPI_Wtime() - mpi_start;
-  // }
+  // send computed data
+  if (rank + 1 < size) {
+    mpi_start = MPI_Wtime();
+    MPI_Group group;
+    // from rank + 1 to size - 1 with stride 1
+    int procs_to_send[3] = {rank + 1, size - 1, 1};
+    MPI_Group_range_incl(group_all, 1, &procs_to_send, &group);
+    MPI_Win_post(group, 0, window_in);
+    MPI_Win_wait(window_in);
+    mpi_time += MPI_Wtime() - mpi_start;
+  }
 
   for (process = (rank + 1); process < size; ++process) {
     mpi_start = MPI_Wtime();
