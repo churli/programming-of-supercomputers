@@ -3,11 +3,11 @@
 \begin{enumerate}
   \item \hl{The updated \emph{gauss.c} file.}
 
-    \verb!Data/path/to/file!
+    \verb!Data/one_sided/gauss.c!
 
   \item \hl{The new performance plots and description in the report.}
 
-	Please refer to the following Fig \ref{fig:compute_multdomain_os_baseline}, \ref{fig:compute_multproc_os_nb}, \ref{fig:mpi_multdomain_os_baseline}, \ref{fig:mpi_multproc_os_baseline}, \ref{fig:total_multdomain_os_baseline}, \ref{fig:total_multproc_os_baseline}, \ref{fig:compute_multdomain_os_nb}, \ref{fig:compute_multproc_os_nb}, \ref{fig:mpi_multdomain_os_nb}, \ref{fig:mpi_multproc_os_nb}, \ref{fig:total_multdomain_os_nb}, \ref{fig:total_multproc_os_nb}. The vampir plots for Sandy and Haswell are Fig. \ref{fig:vampir_sandy_one_sided} \& \ref{fig:vampir_sandy_one_sided}.
+	Please refer to the following Fig \ref{fig:compute_multdomain_os_baseline}, \ref{fig:compute_multproc_os_nb}, \ref{fig:mpi_multdomain_os_baseline}, \ref{fig:mpi_multproc_os_baseline}, \ref{fig:total_multdomain_os_baseline}, \ref{fig:total_multproc_os_baseline}, \ref{fig:compute_multdomain_os_nb}, \ref{fig:compute_multproc_os_nb}, \ref{fig:mpi_multdomain_os_nb}, \ref{fig:mpi_multproc_os_nb}, \ref{fig:total_multdomain_os_nb}, \ref{fig:total_multproc_os_nb}. The vampir plot is Fig. \ref{fig:vampir_sandy_one_sided}.
 
 \end{enumerate}
 
@@ -31,21 +31,13 @@
     No, this was not achieved. 
     The execution of the program is purely sequential because the no computation occurs during communication.
     No computation occured during the exposure or the access epochs.
-    This can be seen from Fig. \ref{fig:vampir_haswell_one_sided} and \ref{fig:vampir_sandy_one_sided}.
+    This can be seen from Fig. \ref{fig:vampir_haswell_one_sided}.
     The applied code should reduce the sequential nature of the sends and receives, such that multiple sends and receives can take place concurrently.
     \begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 	\begin{center}
 			\includegraphics[width=.8\linewidth]{/one_sided/vampir_onesided_hw.png}
 		\caption{Vampir output for One-Sided Communication, Haswell}
 		\label{fig:vampir_haswell_one_sided}
-	\end{center}
-	\end{figure}
-	
-	    \begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
-	\begin{center}
-			\includegraphics[width=.8\linewidth]{/one_sided/vampir_onesided_sb.jpg}
-		\caption{Vampir output for One-Sided Communication, Sandy Bridge}
-		\label{fig:vampir_sandy_one_sided}
 	\end{center}
 	\end{figure}
 	
