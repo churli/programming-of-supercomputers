@@ -32,10 +32,10 @@ Firstly, the full matrix is read in by process 0. The root process then performs
 
 The algorithm then works as follows:
 \begin{enumerate}
-\item Determine pivot entry. Each loop in the GE algorithm sets all values in a column below the diagonal to zero via linear operations. This is a purely sequential task, there is always only one pivot entry at one point in time and the current pivot is always on the diagonal entry of the current worked row. We refer to the process in charge of updating the rows containing the current pivot entry as the \textit{current process}. 
+\item Determine pivot entry: Each loop in the GE algorithm sets all values in a column below the diagonal to zero via linear operations. This is a purely sequential task, there is always only one pivot entry at one point in time and the current pivot is always on the diagonal entry of the current worked row. We refer to the process in charge of updating the rows containing the current pivot entry as the \textit{current process}. 
 
 An assert is put in place to ensure that this pivot value not zero. 
-\item Given a particular pivot, the entire row, including the RHS value, is first normalized by the pivot entry 
+\item Normalize rows: all values in the row, including the RHS value, is first normalized by the pivot entry 
 \begin{equation*}
 	a_{ij}^{(norm)} = \frac{a_{ij}}{a_{ii}} \quad \forall j \in [1, \# Cols]
 \end{equation*}
@@ -44,19 +44,18 @@ and
 rhs_{i}^{(norm)} = \frac{rhs_{i}}{a_{ii}} \quad \forall i \in [1, \# Rows].
 \end{equation*}
 
-\item Then, an elimation step is performed in the current process, where all values directly below the current pivot entry are set to zero by linear operations. Since the pivot entry is always set to 1, the linear operation reduces each element in the given row per
+\item Perform elimation step in current process: All values directly below the current pivot entry are set to zero by linear operations. Since the pivot entry is always set to 1, the linear operation reduces each non-zero element in the given rows $k$ per:
 \begin{equation*}
-	a_{kj} \,-=\, a_{ij}^{(norm)} \cdot a_{kj} \quad \forall \,\# Cols > j > i, \,\# Rows > k > i
+	a_{kj} \,-=\, a_{ij}^{(norm)} \cdot a_{ki} \quad \forall \,\# Cols > j > i, \,\# Rows > k > i,
 \end{equation*}
-where i is the row of the pivot entry. 
-\item The pivot then shifts to the diagonal entry in the next row and the process is repeated until the current process has looped through all rows it controls.
-\item All normalized values in the matrix and in the rhs are stored in given buffers and sent to each process with a higher rank than the current process.
-\item Each process then performs the eliminations steps using the provided information.
-\item The pivot then shifts a row controlled by a new process and the normalization and elimination steps are repeated until all processes are complete.
-\item The solution data is aggregated to process 0 and is stored as necessary.
+where i is the row of the current pivot entry. The pivot then shifts to the diagonal entry in the next row and the process is repeated until the current process has looped through all rows it controls.
+\item Communication of normalized values: All normalized values in the matrix and the rhs are stored in given buffers and sent to each process with a higher rank than the current process. 
+\item Perform elimination step on processes that are not the current process.
+\item Change current process: The pivot then shifts to a row governed by a new process and the normalization, elimination and communication steps are repeated until all processes are complete. Note that the process with rank $size-1$ does not communicate the normalized values.
+\item Aggregate solution data to process 0: Backward elimination is performed so that the effect of all non-zero elements not on the diagonal is removed. As the diagonal entries are all now 1, this becomes the identity matrix and the solution vector $x$ is equal to the rhs vector $b$. All processes send solution data to proces 0.
 \end{enumerate}
 
-Effectively, information is sent to each processor in a sequential, cascading manner. The Gaussian Elimination (GE) code presents a major challenge in load-balancing---as the algorithm progresses, the amount of work available for each process decreases. When the last few rows are undergoing GE, all but one process is still performing work. 
+Effectively, information is sent to each processor in a sequential, cascading manner fowards. The Gaussian Elimination (GE) code presents a major challenge in load-balancing---as the algorithm progresses, the amount of work available for each process decreases. When the last few rows are undergoing GE, all but one process is still performing work. 
 
 We ran vampir on the baseline process to observe the blocking \verb!MPI_Send! and \verb!MPI_Recv! functions. This can be seen in Fig. \ref{fig:vampir_baseline}.
 
