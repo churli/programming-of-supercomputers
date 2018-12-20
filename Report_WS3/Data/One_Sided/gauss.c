@@ -130,8 +130,6 @@ int main(int argc, char **argv) {
 
   MPI_Group group_all;
 
-  MPI_Win_allocate_shared(window_size_b, sizeof(double), MPI_INFO_NULL,
-                          MPI_COMM_WORLD, &pivots_in, &window_in);
   double *local_work_buffer =
       (double *)malloc(local_block_size * sizeof(double));
 
