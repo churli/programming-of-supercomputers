@@ -15,7 +15,7 @@
 \begin{enumerate}
 	\item \hl{Briefly describe the Gaussian Elimination and the provided implementation.}
 
-	The Gaussian Elimination (GE) is a program that converts a dense matrix into an upper-right triangular matrix. Typically, this is done via a recursive algorithm that sets entire columns of the matrix to zero by\todo{broken sentence}. A naive implementation is as follows:
+	The Gaussian Elimination (GE) is a program that converts a dense matrix into an upper-right triangular matrix. A naive implementation is as follows:
 \begin{enumerate}
 	\item Choosing a pivot. This is typically the value in the diagonal. In the current implementation, no shifting of rows is done and this ignored for the naive implementation.
 	\item The factor $\frac{a_{ij}}{a_{ii}}$ is calculated for each row in the column that is below the diagonal, such that $i > j$ if the topmost leftmost matrix entry is set as $a_{00}$.
