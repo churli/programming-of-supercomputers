@@ -19,7 +19,7 @@
 \begin{enumerate}
 	\item Choosing a pivot. This is typically the value in the diagonal. In the current implementation, no shifting of rows is done and this ignored for the naive implementation.
 	\item The factor $\frac{a_{ij}}{a_{ii}}$ is calculated for each row in the column that is below the diagonal, such that $i > j$ if the topmost leftmost matrix entry is set as $a_{00}$.
-	\item All rows in the column below the diagonal are set to zero by linear operations using calculated factor.
+	\item The pivot row, multiplied by the calculated factor, is subtracted from each row below the pivot row. This sets the column below the pivot to zero.
 \end{enumerate}
 
 The provided implementation implements a few changes to simplify the calculations done in parallel.
@@ -46,7 +46,7 @@ rhs_{i}^{(norm)} = \frac{rhs_{i}}{a_{ii}} \quad \forall i \in [1, \# Rows].
 
 \item Perform elimation step in current process: All values directly below the current pivot entry are set to zero by subtracting the pivot row multiplied by $a_{ki}$. Since the pivot entry is always set to 1, the linear operation reduces each non-zero element in the given rows $k$ per:
 \begin{equation*}
-	a_{kj} \,-=\, a_{ij}^{(norm)} \cdot a_{ki} \quad \forall \,\# Cols > j > i, \,\# Rows > k > i,
+	a_{kj} \,-=\, a_{ij}^{(norm)} \cdot a_{ki} \quad \,i < j < \# Cols, \, i < k < \# Rows,
 \end{equation*}
 where i is the row of the current pivot entry. The pivot then shifts to the diagonal entry in the next row and the process is repeated until the current process has looped through all rows it controls.
 \item Communication of normalized values: All normalized values in the matrix and the rhs are stored in given buffers and sent to each process with a higher rank than the current process. 
@@ -77,7 +77,7 @@ We ran vampir on the baseline process to observe the blocking \verb!MPI_Send! an
 
 	\item \hl{What were the challenges in getting an accurate baseline time for Gaussian Elimination.}
 
-	The main challenges were to determine what was important when determining a baseline. The Gaussian When improving the aglorithm, the main focus will be to reduce the amount of sequential communication---so that each process is able to receive updated information with as little wait time as possible. Thus, our chosen baseline should show improvement when the communication algorithm is improved. The following show the respective baselines chosen for each of the measured times:
+	The main challenges were to determine what was important when determining a baseline. When improving the aglorithm, the main focus will be to reduce the amount of sequential communication---so that each process is able to receive updated information with as little wait time as possible. Thus, our chosen baseline should show improvement when the communication algorithm is improved. The following show the respective baselines chosen for each of the measured times:
 \begin{enumerate}
 	\item I/O Time
 
