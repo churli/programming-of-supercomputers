@@ -203,11 +203,11 @@ int main(int argc, char **argv) {
       matrix_local_block[i * rows + row] = 0;
     }
   }
-  if (rank < size - 1) {
-    mpi_start = MPI_Wtime();
-    MPI_Waitall(local_block_size, groupReq, MPI_STATUSES_IGNORE);
-    mpi_time += MPI_Wtime() - mpi_start;
-  }
+  // if (rank < size - 1) {
+  //   mpi_start = MPI_Wtime();
+  //   MPI_Waitall(local_block_size, groupReq, MPI_STATUSES_IGNORE);
+  //   mpi_time += MPI_Wtime() - mpi_start;
+  // }
 
   // Reverse GS step
 
@@ -300,17 +300,17 @@ int main(int argc, char **argv) {
     }
   }
 
-  double sum;
-  if (rank == 0) {
-    for (row = 0; row < rows; row++) {
-      sum = 0;
-      for (column = 0; column < columns; column++) {
-        sum += matrix_2d_mapped[row][column] * solution[column];
-      }
-      assert(fabs(sum - rhs[row]) < 1e-3);
-      // printf("%f\n", sum);
-    }
-  }
+  // double sum;
+  // if (rank == 0) {
+  //   for (row = 0; row < rows; row++) {
+  //     sum = 0;
+  //     for (column = 0; column < columns; column++) {
+  //       sum += matrix_2d_mapped[row][column] * solution[column];
+  //     }
+  //     assert(fabs(sum - rhs[row]) < 1e-3);
+  //     // printf("%f\n", sum);
+  //   }
+  // }
 
   total_time = MPI_Wtime() - total_start;
 

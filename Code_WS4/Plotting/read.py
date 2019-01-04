@@ -2,6 +2,7 @@
 
 import re
 import numpy as np
+import glob
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from os.path import join
@@ -18,29 +19,27 @@ varList = {DOMAIN : sizes, PROCESS : process}
 labelName = {DOMAIN : "Domain", PROCESS : "# proc"}
 x_axisName = {DOMAIN : "Domain Size", PROCESS : "Num Processes"}
 variableSaveName = {DOMAIN : "multdomain", PROCESS : "multproc"}
-lineType = {"Baseline" : "-", "NB" : "-.", "OS" : "dotted", "Sandy" : "dotted", "Haswell" : "-"}
+lineType = {"Baseline" : "-", "NB" : "-.", "OS" : "dotted", "Sandy" : "dotted", "Haswell" : "-", "Collective" : "dotted"}
 architectures = ["Haswell", "Sandy"]
-caseType = {"Baseline" : "Baseline", "NB" : "Non-Blocking", "OS" : "One-Sided"}
+caseType = {"Baseline" : "Baseline", "NB" : "Non-Blocking", "OS" : "One-Sided", "Collective" : "Collective"}
 colorType = ["blue", "red", "orange", "green", "brown", "purple"]
 
 X, Y = np.meshgrid(process, sizes)
 
-PIC_DIRECTORY = "."
+PIC_DIRECTORY = "./figures"
 
 class OutputData:
-	def __init__(self, fileName, case, architecture, isUpdated=False, entries=5):
-		self.timeData = self.readOut(fileName)
+	def __init__(self, fileName, case, architecture, isUpdated=False):
 		self.case = case
 		self.architecture = architecture
 		if isUpdated:
-			temp = None
-			self.data = []
-			for i in range(24):
-				temp = self.timeData[i*entries] + self.timeData[i*entries + 1] + self.timeData[i*entries + 2] + self.timeData[i*entries + 3] + self.timeData[i*entries + 4]
-				temp /= entries
-				self.data.append(temp)
-			self.data = np.array(self.data)
+			self.timeData = self.readOut(fileName[0])
+			for name in fileName[1:]:
+				self.timeData += self.readOut(name)
+			self.timeData /= len(fileName)
+			self.data = self.timeData
 		else:
+			self.timeData = self.readOut(fileName)
 			self.data = self.timeData
 
 		self.deckSize = self.data[0][0].shape[0]
@@ -101,7 +100,6 @@ class OutputData:
 		ioData = np.zeros((self.totalEntries,))
 		for i, data in enumerate(self.data):
 			ioData[i] = data[-1][loc]
-
 		s = None
 		for i in range(4):
 			if s is None:
@@ -109,7 +107,6 @@ class OutputData:
 			else:				
 				s = s + ioData[i::4]
 		ioData = s/4
-
 		return ioData
 
 	def setupData(self):
@@ -262,44 +259,60 @@ class plotClass:
 		plt.savefig(join(PIC_DIRECTORY, saveFileName))
 
 
-
+def readNames(tagName):
+	return glob.glob("*" + tagName + "*")
 
 if __name__ == '__main__':
 
 	manager = plt.get_current_fig_manager()
 	manager.resize(*manager.window.maxsize())
 
-	fileName = "wm_baseline.out"
-	dataHaswellBaseline = OutputData(fileName, "Baseline", "Haswell", isUpdated=True)
+	collectiveFileNames = readNames("collective")
+	baselineFileNames = readNames("baseline")
+	# baselineFileNames = "baseline_out_gauss_64_intel_957068.out"
 
-	fileName = "sb_baseline.out"
-	dataSandyBaseline = OutputData(fileName, "Baseline", "Sandy", isUpdated=True)
+	dataHaswellCollective = OutputData(collectiveFileNames, "Collective", "Haswell", isUpdated=True)
+	dataHaswellBaseline = OutputData(baselineFileNames, "Baseline", "Haswell", isUpdated=True)
 
-	fileName = "wm_nb.out"
-	dataHaswellNB = OutputData(fileName, "NB", "Haswell", isUpdated=True)
+	# dataHaswellBaseline = OutputData(fileName, "Baseline", "Haswell", isUpdated=True)
 
-	fileName = "sb_nb.out"
-	dataSandyNB = OutputData(fileName, "NB", "Sandy", isUpdated=True)
+	# dataHaswellCollective = OutputData(fileName, "Baseline", "Haswell", isUpdated=True)
 
-	fileName = "wm_os.out"
-	dataHaswellOS = OutputData(fileName, "OS", "Haswell", isUpdated=True)
+	# fileName = "wm_baseline.out"
+	# dataHaswellBaseline = OutputData(fileName, "Baseline", "Haswell", isUpdated=True)
 
-	fileName = "sb_os.out"
-	dataSandyOS = OutputData(fileName, "OS", "Sandy", isUpdated=True)
+	# fileName = "sb_baseline.out"
+	# dataSandyBaseline = OutputData(fileName, "Baseline", "Sandy", isUpdated=True)
 
-	dataFiles = (dataHaswellBaseline, dataSandyBaseline, dataHaswellNB, dataSandyNB, dataHaswellOS, dataSandyOS)
+	# fileName = "wm_nb.out"
+	# dataHaswellNB = OutputData(fileName, "NB", "Haswell", isUpdated=True)
+
+	# fileName = "sb_nb.out"
+	# dataSandyNB = OutputData(fileName, "NB", "Sandy", isUpdated=True)
+
+	# fileName = "wm_os.out"
+	# dataHaswellOS = OutputData(fileName, "OS", "Haswell", isUpdated=True)
+
+	# fileName = "sb_os.out"
+	# dataSandyOS = OutputData(fileName, "OS", "Sandy", isUpdated=True)
+
+	# dataFiles = (dataHaswellBaseline, dataSandyBaseline, dataHaswellNB, dataSandyNB, dataHaswellOS, dataSandyOS)
+
+	dataFiles = [dataHaswellCollective, dataHaswellBaseline]
 
 	plotting = plotClass()
 
 	plotting.addData(dataFiles)
 
 
-####### Plots all combinations present in casesToPlot ######################
+# ####### Plots all combinations present in casesToPlot ######################
+# 	# casesToPlot = ["Baseline", "NB", "OS"]
 	# casesToPlot = ["Baseline", "NB", "OS"]
-	casesToPlot = ["Baseline", "NB", "OS"]
+	casesToPlot = ["Baseline", "Collective"]
 	caseCombinations = combinations(casesToPlot, 2)
 	dataToPlot = ["Compute", "MPI", "Total"]
-	architectureToPlot = ["Haswell", "Sandy"]
+	# architectureToPlot = ["Haswell", "Sandy"]
+	architectureToPlot = ["Haswell"]
 	variableToPlot = [DOMAIN, PROCESS]
 
 	for cases in caseCombinations:
@@ -308,12 +321,12 @@ if __name__ == '__main__':
 				for fvar in variableToPlot:
 					plotting.plot(cases, arch, dataType, fvar)
 
-####### Compares Sandy and Haswell nodes for Baseline data #####################
-	dataToPlot = ["Setup", "Compute", "MPI", "Total"]
-	for dataType in dataToPlot:
-		for fvar in variableToPlot:
-			plotting.plotBaseline(dataType, fvar)
+# ####### Compares Sandy and Haswell nodes for Baseline data #####################
+# 	dataToPlot = ["Setup", "Compute", "MPI", "Total"]
+# 	for dataType in dataToPlot:
+# 		for fvar in variableToPlot:
+# 			plotting.plotBaseline(dataType, fvar)
 
 
-####### Plots IO info #########################################################
-	plotting.plotIO()
+# ####### Plots IO info #########################################################
+	# plotting.plotIO()
