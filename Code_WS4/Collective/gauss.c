@@ -331,7 +331,7 @@ int main(int argc, char **argv) {
   free(local_work_buffer);
   free(accumulation_buffer);
   free(solution_local_block);
-
+  free(groupReq);
   MPI_Finalize();
   return 0;
 }
