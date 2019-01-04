@@ -256,7 +256,7 @@ int main(int argc, char **argv) {
                     sizeof(int) + rank * local_block_size * sizeof(double),
                     MPI_DOUBLE, result_block, "native", MPI_INFO_NULL);
 
-  MPI_File_write_all(vector_file_mpi, solution_local_block, local_block_size, MPI_DOUBLE,
+  MPI_File_write_all(result_file_mpi, solution_local_block, local_block_size, MPI_DOUBLE,
                     MPI_STATUS_IGNORE);
 
   MPI_File_close(&result_file_mpi);
