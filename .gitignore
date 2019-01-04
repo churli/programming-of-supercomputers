@@ -261,3 +261,6 @@ TSWLatexianTemp*
 gauss
 mgen
 **.o
+
+#vscode staff
+.vscode/**
