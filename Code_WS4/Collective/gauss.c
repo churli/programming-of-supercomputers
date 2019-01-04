@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
     MPI_Comm_create_group(MPI_COMM_WORLD, group, process, &groupComm);
     for (row = 0; row < local_block_size; ++row) {
       mpi_start = MPI_Wtime();
-      MPI_Ibcast(pivots + row * (rows + 1), rows + 1, MPI_DOUBLE, 0, groupComm,
+      MPI_Ibcast(pivots + row * (rows + 1), rows + 1, MPI_DOUBLE, row, groupComm,
                  &groupReq[row]);
       // MPI_Wait(&groupReq, MPI_STATUS_IGNORE);
       mpi_time += MPI_Wtime() - mpi_start;
@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
     local_work_buffer[row] = (rhs_local_block[row]) / pivot;
     pivots[(rows + 1) * row] = local_work_buffer[row];
     mpi_start = MPI_Wtime();
-    MPI_Ibcast(pivots + (rows + 1) * row, rows + 1, MPI_DOUBLE, 0, groupComm,
+    MPI_Ibcast(pivots + (rows + 1) * row, rows + 1, MPI_DOUBLE, row, groupComm,
                &groupReq[row]);
     mpi_time += MPI_Wtime() - mpi_start;
     for (i = (row + 1); i < local_block_size; i++) {
