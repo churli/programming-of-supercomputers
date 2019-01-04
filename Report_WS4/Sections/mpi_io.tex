@@ -19,12 +19,25 @@
   We used MPI_File_set_view and MPI_Read_all to read in the rhs data as well.
   
   \item 2) Writing the resulting solution vector
-  We used an 
+  We used an MPI_Write in the root process to store the output vector size. We then used MPI_File_set_view and MPI_Write_all so that each process could write to the correct segment in the file. We output doubles in binary.
   
   \end{enumerate}
   
   \item \hl{What is "Data Sieving" and "2-Phase IO"? How do they help improve IO
 performance?}
+	\begin{enumerate}
+	\item Data Sieving
+	
+	Data sieving is performed by reading a large contiguous chunk of data into a memory buffer. Small chunks of non-contiguous data can then be read from or written to in the buffer. The entire buffer can then be written back to the filesystem if write operations have taken place.  
+	
+	The possible benefits are that, if a large number of small, non-contiguous data chunks are required, this will reduce the overhead of repeated communication of small segments of data. However, the downside is the large amount memory required as a larger chunk is loaded into memory than needed.
+	
+	\item 2-Phase IO
+	
+	This is also known as collective buffering. File accesses are performed by specific processes where data is aggregated. This works for both reading and writing. When reading, only certain processes will read large chunks of contiguous data---which is then communicated to the necessary processes. When writing, large chunks of data are aggregated in specific processes, which then write to file.
+	
+	Effectively, this ensures that file accesses are large and contiguous, significantly reducing IO time as opposed to performing many file accesses to small chunks of non-contiguous data. This does incur an additional communication cost/step but IO access is often far slower and the benefits of large contiguous file access outweights that of communication.
+	\end{enumerate}
 
   \item \hl{Was the original implementation scalable in terms of IO performance?}
   The original implementation was not scalable in terms of IO performance. Only one process would read or write data. Thus, time would remain the same for IO regardless of the number of MPI processes.
