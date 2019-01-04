@@ -1,0 +1,53 @@
+% Packages to load
+\usepackage[english]{babel}
+% %%% Support some german text
+% \usepackage{ngerman}
+% \usepackage[latin1]{inputenc}   % für Umlaute
+%%%
+% \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+
+%%%
+% \usepackage[inline]{enumitem} % Required for the "description" list.
+
+%%% Fix for not hyperlinking citations
+\makeatletter
+\let\NAT@parse\undefined
+\makeatother
+\usepackage{hyperref}
+% 
+\usepackage{cite}
+% \ifx\pdfoutput\undefined
+% 	\usepackage{graphicx}
+% \else
+% 	\usepackage[pdftex]{graphicx}
+% \fi
+\usepackage{graphicx}
+\graphicspath{{Figures/}}
+\usepackage{amsmath}
+% \interdisplaylinepenalty=2500
+
+% Shading of questions. Use the "shaded" environment or the "\hl{}" command.
+\usepackage{framed}
+% \usepackage[dvipsnames]{color}
+\usepackage[svgnames]{xcolor}
+\usepackage{soul}
+% Nice colours: Gainsboro, LightGoldenrod, LightSteelBlue
+% furter ref: https://www.latextemplates.com/svgnames-colors
+\definecolor{shadecolor}{named}{Gainsboro}
+\sethlcolor{Gainsboro}
+
+%%% Todo margin notes (enable/disable)
+\usepackage{todonotes}
+% \usepackage[disable]{todonotes}
+%%%
+
+%%% For more flexible enumerate environments
+\usepackage{enumitem}
+
+%%% For allowing verbatim text in captions
+\usepackage{cprotect}
+% Usage: \cprotect\caption{blablabla \verb!verbatim text!}
+
+%eof
