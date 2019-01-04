@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
   MPI_File_read_all(vector_file_mpi, arr, local_block_size, MPI_CHAR,
                     MPI_STATUS_IGNORE);
 
-  sprintf(vector_name, "output%d.vec", rank);
+  // sprintf(vector_name, "output%d.vec", rank);
   // FILE *out = fopen(vector_name, "w+");
 
   for (i = 0; i < local_block_size; ++i) {
@@ -235,64 +235,32 @@ int main(int argc, char **argv) {
     mpi_time += MPI_Wtime() - mpi_start;
   }
 
-  if (rank == 0) {
-    for (i = 0; i < local_block_size; i++) {
-      solution[i] = solution_local_block[i];
-    }
-    mpi_start = MPI_Wtime();
-    for (i = 1; i < size; i++) {
-      MPI_Recv(solution + (i * local_block_size), local_block_size, MPI_DOUBLE,
-               i, 0, MPI_COMM_WORLD, &status);
-    }
-    mpi_time += MPI_Wtime() - mpi_start;
-  } else {
-    mpi_start = MPI_Wtime();
-    MPI_Send(solution_local_block, local_block_size, MPI_DOUBLE, 0, 0,
-             MPI_COMM_WORLD);
-    mpi_time += MPI_Wtime() - mpi_start;
-  }
 
   kernel_time = MPI_Wtime() - kernel_start;
 
-  if (rank == 0) {
-    io_start = MPI_Wtime();
-    if ((solution_file = fopen(solution_name, "w+")) == NULL) {
-      perror("Could not open the solution file");
-      MPI_Abort(MPI_COMM_WORLD, -1);
-    }
-
-    fprintf(solution_file, "%d\n", rows);
-    for (i = 0; i < rows; i++) {
-      fprintf(solution_file, "%f ", solution[i]);
-    }
-    fprintf(solution_file, "\n");
-    fclose(solution_file);
-    io_time += MPI_Wtime() - io_start;
-
-    if (print_a) {
-      printf("\nSystem Matrix (A):\n");
-      for (row = 0; row < rows; row++) {
-        for (column = 0; column < columns; column++) {
-          printf("%4.1f ", matrix_2d_mapped[row][column]);
-        }
-        printf("\n");
-      }
-    }
-
-    if (print_b) {
-      printf("\nRHS Vector (b):\n");
-      for (row = 0; row < rows; row++) {
-        printf("%4.1f\n", rhs[row]);
-      }
-    }
-
-    if (print_x) {
-      printf("\n\nSolution Vector (x):\n");
-      for (row = 0; row < rows; row++) {
-        printf("%4.4f\n", solution[row]);
-      }
-    }
+  io_start = MPI_Wtime();
+  MPI_File result_file_mpi;
+  if (MPI_File_open(MPI_COMM_WORLD, solution_name,
+                    MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL,
+                    &result_file_mpi)) {
+    perror("Could not open the solution file");
+    MPI_Abort(MPI_COMM_WORLD, -1);
   }
+  if (rank == 0) {
+    MPI_File_write(result_file_mpi, &rows, 1, MPI_INT, MPI_STATUS_IGNORE);
+  }
+  MPI_Datatype result_block;
+  MPI_Type_contiguous(local_block_size, MPI_DOUBLE, &result_block);
+  MPI_Type_commit(&result_block);
+  MPI_File_set_view(result_file_mpi,
+                    sizeof(int) + rank * local_block_size * sizeof(double),
+                    MPI_DOUBLE, result_block, "native", MPI_INFO_NULL);
+
+  MPI_File_write_all(vector_file_mpi, solution_local_block, local_block_size, MPI_DOUBLE,
+                    MPI_STATUS_IGNORE);
+
+  MPI_File_close(&result_file_mpi);
+  io_time += MPI_Wtime() - io_start;
 
   total_time = MPI_Wtime() - total_start;
 
