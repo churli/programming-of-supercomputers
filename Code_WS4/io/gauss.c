@@ -235,7 +235,6 @@ int main(int argc, char **argv) {
     mpi_time += MPI_Wtime() - mpi_start;
   }
 
-
   kernel_time = MPI_Wtime() - kernel_start;
 
   io_start = MPI_Wtime();
@@ -256,8 +255,8 @@ int main(int argc, char **argv) {
                     sizeof(int) + rank * local_block_size * sizeof(double),
                     MPI_DOUBLE, result_block, "native", MPI_INFO_NULL);
 
-  MPI_File_write_all(result_file_mpi, solution_local_block, local_block_size, MPI_DOUBLE,
-                    MPI_STATUS_IGNORE);
+  MPI_File_write_all(result_file_mpi, solution_local_block, local_block_size,
+                     MPI_DOUBLE, MPI_STATUS_IGNORE);
 
   MPI_File_close(&result_file_mpi);
   io_time += MPI_Wtime() - io_start;
@@ -272,7 +271,7 @@ int main(int argc, char **argv) {
       // free(matrix_2d_mapped[i]);
     }
     // free(matrix_2d_mapped);
-    free(rhs);
+    // free(rhs);
     free(solution);
   }
   free(matrix_local_block);
