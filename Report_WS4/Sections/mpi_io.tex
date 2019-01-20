@@ -14,12 +14,12 @@
   \begin{enumerate}
   \item 1) Reading in the matrix.
   
-  We used an MPI_Read function to read the first two ints at the beginning of the matrix to determine matrix dimensions. We then used an MPI_File_set_view to separate the file into chunks and an MPI_File_read_all for all processes to read in the required matrix data. We chose to use MPI_File_set_view as the performance increase from a simple MPI_Read_at_all was significant.
+  We used an \verb!MPI_Read! function to read the first two ints at the beginning of the matrix to determine matrix dimensions. We then used an \verb!MPI_File_set_view! to separate the file into chunks and an \verb!MPI_File_read_all! for all processes to read in the required matrix data. We chose to use \verb!MPI_File_set_view! as the performance increase from a simple \verb!MPI_Read_at_all! was significant.
   
-  We used MPI_File_set_view and MPI_Read_all to read in the rhs data as well.
+  We used \verb!MPI_File_set_view! and \verb!MPI_Read_all! to read in the rhs data as well.
   
   \item 2) Writing the resulting solution vector
-  We used an MPI_Write in the root process to store the output vector size. We then used MPI_File_set_view and MPI_Write_all so that each process could write to the correct segment in the file. We output doubles in binary.
+  We used an \verb!MPI_Write! in the root process to store the output vector size. We then used \verb!MPI_File_set_view! and \verb!MPI_Write_all! so that each process could write to the correct segment in the file. We output doubles in binary.
   
   \end{enumerate}
   
