@@ -36,9 +36,25 @@
 	all rows from the process with the pivot row; an \verb!MPI_Wait! function would be 
 	called before the exact pivot line was used for calculation.
 	
-	Theoretically, this would result in calculation/communication overlap, as new rows 
-	would be received as calculation using previous rows was taking place. We can compare the Vampir
-	plots for 
+	This would result in calculation/communication overlap, as new rows 
+	would be received as calculation using previous rows was taking place. 
+	We can compare the Vampir plots to see the difference between blocking
+	and non-blocking communication, in Fig. \ref{fig:vampir_collective}. and
+	 \ref{fig:vampir_baseline}
+	
+	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\includegraphics[width=.8\linewidth]{baseline/baseline_vampir_biggest_size_timeline.png}
+		\caption{Vampir Output for Baseline Implementation}
+		\label{fig:vampir_baseline}
+	\end{figure}	
+	
+	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
+		\includegraphics[width=.8\linewidth]{collective/collective_vampir_biggest_size.png}
+		\caption{Vampir Output for Collective Implementation}
+		\label{fig:vampir_collective}
+	\end{figure}	
+	
+
 	
 	\item \hl{Was there any measurable performance or scalability improvement as a result of these changes?}		
 	
