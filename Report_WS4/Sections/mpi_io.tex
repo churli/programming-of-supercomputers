@@ -3,10 +3,12 @@
 \begin{enumerate}
   \item \hl{The updated \emph{gauss.c} file.}
   
-  \verb!Data/io/gauss.c! and \verb!Data/io/mgen.c!
+  \verb!io/gauss.c!
+
+  \verb!io/mgen.c!
   
   There is an updated \verb!mgen.c! matrix generator which generates binary matrices.
-  \emph{Please use this to generate matrices to run the code as it only accepts binary input!}
+  \emph{Please use this to generate matrices to run the code as it only accepts binary input.}
 
   \item \hl{The new performance plots and description in the report.}
   
@@ -89,15 +91,16 @@ Vampir)}
   that there is no sending or recieving data using explicit send or recieve functions present.
 
   \item \hl{Were there any performance improvements due to the change to MPI-IO?}
+  
   Yes, there was drastic performance improvements due to MPI-IO. The io time for most of the cases improved over 1000
-  times, comparing to the baseline as it is shown on the figure \ref{fig:par_io_io_vs_proc} and 
+  times, compared to the baseline as is shown in the figure \ref{fig:par_io_io_vs_proc} and 
   \ref{fig:par_io_io_vs_domain}.
 
   Since io takes significant amount of time for the baseline implementation of algorithm, it can be seen that 
-  total time for all of the runs was shorter up to 5 times for the problem with biggest size (figure 
+  total time for all of the runs was up to 5 times shorter for the problem with biggest domain size (figure 
   \ref{fig:par_io_total_vs_proc} and \ref{fig:par_io_total_vs_domain}).
 
-  Using vampir we can examine that total loading time for the biggest size problem was 0.2 seconds comparing to 15 
+  Using vampir, we can examine that total loading time for the biggest size problem was 0.2 seconds comparing to 15 seconds
   for the baseline (figure \ref{fig:par_io_vampir} and \ref{fig:vampir_baseline}).
 
   \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
