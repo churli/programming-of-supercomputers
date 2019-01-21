@@ -28,6 +28,7 @@
 	\item The fan-in of the solution vector to the root process. We used an \verb!MPI_Gather! to collect the solution vector into the \verb!solution! array.
 	
 	\end{enumerate}
+	
 	\item \hl{Were you able to identify any potential for overlap and used any non-blocking collectives? (Use Vampir)}	
 	
 	Theoretical overlap can be achieved during the sending of rows during the computation steps. 
@@ -54,7 +55,11 @@
 		\label{fig:vampir_collective}
 	\end{figure}	
 	
-
+	There was overlap achieved when implementing this function. We know that if no overlap occured,
+	we should be able to see the repeated waits from the broadcast functions present throughout
+	the computation segments. However, when looking closely at the code, the waits are very small
+	in size and not present in certain regions. This indicates that computation and communication did
+	take place.
 	
 	\item \hl{Was there any measurable performance or scalability improvement as a result of these changes?}		
 	
@@ -135,17 +140,20 @@
 	
 	\item \hl{Is the resulting code easier to understand and maintain after the changes? Why?}	
 	
-	Certain segments of the code are easier to understand, while certain segments of the code are more 		complicated. We have replaced large for loops with collective operations---this reduces \verb!				MPI_Send!/\verb!MPI_Recv! calls with a single collective call. The code is then less dense and it 			is easier to see how data is distributed among the various process ranks.
+	Certain segments of the code are easier to understand, while certain segments of the code are more 		
+	complicated. We have replaced large for loops with collective operations---this reduces 
+	\verb!MPI_Send!/\verb!MPI_Recv! calls with a single collective call. The code is then less dense and it
+	 is easier to see how data is distributed among the various process ranks.
 
-However, we also employ custom \verb!MPI_Group!s/\verb!MPI_Comm!s to control the sets of 
-processes that are involved in each collective operation. This is a more advanced use of MPI 
-functions and basic users may be confused. 
+	However, we also employ custom \verb!MPI_Group!s/\verb!MPI_Comm!s to control the sets of 
+	processes that are involved in each collective operation. This is a more advanced use of MPI 
+	functions and basic users may be confused. 
 
-Overall, the code is easier to maintain, in the sense that the individual chunks are easier to 
-read. However, the cost of collective operations is the lack of flexibility---adapting the code 
-for additional functionality or for greater generality will be harder as we have replaced all p2p 
-communications with collective operations, ie. this may need to be reverted if the algorithm is 
-changed.	
+	Overall, the code is easier to maintain, in the sense that the individual chunks are easier to 
+	read. However, the cost of collective operations is the lack of flexibility---adapting the code 
+	for additional functionality or for greater generality will be harder as we have replaced all p2p 
+	communications with collective operations, ie. this may need to be reverted if the algorithm is 
+	changed.	
 	
 \end{enumerate}
 
