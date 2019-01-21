@@ -67,10 +67,12 @@ performance?}
 	\end{enumerate}
 
   \item \hl{Was the original implementation scalable in terms of IO performance?}
+
   The original implementation was not scalable in terms of IO performance. Only one process would read or write data. 
   Thus, time would remain the same for IO regardless of the number of MPI processes.
   
   \item \hl{Was the original implementation scalable in terms of RAM storage?}
+  
   The original implementation was not scalable in terms of RAM. 
   When the program is run on a distributed memory system the entire matrix must fit inside the RAM associated with 
   the processing unit executing the root process. This problem would not change regardless of the number of 
