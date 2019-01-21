@@ -4,6 +4,7 @@
   \item \hl{The updated \emph{gauss.c} file.}
   
   \verb!io/gauss.c!
+
   \verb!io/mgen.c!
   
   There is an updated \verb!mgen.c! matrix generator which generates binary matrices.
@@ -75,6 +76,16 @@ performance?}
   
   \item \hl{How much of the communication in the application was replaced or eliminated with MPI-IO? (Use
 Vampir)}
+
+  Using a parallel io allowed elimination of all of the communication during initialization phase completely.
+
+  Initial send of the matrix sizes was replaced with all of the processes reading it from the file.
+
+  Broadcasting of the matrix for each individual process is no longer needed since all of the processes read their own 
+  part from file. Same holds for vector rhs.
+
+  The results of execution of the parallel io code can be seen in the figure \ref{fig:par_io_vampir}. It can be seen
+  that there is no sending or recieving data using explicit send or recieve functions present.
 
   \item \hl{Were there any performance improvements due to the change to MPI-IO?}
   Yes, there was drastic performance improvements due to MPI-IO. The io time for most of the cases improved over 1000
