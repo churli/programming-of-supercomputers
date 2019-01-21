@@ -50,13 +50,16 @@ performance?}
 	\begin{enumerate}
 	\item Data Sieving
 	
-	Data sieving is performed by reading a large contiguous chunk of data into a memory buffer. Small chunks of non-contiguous data can then be read from or written to in the buffer. The entire buffer can then be written back to the filesystem if write operations have taken place.  
+	Data sieving is performed when multiple non-contiguous chunks of data are 
+	requested by a single process. Instead of multiple small accesses, these accesses are aggregated and  a large contiguous chunk of data (containing all necessary data) is read into a memory buffer. The required chunks of non-contiguous data can then be read from or written to in the buffer. The entire buffer can then be written back to the filesystem if write operations have taken place. Note that the
+	large contiguous chunk of data must be locked to prevent memory inconsistencies during write operations.
 	
-	The possible benefits are that, if a large number of small, non-contiguous data chunks are required, this will reduce the overhead of repeated communication of small segments of data. However, the downside is the large amount memory required as a larger chunk is loaded into memory than needed.
+	The possible benefits are that, individual memory accesses for a large number of small, non-contiguous data chunks takes a significant amount of time. It is far better to make a single large call to memory as this will reduce the overhead from repeated communications. However, the downside is the large amount memory required as a larger chunk is loaded into memory than needed.
 	
 	\item 2-Phase IO
 	
-	This is also known as collective buffering. File accesses are performed by specific processes where data is 
+	This is also known as collective buffering and is performed during non-contiguous memory access
+	by multiple processes. File accesses are performed by specific processes where data is 
   aggregated. This works for both reading and writing. When reading, only certain processes will read large chunks of 
   contiguous data---which is then communicated to the necessary processes. When writing, large chunks of data are 
   aggregated in specific processes, which then write to file.
