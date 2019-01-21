@@ -8,9 +8,9 @@
 
 	\item \hl{The performance plots and description in the report.}
 		
-	Performance plots are seen in Figs. \ref{fig:total_multdomain_collective_baseline}, \ref{fig:total_multprocess_collective_baseline}, \ref{fig:mpi_multdomain_collective_baseline},
-	\ref{fig:mpi_multprocess_collective_baseline}, \ref{fig:compute_multdomain_collective_baseline},
-	\ref{fig:compute_multprocess_collective_baseline}, \ref{fig:vampir_baseline} and \ref{fig:vampir_collective}.
+	Performance plots are seen in Figs. \ref{fig:vampir_baseline}, \ref{fig:vampir_collective},\ref{fig:total_multdomain_collective_baseline}, \ref{fig:total_multprocess_collective_baseline}, \ref{fig:mpi_multdomain_collective_baseline},
+	\ref{fig:mpi_multprocess_collective_baseline}, and \ref{fig:compute_multdomain_collective_baseline},
+	\ref{fig:compute_multprocess_collective_baseline}. 
 
 \end{enumerate}
 
@@ -41,8 +41,7 @@
 	This would result in calculation/communication overlap, as new rows 
 	would be received as calculation using previous rows was taking place. 
 	We can compare the Vampir plots to see the difference between blocking
-	and non-blocking communication, in Fig. \ref{fig:vampir_collective}. and
-	 \ref{fig:vampir_baseline}
+	and non-blocking communication, in Fig. \ref{fig:vampir_baseline} and \ref{fig:vampir_collective}.
 	
 	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\centering
@@ -91,14 +90,14 @@
 	
 	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\centering
-		\includegraphics[width=.9\linewidth]{collective/total_multdomain_haswell_collective_baseline.png}
+		\includegraphics[width=.9\linewidth]{collective/total_multproc_haswell_collective_baseline.png}
 		\caption{Total Time vs. Domain Size., Collective vs. Baseline}
 		\label{fig:total_multprocess_collective_baseline}
 	\end{figure}	
     
     We do have somewhat interesting results for the MPI time and the compute time.
     Firslty, the MPI time can be seen in Fig. \ref{fig:mpi_multdomain_collective_baseline} and
-	\ref{fig:compute_multprocess_collective_baseline}. These two figures show a very impressive
+	\ref{fig:mpi_multprocess_collective_baseline}. These two figures show a very impressive
 	drop in the MPI time when implementing non-blocking collective calls. Now that we are able
 	to continue computation during communication, it is expected that the amount of time spend
 	waiting for communication or wait calls is very short.
@@ -112,7 +111,7 @@
 	
 	\begin{figure}[h] % h=here, t=top, b=bottom, p=(extra)page, !=force
 		\centering
-		\includegraphics[width=.9\linewidth]{collective/mpi_multdomain_haswell_collective_baseline.png}
+		\includegraphics[width=.9\linewidth]{collective/mpi_multproc_haswell_collective_baseline.png}
 		\caption{MPI Time vs. Domain Size., Collective vs. Baseline}
 		\label{fig:mpi_multprocess_collective_baseline}
 	\end{figure}	
