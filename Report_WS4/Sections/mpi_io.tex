@@ -74,21 +74,33 @@ Vampir)}
   total time for all of the runs was shorter up to 5 times for the problem with biggest size (figure 
   \ref{fig:par_io_total_vs_proc})
 
-\end{enumerate}
-% total_multdomain_haswell_io_baseline
-% Figure example
-\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-   \begin{center}
-     \includegraphics[width=.9\linewidth]{Figures/io/io_multdomain_haswell_io_baseline.png} % It searches in the Figures/ folder!
-     \caption{IO time vs #Processors for baseline and parallel IO}
-     \label{fig:par_io_io_vs_proc}
-   \end{center}
-\end{figure}
+  Using vampir we can examine that total loading time for the biggest size problem was 0.2 seconds comparing to  %TODO:
+  for the baseline (figure \ref{fig:par_io_vampir})
 
-\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-  \begin{center}
-    \includegraphics[width=.9\linewidth]{Figures/io/total_multdomain_haswell_io_baseline.png} % It searches in the Figures/ folder!
-    \caption{Total time vs #Processors for baseline and parallel IO}
-    \label{fig:par_io_total_vs_proc}
-  \end{center}
-\end{figure}
+  \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+    \begin{center}
+      \includegraphics[width=.9\linewidth]{Figures/io/io_multdomain_haswell_io_baseline.png} % It searches in the Figures/ folder!
+      \caption{IO time vs \#Processors for baseline and parallel IO}
+      \label{fig:par_io_io_vs_proc}
+    \end{center}
+ \end{figure}
+ 
+
+ \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+   \begin{center}
+     \includegraphics[width=.9\linewidth]{Figures/io/total_multdomain_haswell_io_baseline.png} % It searches in the Figures/ folder!
+     \caption{Total time vs \#Processors for baseline and parallel IO}
+     \label{fig:par_io_total_vs_proc}
+   \end{center}
+ \end{figure}
+ 
+ \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+   \begin{center}
+     \includegraphics[width=.9\linewidth]{Figures/io/io_vampir_biggest_size.png} % It searches in the Figures/ folder!
+     \caption{IO operations in Vampir for the problem size 8192x8192}
+     \label{fig:par_io_vampir}
+   \end{center}
+ \end{figure}
+ 
+\end{enumerate}
+
