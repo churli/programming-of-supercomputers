@@ -68,14 +68,15 @@ Vampir)}
 
   \item \hl{Were there any performance improvements due to the change to MPI-IO?}
   Yes, there was drastic performance improvements due to MPI-IO. The io time for most of the cases improved over 1000
-  times, comparing to the baseline as it is shown on the figure \ref{fig:par_io_io_vs_proc}
+  times, comparing to the baseline as it is shown on the figure \ref{fig:par_io_io_vs_proc} and 
+  \ref{fig:par_io_io_vs_domain}.
 
   Since io takes significant amount of time for the baseline implementation of algorithm, it can be seen that 
   total time for all of the runs was shorter up to 5 times for the problem with biggest size (figure 
-  \ref{fig:par_io_total_vs_proc})
+  \ref{fig:par_io_total_vs_proc} and \ref{fig:par_io_total_vs_domain}).
 
-  Using vampir we can examine that total loading time for the biggest size problem was 0.2 seconds comparing to  %TODO:
-  for the baseline (figure \ref{fig:par_io_vampir})
+  Using vampir we can examine that total loading time for the biggest size problem was 0.2 seconds comparing to 15 
+  for the baseline (figure \ref{fig:par_io_vampir} and \ref{fig:baseline_vampir}).
 
   \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
     \begin{center}
@@ -85,6 +86,15 @@ Vampir)}
     \end{center}
  \end{figure}
  
+ 
+ \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+  \begin{center}
+    \includegraphics[width=.9\linewidth]{Figures/io/io_multproc_haswell_io_baseline.png} % It searches in the Figures/ folder!
+    \caption{IO time vs Domain size for baseline and parallel IO}
+    \label{fig:par_io_io_vs_domain}
+  \end{center}
+\end{figure}
+ 
 
  \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
    \begin{center}
@@ -93,6 +103,14 @@ Vampir)}
      \label{fig:par_io_total_vs_proc}
    \end{center}
  \end{figure}
+
+ \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+  \begin{center}
+    \includegraphics[width=.9\linewidth]{Figures/io/total_multproc_haswell_io_baseline.png} % It searches in the Figures/ folder!
+    \caption{Total time vs Domain size for baseline and parallel IO}
+    \label{fig:par_io_total_vs_domain}
+  \end{center}
+  \end{figure}
  
  \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
    \begin{center}
@@ -101,6 +119,15 @@ Vampir)}
      \label{fig:par_io_vampir}
    \end{center}
  \end{figure}
+
+ \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+  \begin{center}
+    \includegraphics[width=.9\linewidth]{Figures/baseline/baseline_vampir_biggest_size_timeline.png} % It searches in the Figures/ folder!
+    \caption{Baseline in Vampir for the problem size 8192x8192}
+    \label{fig:baseline_vampir}
+  \end{center}
+\end{figure}
+ 
  
 \end{enumerate}
 
