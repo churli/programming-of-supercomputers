@@ -14,12 +14,23 @@
   \begin{enumerate}
   \item 1) Reading in the matrix.
   
-  We used an \verb!MPI_Read! function to read the first two ints at the beginning of the matrix to determine matrix dimensions. We then used an \verb!MPI_File_set_view! to separate the file into chunks and an \verb!MPI_File_read_all! for all processes to read in the required matrix data. We chose to use \verb!MPI_File_set_view! as the performance increase from a simple \verb!MPI_Read_at_all! was significant.
+  We decided to write matrix data in binary format instead of ASCII, because it decrease amount of data to be read
+  and also ease creating offsets for different proccesses. We used one byte integer to write matrix and vector entries
+  since in original mgen.c file range of their values is from 0 to 100.
+
+  We used an \verb!MPI_Read! function to read the first two ints at the beginning of the matrix to determine matrix dimensions.
+  This allows us to eliminate blocking broadcast in the beginning of the io phase.
+
+  We then used an \verb!MPI_File_set_view! to separate the file into chunks and an \verb!MPI_File_read_all! for all 
+  processes to read in the required matrix data. We decided to use this functions because MPI documentation claims
+  that this function allows to get the biggest io bandwith compared to all other functions.
   
   We used \verb!MPI_File_set_view! and \verb!MPI_Read_all! to read in the rhs data as well.
   
   \item 2) Writing the resulting solution vector
-  We used an \verb!MPI_Write! in the root process to store the output vector size. We then used \verb!MPI_File_set_view! and \verb!MPI_Write_all! so that each process could write to the correct segment in the file. We output doubles in binary.
+  We used an \verb!MPI_Write! in the root process to store the output vector size. We then used \verb!MPI_File_set_view!
+  and \verb!MPI_Write_all! so that each process could write to the correct segment in the file. Since resulting vector 
+  is a floating point array we wrote the resulting vector using binary representation of double.
   
   \end{enumerate}
   
@@ -34,29 +45,50 @@ performance?}
 	
 	\item 2-Phase IO
 	
-	This is also known as collective buffering. File accesses are performed by specific processes where data is aggregated. This works for both reading and writing. When reading, only certain processes will read large chunks of contiguous data---which is then communicated to the necessary processes. When writing, large chunks of data are aggregated in specific processes, which then write to file.
+	This is also known as collective buffering. File accesses are performed by specific processes where data is 
+  aggregated. This works for both reading and writing. When reading, only certain processes will read large chunks of 
+  contiguous data---which is then communicated to the necessary processes. When writing, large chunks of data are 
+  aggregated in specific processes, which then write to file.
 	
 	Effectively, this ensures that file accesses are large and contiguous, significantly reducing IO time as opposed to performing many file accesses to small chunks of non-contiguous data. This does incur an additional communication cost/step but IO access is often far slower and the benefits of large contiguous file access outweights that of communication.
 	\end{enumerate}
 
   \item \hl{Was the original implementation scalable in terms of IO performance?}
-  The original implementation was not scalable in terms of IO performance. Only one process would read or write data. Thus, time would remain the same for IO regardless of the number of MPI processes.
+  The original implementation was not scalable in terms of IO performance. Only one process would read or write data. 
+  Thus, time would remain the same for IO regardless of the number of MPI processes.
   
   \item \hl{Was the original implementation scalable in terms of RAM storage?}
-  The original implementation was not scalable in terms of RAM. When the program is run on a distributed memory system the entire matrix must fit inside the RAM associated with the processing unit executing the root process. This problem would not change regardless of the number of processing units (with their own memory) added.
+  The original implementation was not scalable in terms of RAM. 
+  When the program is run on a distributed memory system the entire matrix must fit inside the RAM associated with 
+  the processing unit executing the root process. This problem would not change regardless of the number of 
+  processing units (with their own memory) added.
   
   \item \hl{How much of the communication in the application was replaced or eliminated with MPI-IO? (Use
 Vampir)}
 
   \item \hl{Were there any performance improvements due to the change to MPI-IO?}
-  Yes, there was some performance improvements due to MPI-IO. We implemented the changes to MPI-IO on the baseline case to highlight the improvements.
+  Yes, there was drastic performance improvements due to MPI-IO. The io time for most of the cases improved over 1000
+  times, comparing to the baseline as it is shown on the figure \ref{fig:par_io_io_vs_proc}
+
+  Since io takes significant amount of time for the baseline implementation of algorithm, it can be seen that 
+  total time for all of the runs was shorter up to 5 times for the problem with biggest size (figure 
+  \ref{fig:par_io_total_vs_proc})
 
 \end{enumerate}
-% % Figure example
-% \begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
-%    \begin{center}
-%      \includegraphics[width=.9\linewidth]{figure.png} % It searches in the Figures/ folder!
-%      \caption{Caption text}
-%      \label{fig:figureLabelName}
-%    \end{center}
-% \end{figure}
+% total_multdomain_haswell_io_baseline
+% Figure example
+\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+   \begin{center}
+     \includegraphics[width=.9\linewidth]{Figures/io/io_multdomain_haswell_io_baseline.png} % It searches in the Figures/ folder!
+     \caption{IO time vs #Processors for baseline and parallel IO}
+     \label{fig:par_io_io_vs_proc}
+   \end{center}
+\end{figure}
+
+\begin{figure}[p] % h=here, t=top, b=bottom, p=(extra)page, !=force
+  \begin{center}
+    \includegraphics[width=.9\linewidth]{Figures/io/total_multdomain_haswell_io_baseline.png} % It searches in the Figures/ folder!
+    \caption{Total time vs #Processors for baseline and parallel IO}
+    \label{fig:par_io_total_vs_proc}
+  \end{center}
+\end{figure}
